@@ -1,0 +1,19 @@
+#This gitignore forces git to exclude private data
+#(such as passwords) and eclipse metadata
+
+.DS_Store
+.git
+.metadata
+.recommenders
+JayCorp/.classpath
+JayCorp/.project
+JayCorp/.settings
+Server/.classpath
+Server/.project
+Server/.settings
+user.xml
+Server/user.xml
+
+#exclude builds
+Server/bin
+JayCorp/bin
