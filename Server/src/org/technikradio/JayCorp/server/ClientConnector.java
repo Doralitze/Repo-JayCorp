@@ -8,7 +8,6 @@ import java.net.Socket;
 
 import org.technikradio.jay_corp.user.DayTable;
 import org.technikradio.jay_corp.user.DayTable.Status;
-import org.technikradio.jay_corp.user.MetaReg;
 import org.technikradio.jay_corp.user.Righttable;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.task.ID;
@@ -118,7 +117,8 @@ public class ClientConnector extends Thread {
 			case "setDay": //$NON-NLS-1$
 				int pr0 = this.getPriority();
 				this.setPriority(Thread.MAX_PRIORITY);
-				if (!Data.isEditEnabled()) {
+				if (!Data.isEditEnabled()
+						&& user.getID() != Data.getUser("root").getID()) {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
 					break;

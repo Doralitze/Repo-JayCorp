@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.ui.helpers.DataDownloadProcessor;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -35,6 +36,8 @@ public class SettingsFrame extends JDialog {
 	private JButton addUserBySystem;
 	private JButton cancleButton;
 	private JButton okButton;
+	private JButton changePSWButton;
+	private JButton downloadFileButton;
 	private JTabbedPane tabBox;
 	private JPanel[] pages;
 	private JCheckBox enableAccessCheckBox;
@@ -141,6 +144,8 @@ public class SettingsFrame extends JDialog {
 		okButton = new JButton();
 		addUserButton = new JButton();
 		addUserBySystem = new JButton();
+		changePSWButton = new JButton();
+		downloadFileButton = new JButton();
 		userTable = new JTable();
 		pages = new JPanel[2];
 		pages[0] = new JPanel();
@@ -167,6 +172,35 @@ public class SettingsFrame extends JDialog {
 			enableAccessCheckBox.setEnabled(false);
 		}
 		pages[0].add(enableAccessCheckBox);
+		{
+			changePSWButton.setText(Strings
+					.getString("SettingsFrame.ChangePasswordText")); //$NON-NLS-1$
+			changePSWButton.setToolTipText(Strings
+					.getString("SettingsFrame.ChangePasswordToolTip")); //$NON-NLS-1$
+			downloadFileButton.setText(Strings.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
+			downloadFileButton
+					.setToolTipText(Strings.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
+			changePSWButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+
+				}
+			});
+			downloadFileButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Console.log(LogType.Information, this,
+							"Downloading userfile"); //$NON-NLS-1$
+					new DataDownloadProcessor(pages[0]).download();
+					;
+				}
+			});
+			pages[0].add(changePSWButton);
+			pages[0].add(downloadFileButton);
+		}
 		{
 			JPanel cp = new JPanel();
 			JPanel bp = new JPanel();
@@ -212,7 +246,7 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO transmit settings
+					pushSettings();
 					ownHandle.setVisible(false);
 					ownHandle.dispose();
 				}
@@ -231,6 +265,11 @@ public class SettingsFrame extends JDialog {
 			{
 				enableAccessCheckBox.setEnabled(Protocol.getCurrentUser()
 						.getRights().isOpenCloseEditAllowed());
+				enableAccessCheckBox.setSelected(Protocol.isEditEnabled());
+				addUserButton.setEnabled(Protocol.getCurrentUser().getRights()
+						.isAddUserAllowed());
+				addUserBySystem.setEnabled(Protocol.getCurrentUser()
+						.getRights().isAddUserAllowed());
 			}
 			try {
 				if (Protocol.getCurrentUser().getRights()
@@ -249,7 +288,7 @@ public class SettingsFrame extends JDialog {
 							users.add(u);
 						} catch (Exception e) {
 							Console.log(LogType.Error, this,
-									"An unknown error occured");
+									"An unknown error occured"); //$NON-NLS-1$
 							e.printStackTrace();
 						}
 					}
@@ -271,7 +310,7 @@ public class SettingsFrame extends JDialog {
 						data[3] = Integer.toString(u.getWorkAge());
 						data[4] = Integer.toString(u.getID());
 						Console.log(LogType.StdOut, this,
-								"Add user '" + u.getName() + "' to table");
+								"Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
 						dtm.addRow(data);
 					}
 					{
@@ -283,11 +322,22 @@ public class SettingsFrame extends JDialog {
 				}
 			} catch (Exception e) {
 				Console.log(LogType.Error, this,
-						"An unknown exception occured while loading the data: ");
+						"An unknown exception occured while loading the data: "); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 		}
+		userTable.setVisible(false);
 		repaint();
+	}
+
+	private void pushSettings() {
+		if (enableAccessCheckBox.isSelected() != Protocol.isEditEnabled()
+				&& enableAccessCheckBox.isEnabled()) {
+			// set EDIT_ENABLED_FLAG
+			Protocol.setEditEnableOnServer(enableAccessCheckBox.isSelected());
+		}
+
+		Console.log(LogType.StdOut, this, "Successfully transmitted settings"); //$NON-NLS-1$
 	}
 
 }

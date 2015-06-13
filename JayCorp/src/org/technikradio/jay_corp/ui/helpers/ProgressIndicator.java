@@ -1,0 +1,56 @@
+package org.technikradio.jay_corp.ui.helpers;
+
+import java.awt.HeadlessException;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+
+import org.technikradio.jay_corp.ui.Strings;
+
+public class ProgressIndicator extends JDialog {
+
+	private JProgressBar pb;
+	private JLabel infoLabel;
+
+	private static final long serialVersionUID = -4545977169805276112L;
+
+	public ProgressIndicator() throws HeadlessException {
+		super();
+		setup();
+	}
+
+	private void setup() {
+		pb = new JProgressBar();
+		pb.setMaximum(100);
+		pb.setMinimum(0);
+		pb.setSize(340, 25);
+		infoLabel = new JLabel();
+		infoLabel.setText(Strings
+				.getString("ProgressIndicator.DefaultLabelText")); //$NON-NLS-1$
+		this.setTitle(Strings.getString("ProgressIndicator.Title")); //$NON-NLS-1$
+		this.add(pb);
+		this.add(infoLabel);
+		this.setSize(350, 100);
+	}
+
+	public void setProgress(int percent) {
+		if (percent > 100 || percent < 0)
+			throw new RuntimeException("Invalid percentage value recieved"); //$NON-NLS-1$
+		pb.setValue(percent);
+	}
+
+	public void setValv(int min, int max, int prog) {
+		if ((prog > max) || (prog < min))
+			throw new RuntimeException(
+					"Invalid percentage value recieved: min -> " + min + ", max -> " + max + ", value -> " + prog); //$NON-NLS-1$
+		pb.setMaximum(max);
+		pb.setMinimum(min);
+		pb.setValue(prog);
+	}
+
+	public void setInfoLabelText(String text) {
+		infoLabel.setText(text);
+	}
+
+}

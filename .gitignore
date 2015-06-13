@@ -1,6 +1,7 @@
 #This gitignore forces git to exclude private data
 #(such as passwords) and eclipse metadata
 
+*.csv
 .DS_Store
 .git
 .metadata
@@ -17,3 +18,7 @@ Server/user.xml
 #exclude builds
 Server/bin
 JayCorp/bin
+output/
+output.zip
+Server_lib/
+Server.jar

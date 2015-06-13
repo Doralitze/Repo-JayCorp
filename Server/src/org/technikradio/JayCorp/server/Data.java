@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.technikradio.jay_corp.user.DayTable;
 import org.technikradio.jay_corp.user.DayTable.Status;
-import org.technikradio.jay_corp.user.MetaReg;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;

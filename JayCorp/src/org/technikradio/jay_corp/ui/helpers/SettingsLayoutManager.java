@@ -1,4 +1,4 @@
-package org.technikradio.jay_corp.ui;
+package org.technikradio.jay_corp.ui.helpers;
 
 import java.awt.Component;
 import java.awt.Container;

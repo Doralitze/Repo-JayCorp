@@ -1,6 +1,5 @@
-package org.technikradio.jay_corp.user;
+package org.technikradio.JayCorp.server;
 
-import org.technikradio.JayCorp.server.MetaSheet;
 
 public class MetaReg {
 	public static final String SHOULD_CHANGE_PASSWORD = "MustChangePassword";

@@ -1,0 +1,172 @@
+package org.technikradio.jay_corp.ui.helpers;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+
+import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.ui.FixedOptionPane;
+import org.technikradio.jay_corp.ui.Strings;
+import org.technikradio.jay_corp.user.DayTable;
+import org.technikradio.jay_corp.user.DayTable.Status;
+import org.technikradio.jay_corp.user.User;
+import org.technikradio.universal_tools.Console;
+import org.technikradio.universal_tools.Console.LogType;
+import org.technikradio.universal_tools.ParaDate;
+
+public class DataDownloadProcessor {
+
+	private ProgressIndicator progressIndicator;
+	private JFileChooser fileChooser;
+	private JComponent parent;
+	private File workFile;
+
+	public DataDownloadProcessor() {
+		progressIndicator = new ProgressIndicator();
+		fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
+		fileChooser.setDialogTitle(Strings
+				.getString("DataDownloadProcessor.FileChooserDialog")); //$NON-NLS-1$
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setFileHidingEnabled(false);
+		CSVFileFilter f = new CSVFileFilter();
+		fileChooser.setFileFilter(f);
+	}
+
+	public DataDownloadProcessor(JComponent parent) {
+		this();
+		setParent(parent);
+	}
+
+	public void setParent(JComponent parent) {
+		this.parent = parent;
+		progressIndicator.setLocation(parent.getLocation());
+	}
+
+	public void download() {
+		int exitMode = fileChooser.showSaveDialog(parent);
+		if (exitMode == JFileChooser.CANCEL_OPTION)
+			return;
+		else if (exitMode == JFileChooser.ERROR_OPTION)
+			Console.log(LogType.Error, this,
+					"An unknown error occured doing file choosing operation"); //$NON-NLS-1$
+		workFile = fileChooser.getSelectedFile();
+		if (!workFile.canWrite() && workFile.exists()) {
+			Console.log(LogType.Error, this, "Unable to write File"); //$NON-NLS-1$
+			FixedOptionPane
+					.showFixedOptionDialog(
+							parent,
+							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage1"), //$NON-NLS-1$
+							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage2"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
+							FixedOptionPane.ERROR_MESSAGE, null, null, null);
+			return;
+		}
+		FileWriter f = null;
+		try {
+			f = new FileWriter(workFile);
+		} catch (IOException e) {
+			Console.log(LogType.Error, this, "Unable to write File:"); //$NON-NLS-1$
+			e.printStackTrace();
+			FixedOptionPane
+					.showFixedOptionDialog(
+							parent,
+							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage3"), //$NON-NLS-1$
+							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage4"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
+							FixedOptionPane.ERROR_MESSAGE, null, null, null);
+			return;
+		}
+		try {
+			progressIndicator.setVisible(true);
+			int maxUsers = Protocol.getIDCount();
+			f.append(Strings.getString("DataDownloadProcessor.FileInitial") + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			for (int i = 1; i < maxUsers; i++) {
+				progressIndicator.setValv(0, maxUsers * 3, i * 3);
+				User selected = Protocol.getUser(i);
+				if (selected != null) {
+					progressIndicator
+							.setInfoLabelText(Strings
+									.getString("DataDownloadProcessor.InfoMessageInitial") //$NON-NLS-1$
+									+ selected.getName());
+					DayTable t = Protocol.getProgress(selected.getID());
+					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 1);
+					ArrayList<String> freeList = new ArrayList<String>();
+					ParaDate firstFound = null, lastValid = null;
+					for (ParaDate p : t.getDays().keySet()) {
+						Status s = t.getDays().get(p);
+						if (s == Status.selected) {
+							if (firstFound == null)
+								firstFound = p;
+							lastValid = p;
+						} else {
+							if (lastValid != null) {
+								StringBuilder sb = new StringBuilder();
+								sb.append(firstFound.getMinimalDate());
+								if (firstFound != lastValid) {
+									sb.append(Strings
+											.getString("DataDownloadProcessor.DateSeperator")); //$NON-NLS-1$
+									sb.append(lastValid.getMinimalDate());
+								}
+								firstFound = null;
+								lastValid = null;
+								boolean clean = true;
+								for (String comp : freeList) {
+									if (comp.equals(sb.toString()))
+										clean = false;
+								}
+								if (clean)
+									freeList.add(sb.toString());
+							}
+						}
+					}
+					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 2);
+					StringBuilder sb = new StringBuilder();
+					sb.append(selected.getUsername());
+					sb.append(';');
+					sb.append(selected.getName());
+					sb.append(';');
+					for (String s : freeList) {
+						sb.append(s);
+						sb.append(';');
+					}
+					sb.append("\n"); //$NON-NLS-1$
+					f.append(sb.toString());
+					f.flush();
+				}
+			}
+		} catch (Exception e) {
+			Console.log(LogType.Error, this, "An unknown exception occured:"); //$NON-NLS-1$
+			e.printStackTrace();
+			FixedOptionPane
+					.showFixedOptionDialog(
+							parent,
+							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage5"), //$NON-NLS-1$
+							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage6"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
+							FixedOptionPane.ERROR_MESSAGE, null, null, null);
+			return;
+		} finally {
+			try {
+				f.close();
+			} catch (IOException e) {
+				Console.log(LogType.Error, this, "Unable to close FileWriter:"); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+		}
+		progressIndicator.setVisible(false);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("DataDownloadProcessor"); //$NON-NLS-1$
+		if (parent != null)
+			sb.append(":" + parent.toString()); //$NON-NLS-1$
+		if (workFile != null)
+			sb.append(';' + workFile.getAbsolutePath());
+		return sb.toString();
+	}
+
+}
