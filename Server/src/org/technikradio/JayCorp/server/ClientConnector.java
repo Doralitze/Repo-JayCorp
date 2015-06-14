@@ -157,6 +157,7 @@ public class ClientConnector extends Thread {
 					newUser.setName(name);
 					newUser.setPassword(password);
 					newUser.setWorkAge(workAge);
+					newUser.setUsername(request[5]);
 					Data.addUser(newUser);
 				} else {
 					out.println("false"); //$NON-NLS-1$

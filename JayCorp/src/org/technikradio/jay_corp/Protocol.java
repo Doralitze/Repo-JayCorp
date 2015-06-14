@@ -129,14 +129,16 @@ public class Protocol {
 		}
 	}
 
-	public boolean addUser(String name, String password, int ID, int workingAge) {
+	public static boolean addUser(String name, String username,
+			String password, int ID, int workingAge) {
 		c.transmit("addUser "
 				.concat(name)
 				.concat(" ")
-				.concat(password)
+				.concat(Base64Coding.encode(password))
 				.concat(" ")
 				.concat(Integer.toString(ID).concat(" ")
-						.concat(Integer.toString(workingAge))));
+						.concat(Integer.toString(workingAge))).concat(" ")
+				.concat(username));
 		try {
 			String a = decodeAnswer(c.receive())[0];
 			if (a == "false")
@@ -146,6 +148,17 @@ public class Protocol {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean addUser(User u) {
+		boolean success = addUser(u.getName(), u.getUsername(),
+				u.getPassword(), u.getID(), u.getWorkAge());
+		if (!success)
+			return false;
+		success = changeExtraDays(u.getExtraDays(), u.getID());
+		if (!success)
+			return false;
+		return success;
 	}
 
 	public static int[] getUsers() {

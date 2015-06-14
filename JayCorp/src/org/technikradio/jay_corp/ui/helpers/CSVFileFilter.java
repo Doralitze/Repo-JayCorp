@@ -8,12 +8,16 @@ import org.technikradio.jay_corp.ui.Strings;
 
 public class CSVFileFilter extends FileFilter {
 
+	boolean alt = false;
+
 	public CSVFileFilter() {
 		super();
 	}
 
 	@Override
 	public boolean accept(File f) {
+		if (alt)
+			return true;
 		if (f.isDirectory())
 			return true;
 		if (getEnding(f.getName()).equals("csv"))
@@ -29,6 +33,10 @@ public class CSVFileFilter extends FileFilter {
 	@Override
 	public String getDescription() {
 		return Strings.getString("CSVFileFilter.0"); //$NON-NLS-1$
+	}
+
+	public void setAlwaysAccept(boolean b) {
+		alt = b;
 	}
 
 }

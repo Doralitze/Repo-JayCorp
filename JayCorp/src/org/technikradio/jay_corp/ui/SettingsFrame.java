@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.ui.helpers.CSVImporter;
 import org.technikradio.jay_corp.ui.helpers.DataDownloadProcessor;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
@@ -177,9 +178,10 @@ public class SettingsFrame extends JDialog {
 					.getString("SettingsFrame.ChangePasswordText")); //$NON-NLS-1$
 			changePSWButton.setToolTipText(Strings
 					.getString("SettingsFrame.ChangePasswordToolTip")); //$NON-NLS-1$
-			downloadFileButton.setText(Strings.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
-			downloadFileButton
-					.setToolTipText(Strings.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
+			downloadFileButton.setText(Strings
+					.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
+			downloadFileButton.setToolTipText(Strings
+					.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
 			changePSWButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -201,6 +203,13 @@ public class SettingsFrame extends JDialog {
 			pages[0].add(changePSWButton);
 			pages[0].add(downloadFileButton);
 		}
+		addUserBySystem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new CSVImporter(pages[1]).upload();
+			}
+		});
 		{
 			JPanel cp = new JPanel();
 			JPanel bp = new JPanel();
