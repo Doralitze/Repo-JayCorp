@@ -289,6 +289,7 @@ public class Data {
 						"Adding missing meta data for user " + u.getName());
 				MetaSheet s = new MetaSheet(u.getID());
 				MetaReg.setDefaultMetaData(s);
+				meta.put(u, s);
 			} else {
 				Console.log(LogType.Information, "Database",
 						"Rerouting incorrect placed data of " + u.getName());

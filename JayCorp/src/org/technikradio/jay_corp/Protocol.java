@@ -38,6 +38,8 @@ public class Protocol {
 		u.setID(ID);
 		c.transmit("getUser ".concat(Integer.toString(ID)));
 		String[] result = decodeAnswer(c.receive());
+		if (result[0].equals("$NOUSER§"))
+			return null;
 		if (result[0] == "false") {
 			throw new PermissionDeninedException();
 		} else {
@@ -132,7 +134,7 @@ public class Protocol {
 	public static boolean addUser(String name, String username,
 			String password, int ID, int workingAge) {
 		c.transmit("addUser "
-				.concat(name)
+				.concat(Base64Coding.encode(name))
 				.concat(" ")
 				.concat(Base64Coding.encode(password))
 				.concat(" ")
@@ -158,6 +160,7 @@ public class Protocol {
 		success = changeExtraDays(u.getExtraDays(), u.getID());
 		if (!success)
 			return false;
+		success = changeRights(u.getID(), u.getRights());
 		return success;
 	}
 
@@ -368,6 +371,40 @@ public class Protocol {
 		sb.append(id);
 		sb.append(' ');
 		sb.append(days);
+		c.transmit(sb.toString());
+		try {
+			String[] a = decodeAnswer(c.receive());
+			if (a[0] == "false")
+				return false;
+		} catch (IOException e) {
+			Console.log(LogType.Error, "ProtocolHandler",
+					"Failed to recieve critical request answer:");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean changeRights(int id, Righttable rt) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("setRights ");
+		sb.append(id);
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isAccessUserInputAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isAddUserAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isEditUserAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isEditUserInputAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isGetIDCountAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isListAllUsersAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isOpenCloseEditAllowed()));
+		sb.append(' ');
+		sb.append(Boolean.toString(rt.isViewOtherSelectionsAllowed()));
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());

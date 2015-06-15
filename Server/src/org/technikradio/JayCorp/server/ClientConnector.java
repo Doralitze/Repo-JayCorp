@@ -141,7 +141,7 @@ public class ClientConnector extends Thread {
 				this.setPriority(pr0);
 				break;
 			case "addUser": //$NON-NLS-1$
-				String name = request[1];
+				String name = Base64Coding.decode(request[1]);
 				String password = Base64Coding.decode(request[2]);// request[2];
 				ID = Integer.parseInt(request[3]);
 				int workAge = Integer.parseInt(request[4]);
@@ -210,16 +210,20 @@ public class ClientConnector extends Thread {
 					StringBuilder sb = new StringBuilder();
 					sb.append("true;");
 					User us = Data.getUser(ID);
-					sb.append(us.getName());
-					sb.append(';');
-					sb.append(Base64Coding.encode(new String(us.getPassword())));
-					sb.append(';');
-					sb.append(Integer.toString(us.getWorkAge()));
-					sb.append(';');
-					sb.append(Integer.toString(us.getExtraDays()));
-					sb.append(';');
-					sb.append(us.getUsername());
-					out.println(sb.toString());
+					if (us != null) {
+						sb.append(us.getName());
+						sb.append(';');
+						sb.append(Base64Coding.encode(new String(us
+								.getPassword())));
+						sb.append(';');
+						sb.append(Integer.toString(us.getWorkAge()));
+						sb.append(';');
+						sb.append(Integer.toString(us.getExtraDays()));
+						sb.append(';');
+						sb.append(us.getUsername());
+						out.println(sb.toString());
+					} else
+						out.println("$NOUSER§;" + ID);
 					out.flush();
 				} else {
 					out.println("false"); //$NON-NLS-1$
@@ -284,58 +288,75 @@ public class ClientConnector extends Thread {
 
 						@Override
 						public void run() {
+							int year = root.getSelectedDays().getYear();
 							{
 								DayTable dt = new DayTable();
-								DayTable rd = root.getSelectedDays();
-								for (ParaDate p : rd.getDays().keySet()) {
-									Status s = rd.getDays().get(p);
-									Status real;
-									switch (s) {
-									case allowed:
-										dt.getDays().put(
-												ParaDate.valueOf(p.toString()),
-												Status.normal);
-										break;
-									case normal:
-										dt.getDays().put(
-												ParaDate.valueOf(p.toString()),
-												Status.normal);
-										break;
-									case selected:
-										dt.getDays().put(
-												ParaDate.valueOf(p.toString()),
-												Status.allowed);
-										break;
-									default:
-										break;
+								Status[][] rd = listToSortedArray(root
+										.getSelectedDays());
+								for (short m = 1; m <= 12; m++)
+									for (short d = 1; d <= 31; d++) {
+										if (rd[m][d] != null) {
+											ParaDate pd = new ParaDate();
+											pd.setDay(d);
+											pd.setMonth(m);
+											pd.setYear(year);
+											Status s = Status.normal;
+											switch (rd[m][d]) {
+											case allowed:
+												break;
+											case normal:
+												break;
+											case selected:
+												s = Status.allowed;
+												break;
+											default:
+												break;
+											}
+											dt.getDays().put(pd, s);
+										}
 									}
-								}
 								Data.setDefaultConfiguration(dt);
 							}
-							DayTable dc = Data.getDefaultConfiguration();
+							Status[][] dc = listToSortedArray(Data
+									.getDefaultConfiguration());
 							int updatedUsers = 0;
 							for (int id = 1; id <= Data.getLatestID(); id++) {
 								User u = Data.getUser(id);
 								boolean updated = false;
-								for (ParaDate p : u.getSelectedDays().getDays()
-										.keySet()) {
-									Status s1 = dc.getDays().get(
-											dc.findCorresponding(p));
-									Status s2 = u.getSelectedDays().getDays()
-											.get(p);
-									if (s1 == Status.normal) {
-										u.getSelectedDays().getDays()
-												.remove(getCompared(p));
-										u.getSelectedDays().getDays()
-												.put(p, Status.normal);
-									} else if (s1 == Status.allowed
-											&& s2 == Status.normal) {
-										u.getSelectedDays().getDays()
-												.remove(getCompared(p));
-										u.getSelectedDays().getDays()
-												.put(p, Status.allowed);
-									}
-								}
+								Status[][] udt = listToSortedArray(u
+										.getSelectedDays());
+								for (short m = 1; m <= 12; m++)
+									for (short d = 1; d <= 31; d++)
+										if (dc[m][d] != null)
+											switch (dc[m][d]) {
+											case allowed:
+												switch (udt[m][d]) {
+												case allowed:
+													break;
+												case normal:
+													udt[m][d] = Status.allowed;
+													updated = true;
+													break;
+												case selected:
+													break;
+												}
+												break;
+											case normal:
+												switch (udt[m][d]) {
+												case allowed:
+													udt[m][d] = Status.normal;
+													updated = true;
+													break;
+												case normal:
+													break;
+												case selected:
+													break;
+												}
+												break;
+											case selected:
+												break;
+											}
+								u.setSelectedDays(sortedArrayToList(udt, year));
 								if (updated)
 									updatedUsers++;
 							}
@@ -393,6 +414,24 @@ public class ClientConnector extends Thread {
 				}
 				out.println("false"); //$NON-NLS-1$
 				out.flush();
+				break;
+			case "setRights":
+				if (!user.getRights().isEditUserAllowed()) {
+					out.println("false"); //$NON-NLS-1$
+					out.flush();
+				}
+				reqID = Integer.parseInt(request[1]);
+				u = Data.getUser(reqID);
+				Righttable rt = u.getRights();
+				rt.setAccessUserInputAllowed(Boolean.parseBoolean(request[2]));
+				rt.setAddUserAllowed(Boolean.parseBoolean(request[3]));
+				rt.setEditUserAllowed(Boolean.parseBoolean(request[4]));
+				rt.setEditUserInputAllowed(Boolean.parseBoolean(request[5]));
+				rt.setGetIDCountAllowed(Boolean.parseBoolean(request[6]));
+				rt.setListAllUsersAllowed(Boolean.parseBoolean(request[7]));
+				rt.setOpenCloseEditAllowed(Boolean.parseBoolean(request[8]));
+				rt.setViewOtherSelectionsAllowed(Boolean
+						.parseBoolean(request[9]));
 				break;
 			case "disconnect": //$NON-NLS-1$
 				Console.log(LogType.StdOut, this, "User '" + user.getUsername()
@@ -481,6 +520,30 @@ public class ClientConnector extends Thread {
 			return false;
 		messageStream.throwMessage(message);
 		return true;
+	}
+
+	private Status[][] listToSortedArray(DayTable t) {
+		Status[][] sar = new Status[13][32];
+		for (ParaDate p : t.getDays().keySet()) {
+			Status s = t.getDays().get(p);
+			sar[p.getMonth()][p.getDay()] = s;
+		}
+		return sar;
+	}
+
+	private DayTable sortedArrayToList(Status[][] sar, int year) {
+		DayTable dt = new DayTable();
+		for (short m = 1; m <= 12; m++)
+			for (short t = 1; t <= 31; t++) {
+				if (sar[m][t] != null) {
+					ParaDate pd = new ParaDate();
+					pd.setDay(t);
+					pd.setMonth(m);
+					pd.setYear(year);
+					dt.getDays().put(pd, sar[m][t]);
+				}
+			}
+		return dt;
 	}
 
 }

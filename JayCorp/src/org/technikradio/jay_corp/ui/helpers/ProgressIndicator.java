@@ -1,5 +1,6 @@
 package org.technikradio.jay_corp.ui.helpers;
 
+import java.awt.Frame;
 import java.awt.HeadlessException;
 
 import javax.swing.JDialog;
@@ -20,6 +21,12 @@ public class ProgressIndicator extends JDialog {
 		setup();
 	}
 
+	public ProgressIndicator(Frame parent) throws HeadlessException {
+		super(parent);
+		setup();
+		// TODO implement parent behavior
+	}
+
 	private void setup() {
 		pb = new JProgressBar();
 		pb.setMaximum(100);
@@ -32,6 +39,7 @@ public class ProgressIndicator extends JDialog {
 		this.add(pb);
 		this.add(infoLabel);
 		this.setSize(350, 100);
+		this.setResizable(false);
 	}
 
 	public void setProgress(int percent) {

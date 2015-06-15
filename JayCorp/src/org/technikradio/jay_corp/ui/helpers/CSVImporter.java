@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.jay_corp.user.DayTable;
+import org.technikradio.jay_corp.user.Righttable;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -21,20 +21,14 @@ import org.technikradio.universal_tools.Console.LogType;
 public class CSVImporter {
 
 	private ProgressIndicator progressIndicator;
-	private JFileChooser fileChooser;
 	private JComponent parent;
 	private File workFile;
+	private CSVFileFilter f;
 
 	public CSVImporter() {
 		progressIndicator = new ProgressIndicator();
-		fileChooser = new JFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
-		fileChooser.setDialogTitle(Strings.getString("CSVImporter.DialogTitle")); //$NON-NLS-1$
-		fileChooser.setMultiSelectionEnabled(false);
-		fileChooser.setFileHidingEnabled(true);
-		CSVFileFilter f = new CSVFileFilter();
+		f = new CSVFileFilter();
 		f.setAlwaysAccept(true);
-		fileChooser.setFileFilter(f);
 	}
 
 	public void setParent(JComponent parent) {
@@ -48,13 +42,12 @@ public class CSVImporter {
 	}
 
 	public void upload() {
-		int exitMode = fileChooser.showOpenDialog(parent);
-		if (exitMode == JFileChooser.CANCEL_OPTION)
+		workFile = AdvancedFileInputDialog.showDialog(null, null, f,
+				Strings.getString("CSVImporter.DialogTitle"));
+		if (workFile == null)
 			return;
-		else if (exitMode == JFileChooser.ERROR_OPTION)
-			Console.log(LogType.Error, this,
-					"An unknown error occured doing file choosing operation"); //$NON-NLS-1$
-		workFile = fileChooser.getSelectedFile();
+		// Righttable defaultRT = RightEditFrame.showDialog(new Righttable());
+		Righttable defaultRT = new Righttable();
 		BufferedReader br = null;
 		DataInputStream in = null;
 		FileInputStream fis = null;
@@ -68,12 +61,15 @@ public class CSVImporter {
 				User u = new User();
 				u.setName(s[2] + " " + s[1]); //$NON-NLS-1$
 				u.setExtraDays(1);
-				u.setPassword(Strings.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
+				u.setPassword(Strings
+						.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
 				u.setSelectedDays(new DayTable());
 				u.setUsername(s[3]);
 				u.setWorkAge(1);
 				u.setID(Protocol.getIDCount() + 1);
+				u.setRights(defaultRT);
 				Protocol.addUser(u);
+				Console.log(LogType.StdOut, this, "Adding user: " + u.getName());
 			}
 			Protocol.save();
 		} catch (FileNotFoundException e) {

@@ -28,7 +28,7 @@ public class DataDownloadProcessor {
 	public DataDownloadProcessor() {
 		progressIndicator = new ProgressIndicator();
 		fileChooser = new JFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
+		// fileChooser.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
 		fileChooser.setDialogTitle(Strings
 				.getString("DataDownloadProcessor.FileChooserDialog")); //$NON-NLS-1$
 		fileChooser.setMultiSelectionEnabled(false);
@@ -40,6 +40,7 @@ public class DataDownloadProcessor {
 	public DataDownloadProcessor(JComponent parent) {
 		this();
 		setParent(parent);
+		// progressIndicator = new ProgressIndicator(parent);
 	}
 
 	public void setParent(JComponent parent) {
@@ -91,37 +92,58 @@ public class DataDownloadProcessor {
 							.setInfoLabelText(Strings
 									.getString("DataDownloadProcessor.InfoMessageInitial") //$NON-NLS-1$
 									+ selected.getName());
-					DayTable t = Protocol.getProgress(selected.getID());
+					DayTable ttt = Protocol.getProgress(selected.getID());
+					int year = ttt.getYear();
+					Status[][] t = listToSortedArray(ttt);
 					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 1);
 					ArrayList<String> freeList = new ArrayList<String>();
 					ParaDate firstFound = null, lastValid = null;
-					for (ParaDate p : t.getDays().keySet()) {
-						Status s = t.getDays().get(p);
-						if (s == Status.selected) {
-							if (firstFound == null)
-								firstFound = p;
-							lastValid = p;
-						} else {
-							if (lastValid != null) {
-								StringBuilder sb = new StringBuilder();
-								sb.append(firstFound.getMinimalDate());
-								if (firstFound != lastValid) {
-									sb.append(Strings
-											.getString("DataDownloadProcessor.DateSeperator")); //$NON-NLS-1$
-									sb.append(lastValid.getMinimalDate());
+					/*
+					 * for (ParaDate p : t.getDays().keySet()) { Status s =
+					 * t.getDays().get(p); if (s == Status.selected) { if
+					 * (firstFound == null) firstFound = p; lastValid = p; }
+					 * else { if (lastValid != null) { StringBuilder sb = new
+					 * StringBuilder(); sb.append(firstFound.getMinimalDate());
+					 * if (firstFound != lastValid) { sb.append(Strings
+					 * .getString("DataDownloadProcessor.DateSeperator"));
+					 * //$NON-NLS-1$ sb.append(lastValid.getMinimalDate()); }
+					 * firstFound = null; lastValid = null; boolean clean =
+					 * true; for (String comp : freeList) { if
+					 * (comp.equals(sb.toString())) clean = false; } if (clean)
+					 * freeList.add(sb.toString()); } } }
+					 */
+					for (short m = 1; m <= 12; m++)
+						for (short d = 1; d <= 31; d++) {
+							if (t[m][d] != null)
+								switch (t[m][d]) {
+								case allowed:
+								case normal:
+									if (firstFound != null) {
+										StringBuilder sb = new StringBuilder();
+										sb.append(firstFound.getMinimalDate());
+										if (firstFound != lastValid) {
+											sb.append(Strings
+													.getString("DataDownloadProcessor.DateSeperator")); //$NON-NLS-1$
+											sb.append(lastValid
+													.getMinimalDate());
+										}
+										freeList.add(sb.toString());
+										firstFound = null;
+										lastValid = null;
+									}
+									break;
+								case selected:
+									ParaDate pd = new ParaDate();
+									pd.setDay(d);
+									pd.setMonth(m);
+									pd.setYear(year);
+									if (firstFound == null) {
+										firstFound = pd;
+									}
+									lastValid = pd;
+									break;
 								}
-								firstFound = null;
-								lastValid = null;
-								boolean clean = true;
-								for (String comp : freeList) {
-									if (comp.equals(sb.toString()))
-										clean = false;
-								}
-								if (clean)
-									freeList.add(sb.toString());
-							}
 						}
-					}
 					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 2);
 					StringBuilder sb = new StringBuilder();
 					sb.append(selected.getUsername());
@@ -154,8 +176,10 @@ public class DataDownloadProcessor {
 				Console.log(LogType.Error, this, "Unable to close FileWriter:"); //$NON-NLS-1$
 				e.printStackTrace();
 			}
+			progressIndicator.setVisible(false);
+			progressIndicator.dispose();
 		}
-		progressIndicator.setVisible(false);
+
 	}
 
 	@Override
@@ -167,6 +191,15 @@ public class DataDownloadProcessor {
 		if (workFile != null)
 			sb.append(';' + workFile.getAbsolutePath());
 		return sb.toString();
+	}
+
+	private Status[][] listToSortedArray(DayTable t) {
+		Status[][] sar = new Status[13][32];
+		for (ParaDate p : t.getDays().keySet()) {
+			Status s = t.getDays().get(p);
+			sar[p.getMonth()][p.getDay()] = s;
+		}
+		return sar;
 	}
 
 }

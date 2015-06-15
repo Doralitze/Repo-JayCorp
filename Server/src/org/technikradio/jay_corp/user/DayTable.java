@@ -39,6 +39,12 @@ public class DayTable {
 		days = new Hashtable<ParaDate, Status>();
 	}
 
+	public int getYear() {
+		for (ParaDate p : days.keySet())
+			return p.getYear();
+		return 0;
+	}
+
 	@SuppressWarnings("unchecked")
 	public DayTable clone() {
 		DayTable dt = new DayTable();

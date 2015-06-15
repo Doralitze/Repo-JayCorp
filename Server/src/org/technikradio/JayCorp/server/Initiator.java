@@ -18,7 +18,8 @@ public class Initiator {
 
 	public static DayTable getDefaultDayTable() {
 		DayTable dt = new DayTable();
-		int year = Calendar.getInstance().get(Calendar.YEAR);
+		int year = Calendar.getInstance().get(Calendar.YEAR)
+				+ Integer.parseInt(Settings.getString("Settings.addToJear"));
 		Console.log(LogType.StdOut, "Database",
 				"Creating new default daytable with year: " + year);
 		Hashtable<ParaDate, Status> ds = new Hashtable<ParaDate, Status>();
