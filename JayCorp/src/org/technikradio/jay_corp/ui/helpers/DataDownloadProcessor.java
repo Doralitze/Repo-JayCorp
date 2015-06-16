@@ -9,6 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.ui.FixedOptionPane;
 import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.jay_corp.user.DayTable;
@@ -20,10 +21,24 @@ import org.technikradio.universal_tools.ParaDate;
 
 public class DataDownloadProcessor {
 
+	private static boolean smartSearch;
+	private static boolean richOutput;
+
 	private ProgressIndicator progressIndicator;
 	private JFileChooser fileChooser;
 	private JComponent parent;
 	private File workFile;
+
+	static {
+		smartSearch = Boolean.parseBoolean(Settings
+				.getString("DataDownloader.SmartSearch"));
+		Console.log(LogType.Information, "DataDownloadProcessor",
+				"SmartSearchEngine enabled: " + Boolean.toString(smartSearch));
+		richOutput = Boolean.parseBoolean(Settings
+				.getString("DataDownloader.RichOutput"));
+		Console.log(LogType.Information, "DataDownloadProcessor",
+				"rich output enabled: " + Boolean.toString(richOutput));
+	}
 
 	public DataDownloadProcessor() {
 		progressIndicator = new ProgressIndicator();
@@ -133,15 +148,36 @@ public class DataDownloadProcessor {
 									}
 									break;
 								case selected:
-									ParaDate pd = new ParaDate();
-									pd.setDay(d);
-									pd.setMonth(m);
-									pd.setYear(year);
-									if (firstFound == null) {
-										firstFound = pd;
+									if (smartSearch) {
+										ParaDate pd = new ParaDate();
+										pd.setDay(d);
+										pd.setMonth(m);
+										pd.setYear(year);
+										if (firstFound == null) {
+											firstFound = pd;
+										}
+										lastValid = pd;
+										if (richOutput)
+											Console.log(
+													LogType.StdOut,
+													this,
+													"found: "
+															+ pd.getMinimalDate());
+										break;
+									} else {
+										ParaDate pd = new ParaDate();
+										pd.setDay(d);
+										pd.setMonth(m);
+										pd.setYear(year);
+										freeList.add(pd.getMinimalDate());
+										if (richOutput)
+											Console.log(
+													LogType.StdOut,
+													this,
+													"found: "
+															+ pd.getMinimalDate());
+										break;
 									}
-									lastValid = pd;
-									break;
 								}
 						}
 					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 2);
