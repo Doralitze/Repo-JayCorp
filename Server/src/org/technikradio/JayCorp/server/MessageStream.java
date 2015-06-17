@@ -14,9 +14,11 @@ import org.technikradio.universal_tools.Console.LogType;
 public class MessageStream implements Runnable, BroadcastListener {
 
 	private PrintStream out;
+	private ArrayList<String> outList;
 	private Scanner in;
 	private Socket c;
 	private Thread workThread;
+	private boolean imPush = false;
 
 	// private final Runnable postInitExecution;
 
@@ -90,6 +92,7 @@ public class MessageStream implements Runnable, BroadcastListener {
 			e.printStackTrace();
 		}
 		// postInitExecution = null;
+		outList = new ArrayList<String>();
 	}
 
 	// private MessageStream(Socket newConnection, Runnable postInit) {
@@ -149,7 +152,20 @@ public class MessageStream implements Runnable, BroadcastListener {
 	}
 
 	public void throwMessage(String message) {
+		outList.add(message);
+		if (imPush)
+			refocus();
+	}
+
+	public void throwMessageImidiate(String message) {
 		out.println(message);
+	}
+
+	public void refocus() {
+		for (String s : outList) {
+			throwMessageImidiate(s);
+			outList.remove(s);
+		}
 	}
 
 	public void destroy() {
@@ -173,6 +189,8 @@ public class MessageStream implements Runnable, BroadcastListener {
 		if (pendingList.containsKey(hashline)) {
 			pendingList.get(hashline).setMessageStream(this);
 			out.println("Success");
+			imPush = true;
+			refocus();
 			// try {
 			// // Wait for the other side
 			// Thread.sleep(500);
