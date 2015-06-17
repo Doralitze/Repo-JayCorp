@@ -208,6 +208,8 @@ public class AdvancedFileInputDialog extends JDialog {
 			}
 		});
 
+		// TODO fix for multithreading
+
 		// Temporary:
 		{
 			if (!(pathText.getText().equals("") || pathText.getText() == null)) //$NON-NLS-1$

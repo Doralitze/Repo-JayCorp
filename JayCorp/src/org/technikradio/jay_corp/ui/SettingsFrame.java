@@ -25,6 +25,7 @@ import javax.swing.table.TableColumn;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.helpers.CSVImporter;
 import org.technikradio.jay_corp.ui.helpers.DataDownloadProcessor;
+import org.technikradio.jay_corp.ui.helpers.PasswordInputDialog;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -153,6 +154,7 @@ public class SettingsFrame extends JDialog {
 		pages[1] = new JPanel();
 		pages[0].setName(Strings.getString("SettingsFrame.panel_1")); //$NON-NLS-1$
 		pages[1].setName(Strings.getString("SettingsFrame.panel_2")); //$NON-NLS-1$
+		pages[0].setLayout(new BoxLayout(pages[0], BoxLayout.PAGE_AXIS));
 		cancleButton.setText(Strings.getString("SettingsFrame.CancleButton")); //$NON-NLS-1$
 		okButton.setText(Strings.getString("SettingsFrame.OKButton")); //$NON-NLS-1$
 		addUserButton.setText(Strings.getString("SettingsFrame.AddUserButton")); //$NON-NLS-1$
@@ -186,18 +188,44 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
+					Thread t = new Thread(new Runnable() {
 
+						@Override
+						public void run() {
+							Console.log(LogType.StdOut, ownHandle,
+									"Change password button pressed");
+							String newPSWD = PasswordInputDialog.showDialog(
+									null, "", "Passwort ändern");
+							boolean success = Protocol.changePassword(newPSWD,
+									Protocol.getCurrentUser().getID());
+							Console.log(
+									LogType.StdOut,
+									ownHandle,
+									"Successfull password change: "
+											+ Boolean.toString(success));
+						}
+					});
+					t.setName("PasswordWaiterThread");
+					t.start();
 				}
 			});
 			downloadFileButton.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Console.log(LogType.Information, this,
-							"Downloading userfile"); //$NON-NLS-1$
-					new DataDownloadProcessor(pages[0]).download();
-					;
+					Thread t = new Thread(new Runnable() {
+
+						@Override
+						public void run() {
+							Console.log(LogType.Information, this,
+									"Downloading userfile"); //$NON-NLS-1$
+							new DataDownloadProcessor(pages[0]).download();
+							;
+						}
+					});
+					t.setName("DownloadWaiterThread");
+					t.start();
+
 				}
 			});
 			pages[0].add(changePSWButton);
@@ -207,7 +235,16 @@ public class SettingsFrame extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new CSVImporter(pages[1]).upload();
+				Thread t = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						new CSVImporter(pages[1]).upload();
+					}
+				});
+				t.setName("UploadWaiterThread");
+				t.start();
+
 			}
 		});
 		{
