@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 
 import org.technikradio.jay_corp.ui.Strings;
@@ -18,6 +19,8 @@ public class PasswordInputDialog extends JFrame {
 
 	private static final long serialVersionUID = 8975995288510019150L;
 
+	private JLabel infoLabelMain;
+	private JLabel infoLabelProof;
 	private JButton okButton;
 	private JButton abortButton;
 	private JPasswordField pathText;
@@ -41,6 +44,11 @@ public class PasswordInputDialog extends JFrame {
 		this.setLayout(null);
 		this.setResizable(false);
 		this.setSize(800, 150);
+
+		infoLabelMain = new JLabel("Passwort eingeben");
+		infoLabelMain.setLocation(630, 30);
+		infoLabelProof = new JLabel("Passwort wiederhohlen");
+		infoLabelProof.setLocation(630, 50);
 
 		okButton = new JButton(
 				Strings.getString("AdvancedFileInputDialog.OKText")); //$NON-NLS-1$
@@ -69,7 +77,8 @@ public class PasswordInputDialog extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (pathText.getText().equals(pass2.getText()))
+				if (new String(pathText.getPassword()).equals(new String(pass2
+						.getPassword())))
 					found = WorkState.found;
 				// TODO use getCharSequenz and throw a message if the passwords
 				// don´t match
@@ -93,6 +102,8 @@ public class PasswordInputDialog extends JFrame {
 		this.add(abortButton);
 		this.add(pathText);
 		this.add(pass2);
+		this.add(infoLabelMain);
+		this.add(infoLabelProof);
 
 		try {
 			EventQueue.invokeLater(new Runnable() {
@@ -121,7 +132,7 @@ public class PasswordInputDialog extends JFrame {
 	}
 
 	public String getSelectedText() {
-		return pathText.getText();
+		return new String(pathText.getPassword());
 	}
 
 	public void setFile(String f) {
