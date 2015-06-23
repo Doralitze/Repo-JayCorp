@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.ui.RightEditFrame;
 import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.jay_corp.user.DayTable;
 import org.technikradio.jay_corp.user.Righttable;
@@ -46,8 +48,12 @@ public class CSVImporter {
 				Strings.getString("CSVImporter.DialogTitle"));
 		if (workFile == null)
 			return;
-		// Righttable defaultRT = RightEditFrame.showDialog(new Righttable());
-		Righttable defaultRT = new Righttable();
+		Righttable defaultRT = RightEditFrame.showDialog(new Righttable());
+		// Righttable defaultRT = new Righttable();
+		progressIndicator.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		progressIndicator.setValv(0, 100, 1);
+		progressIndicator.setInfoLabelText("Lade datei hoch...");
+		progressIndicator.setVisible(true);
 		BufferedReader br = null;
 		DataInputStream in = null;
 		FileInputStream fis = null;
@@ -56,20 +62,25 @@ public class CSVImporter {
 			in = new DataInputStream(fis);
 			br = new BufferedReader(new InputStreamReader(in));
 			String currentLine = br.readLine();
+			int i = 0;
 			while ((currentLine = br.readLine()) != null) {
-				String[] s = currentLine.split(";"); //$NON-NLS-1$
-				User u = new User();
-				u.setName(s[2] + " " + s[1]); //$NON-NLS-1$
-				u.setExtraDays(1);
-				u.setPassword(Strings
-						.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
-				u.setSelectedDays(new DayTable());
-				u.setUsername(s[3]);
-				u.setWorkAge(1);
-				u.setID(Protocol.getIDCount() + 1);
-				u.setRights(defaultRT);
-				Protocol.addUser(u);
-				Console.log(LogType.StdOut, this, "Adding user: " + u.getName());
+				if (i != 0) {
+					String[] s = currentLine.split(";"); //$NON-NLS-1$
+					User u = new User();
+					u.setName(s[2] + " " + s[1]); //$NON-NLS-1$
+					u.setExtraDays(1);
+					u.setPassword(Strings
+							.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
+					u.setSelectedDays(new DayTable());
+					u.setUsername(s[3]);
+					u.setWorkAge(1);
+					u.setID(Protocol.getIDCount() + 1);
+					u.setRights(defaultRT);
+					Protocol.addUser(u);
+					Console.log(LogType.StdOut, this,
+							"Adding user: " + u.getName());
+				}
+				i++;
 			}
 			Protocol.save();
 		} catch (FileNotFoundException e) {
@@ -82,6 +93,12 @@ public class CSVImporter {
 			return;
 		} finally {
 			try {
+				progressIndicator.setVisible(false);
+			} catch (NullPointerException e) {
+				Console.log(LogType.Error, this, "An unknown error occured:"); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+			try {
 				br.close();
 				in.close();
 				fis.close();
@@ -89,7 +106,7 @@ public class CSVImporter {
 				Console.log(LogType.Error, this, "An unknown error occured:"); //$NON-NLS-1$
 				e.printStackTrace();
 			}
-
+			Console.log(LogType.StdOut, this, "Done uploading file");
 		}
 
 	}

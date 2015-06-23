@@ -160,7 +160,7 @@ public class Protocol {
 		success = changeExtraDays(u.getExtraDays(), u.getID());
 		if (!success)
 			return false;
-		success = changeRights(u.getID(), u.getRights());
+		success = Protocol.changeRights(u.getID(), u.getRights());
 		return success;
 	}
 
