@@ -6,6 +6,7 @@
 .git
 .metadata
 .recommenders
+.directory
 JayCorp/.classpath
 JayCorp/.project
 JayCorp/.settings
