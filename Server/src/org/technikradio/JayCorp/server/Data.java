@@ -284,7 +284,7 @@ public class Data {
 		Console.log(LogType.Warning, "Database",
 				"Some corrupted data was found. The system now trys to correct it.");
 		for (User u : users) {
-			if (!meta.contains(u)) {
+			if (!meta.containsKey(u)) {
 				Console.log(LogType.Information, "Database",
 						"Adding missing meta data for user " + u.getName());
 				MetaSheet s = new MetaSheet(u.getID());

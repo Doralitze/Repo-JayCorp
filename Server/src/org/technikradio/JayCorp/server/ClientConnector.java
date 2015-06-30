@@ -158,6 +158,7 @@ public class ClientConnector extends Thread {
 					newUser.setPassword(password);
 					newUser.setWorkAge(workAge);
 					newUser.setUsername(request[5]);
+					newUser.setSelectedDays(Data.getDefaultConfiguration());
 					Data.addUser(newUser);
 					out.println("true"); //$NON-NLS-1$
 					out.flush();
@@ -241,6 +242,8 @@ public class ClientConnector extends Thread {
 					out.flush();
 					break;
 				}
+				out.println("true"); //$NON-NLS-1$
+				out.flush();
 				break;
 			case "getRights":
 				ID = Integer.valueOf(request[1]);
@@ -434,6 +437,8 @@ public class ClientConnector extends Thread {
 				rt.setOpenCloseEditAllowed(Boolean.parseBoolean(request[8]));
 				rt.setViewOtherSelectionsAllowed(Boolean
 						.parseBoolean(request[9]));
+				out.println("true"); //$NON-NLS-1$
+				out.flush();
 				break;
 			case "disconnect": //$NON-NLS-1$
 				Console.log(LogType.StdOut, this, "User '" + user.getUsername()

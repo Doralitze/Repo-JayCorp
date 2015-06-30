@@ -196,8 +196,10 @@ public class SettingsFrame extends JDialog {
 									"Change password button pressed");
 							String newPSWD = PasswordInputDialog.showDialog(
 									null, "", "Passwort ändern");
-							boolean success = Protocol.changePassword(newPSWD,
-									Protocol.getCurrentUser().getID());
+							boolean success = false;
+							if (newPSWD != null)
+								success = Protocol.changePassword(newPSWD,
+										Protocol.getCurrentUser().getID());
 							Console.log(
 									LogType.StdOut,
 									ownHandle,

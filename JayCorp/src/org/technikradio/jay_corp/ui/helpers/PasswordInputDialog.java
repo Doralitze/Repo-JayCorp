@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
 import org.technikradio.jay_corp.ui.Strings;
@@ -45,32 +46,28 @@ public class PasswordInputDialog extends JFrame {
 		this.setResizable(false);
 		this.setSize(800, 150);
 
-		infoLabelMain = new JLabel("Passwort eingeben");
+		infoLabelMain = new JLabel(Strings.getString("PasswordInputDialog.FirstHelperLabel")); //$NON-NLS-1$
 		infoLabelMain.setLocation(630, 30);
-		infoLabelProof = new JLabel("Passwort wiederhohlen");
+		infoLabelMain.setVisible(true);
+		infoLabelProof = new JLabel(Strings.getString("PasswordInputDialog.SecondHelperLabel")); //$NON-NLS-1$
 		infoLabelProof.setLocation(630, 50);
+		infoLabelProof.setVisible(true);
 
-		okButton = new JButton(
-				Strings.getString("AdvancedFileInputDialog.OKText")); //$NON-NLS-1$
-		okButton.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.OKToolTip")); //$NON-NLS-1$
+		okButton = new JButton(Strings.getString("PasswordInputDialog.Submit")); //$NON-NLS-1$
+		okButton.setToolTipText(Strings.getString("PasswordInputDialog.SubmitToolTip")); //$NON-NLS-1$
 		okButton.setLocation(630, 95);
 		okButton.setSize(150, 30);
-		abortButton = new JButton(
-				Strings.getString("AdvancedFileInputDialog.AbortText")); //$NON-NLS-1$
-		abortButton.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.AbortToolTip")); //$NON-NLS-1$
+		abortButton = new JButton(Strings.getString("PasswordInputDialog.Cancle")); //$NON-NLS-1$
+		abortButton.setToolTipText(Strings.getString("PasswordInputDialog.CancleToolTip")); //$NON-NLS-1$
 		abortButton.setSize(150, 30);
 		abortButton.setLocation(470, 95);
 		// TODO fix labels and tool tips
 		pathText = new JPasswordField();
-		pathText.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.TextFieldToolTip")); //$NON-NLS-1$
+		pathText.setToolTipText(Strings.getString("PasswordInputDialog.FirstInputToolTip")); //$NON-NLS-1$
 		pathText.setSize(610, 30);
 		pathText.setLocation(10, 50);
 		pass2 = new JPasswordField();
-		pass2.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.TextFieldToolTip")); //$NON-NLS-1$
+		pass2.setToolTipText(Strings.getString("PasswordInputDialog.SecondInputToolTip")); //$NON-NLS-1$
 		pass2.setSize(610, 30);
 		pass2.setLocation(10, 15);
 		okButton.addActionListener(new ActionListener() {
@@ -80,8 +77,10 @@ public class PasswordInputDialog extends JFrame {
 				if (new String(pathText.getPassword()).equals(new String(pass2
 						.getPassword())))
 					found = WorkState.found;
-				// TODO use getCharSequenz and throw a message if the passwords
-				// don´t match
+				JOptionPane.showMessageDialog(null,
+						Strings.getString("PasswordInputDialog.NoMatchMessageText"), //$NON-NLS-1$
+						Strings.getString("PasswordInputDialog.NoMatchMessageHeader"), //$NON-NLS-1$
+						JOptionPane.ERROR_MESSAGE);
 			}
 		});
 
@@ -113,7 +112,7 @@ public class PasswordInputDialog extends JFrame {
 				}
 			});
 		} catch (Exception e1) {
-			Console.log(LogType.Error, owner, "Swing messed every thing up:");
+			Console.log(LogType.Error, owner, "Swing messed every thing up:"); //$NON-NLS-1$
 			e1.printStackTrace();
 		}
 		this.invalidate();
@@ -167,15 +166,15 @@ public class PasswordInputDialog extends JFrame {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
-					Console.log(LogType.Error, "UIVisualizerThread",
-							"This shouln´t had happen:");
+					Console.log(LogType.Error, "UIVisualizerThread", //$NON-NLS-1$
+							"This shouln´t had happen:"); //$NON-NLS-1$
 					e.printStackTrace();
 				}// Wait for UI Thread
 				afid.setVisible(true);
 			}
 		});
 		t.setDaemon(true);
-		t.setName("UIVisualizerThread");
+		t.setName("UIVisualizerThread"); //$NON-NLS-1$
 		t.start();
 		while (afid.found == WorkState.notSelected) {
 			try {
