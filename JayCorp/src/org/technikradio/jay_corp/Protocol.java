@@ -66,9 +66,8 @@ public class Protocol {
 		String[] result = decodeAnswer(c.receive());
 		if (result[0] == "false") {
 			throw new PermissionDeninedException();
-		} else if (result[0] == "NO_DATA") {
-			// Create empty one
-
+		} else if (result[0] == "NO_DATA" || result[0] == "NO") {
+			return null;
 		} else {
 			for (int i = 1; i < result.length; i++) {
 				String[] a = result[i].split("=");
@@ -242,6 +241,7 @@ public class Protocol {
 			e.printStackTrace();
 			return false;
 		}
+		loadEditEnabled();
 		return true;
 	}
 

@@ -12,6 +12,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JComponent;
 
+import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.user.DayTable;
 import org.technikradio.jay_corp.user.DayTable.Status;
@@ -436,7 +437,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 					"Successfully painted control"); //$NON-NLS-1$
 		if (!isEditEnabled()) {
 			g.setColor(new Color(100, 100, 100, 200));
-			g.drawRect(0, 26, width, height - 26);
+			g.fillRect(0, 26, width, height - (26 * 2) + 1);
 		}
 	}
 
@@ -466,6 +467,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		setEditEnabled(Protocol.isEditEnabled());
 		int width = this.getWidth();
 		int height = this.getHeight();
 		int x = e.getX();

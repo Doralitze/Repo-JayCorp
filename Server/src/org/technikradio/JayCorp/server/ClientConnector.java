@@ -136,6 +136,23 @@ public class ClientConnector extends Thread {
 				User um = Data.getUser(ID);
 				um.getSelectedDays().getDays().remove(getCompared(pd));
 				um.getSelectedDays().getDays().put(pd, s);
+
+				if (user.getID() == Data.getUser("root").getID()) {
+					// Update dc
+					Status ss = Status.normal;
+					switch (s) {
+					case allowed:
+					case normal:
+						break;
+					case selected:
+						ss = Status.allowed;
+						break;
+					}
+					Data.getDefaultConfiguration().getDays()
+							.remove(getCompared(pd));
+					Data.getDefaultConfiguration().getDays().put(pd, ss);
+				}
+
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
 				this.setPriority(pr0);
@@ -158,7 +175,8 @@ public class ClientConnector extends Thread {
 					newUser.setPassword(password);
 					newUser.setWorkAge(workAge);
 					newUser.setUsername(request[5]);
-					newUser.setSelectedDays(Data.getDefaultConfiguration());
+					newUser.setSelectedDays(Data.getDefaultConfiguration()
+							.clone());
 					Data.addUser(newUser);
 					out.println("true"); //$NON-NLS-1$
 					out.flush();
@@ -289,91 +307,7 @@ public class ClientConnector extends Thread {
 			{
 				final User root = Data.getUser("root");
 				if (user == root) {
-					Thread t = new Thread(new Runnable() {
-
-						@Override
-						public void run() {
-							int year = root.getSelectedDays().getYear();
-							{
-								DayTable dt = new DayTable();
-								Status[][] rd = listToSortedArray(root
-										.getSelectedDays());
-								for (short m = 1; m <= 12; m++)
-									for (short d = 1; d <= 31; d++) {
-										if (rd[m][d] != null) {
-											ParaDate pd = new ParaDate();
-											pd.setDay(d);
-											pd.setMonth(m);
-											pd.setYear(year);
-											Status s = Status.normal;
-											switch (rd[m][d]) {
-											case allowed:
-												break;
-											case normal:
-												break;
-											case selected:
-												s = Status.allowed;
-												break;
-											default:
-												break;
-											}
-											dt.getDays().put(pd, s);
-										}
-									}
-								Data.setDefaultConfiguration(dt);
-							}
-							Status[][] dc = listToSortedArray(Data
-									.getDefaultConfiguration());
-							int updatedUsers = 0;
-							for (int id = 1; id <= Data.getLatestID(); id++) {
-								User u = Data.getUser(id);
-								boolean updated = false;
-								Status[][] udt = listToSortedArray(u
-										.getSelectedDays());
-								for (short m = 1; m <= 12; m++)
-									for (short d = 1; d <= 31; d++)
-										if (dc[m][d] != null)
-											switch (dc[m][d]) {
-											case allowed:
-												switch (udt[m][d]) {
-												case allowed:
-													break;
-												case normal:
-													udt[m][d] = Status.allowed;
-													updated = true;
-													break;
-												case selected:
-													break;
-												}
-												break;
-											case normal:
-												switch (udt[m][d]) {
-												case allowed:
-													udt[m][d] = Status.normal;
-													updated = true;
-													break;
-												case normal:
-													break;
-												case selected:
-													break;
-												}
-												break;
-											case selected:
-												break;
-											}
-								u.setSelectedDays(sortedArrayToList(udt, year));
-								if (updated)
-									updatedUsers++;
-							}
-							Console.log(LogType.StdOut, this, "root did "
-									+ updatedUsers + " database updates...");
-						}
-					});
-					t.setName("DatabaseUpdateThread");
-					t.setPriority(9);
-					t.start();
-					Data.setDefaultConfiguration(root.getSelectedDays());
-					Console.log(LogType.StdOut, this, "root saved allowed days");
+					updateDatabase(root);
 				}
 			}
 				Data.save();
@@ -529,6 +463,7 @@ public class ClientConnector extends Thread {
 		return true;
 	}
 
+	@SuppressWarnings("unused")
 	private Status[][] listToSortedArray(DayTable t) {
 		Status[][] sar = new Status[13][32];
 		for (ParaDate p : t.getDays().keySet()) {
@@ -538,6 +473,7 @@ public class ClientConnector extends Thread {
 		return sar;
 	}
 
+	@SuppressWarnings("unused")
 	private DayTable sortedArrayToList(Status[][] sar, int year) {
 		DayTable dt = new DayTable();
 		for (short m = 1; m <= 12; m++)
@@ -553,4 +489,83 @@ public class ClientConnector extends Thread {
 		return dt;
 	}
 
+	private ParaDate find(ParaDate corresponding, DayTable field) {
+		ParaDate found = null;
+		final String key = corresponding.getMinimalDate();
+		for (ParaDate p : field.getDays().keySet()) {
+			if (key.equals(p.getMinimalDate())) {
+				found = p;
+				break;
+			}
+		}
+		return found;
+	}
+
+	private void updateDatabase(final User root) {
+
+		Thread t = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				/*
+				 * int year = root.getSelectedDays().getYear(); { DayTable dt =
+				 * new DayTable(); Status[][] rd =
+				 * listToSortedArray(root.getSelectedDays()); for (short m = 1;
+				 * m <= 12; m++) for (short d = 1; d <= 31; d++) { if (rd[m][d]
+				 * != null) { ParaDate pd = new ParaDate(); pd.setDay(d);
+				 * pd.setMonth(m); pd.setYear(year); Status s = Status.normal;
+				 * switch (rd[m][d]) { case allowed: break; case normal: break;
+				 * case selected: s = Status.allowed; break; default: break; }
+				 * dt.getDays().put(pd, s); } }
+				 * Data.setDefaultConfiguration(dt); } Status[][] dc =
+				 * listToSortedArray(Data .getDefaultConfiguration()); int
+				 * updatedUsers = 0; for (int id = 1; id <= Data.getLatestID();
+				 * id++) { User u = Data.getUser(id); boolean updated = false;
+				 * Status[][] udt = listToSortedArray(u.getSelectedDays()); for
+				 * (short m = 1; m <= 12; m++) for (short d = 1; d <= 31; d++)
+				 * if (dc[m][d] != null) switch (dc[m][d]) { case allowed:
+				 * switch (udt[m][d]) { case allowed: break; case normal:
+				 * udt[m][d] = Status.allowed; updated = true; break; case
+				 * selected: break; } break; case normal: switch (udt[m][d]) {
+				 * case allowed: udt[m][d] = Status.normal; updated = true;
+				 * break; case normal: break; case selected: break; } break;
+				 * case selected: break; }
+				 * u.setSelectedDays(sortedArrayToList(udt, year)); if (updated)
+				 * updatedUsers++; } Console.log(LogType.StdOut, this,
+				 * "root did " + updatedUsers + " database updates...");
+				 */
+				DayTable dc = Data.getDefaultConfiguration();
+				for (int id = 1; id <= Data.getLatestID(); id++) {
+					User user = Data.getUser(id);
+					if (user != null) {
+						DayTable days = user.getSelectedDays();
+						for (ParaDate p : days.getDays().keySet()) {
+							ParaDate fm = find(p, dc);
+							Status expected = dc.getDays().get(fm);
+							switch (expected) {
+							case allowed:
+							case selected:
+								if (days.getDays().get(p) == Status.normal) {
+									days.getDays().remove(p);
+									days.getDays().put(p, Status.allowed);
+								}
+								break;
+							case normal:
+								if (days.getDays().get(p) != Status.normal) {
+									days.getDays().remove(p);
+									days.getDays().put(p, Status.normal);
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+		});
+		t.setName("DatabaseUpdateThread");
+		t.setPriority(9);
+		t.start();
+		Data.setDefaultConfiguration(root.getSelectedDays());
+		Console.log(LogType.StdOut, this, "root saved allowed days");
+	}
 }
