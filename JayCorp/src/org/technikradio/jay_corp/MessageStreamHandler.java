@@ -75,7 +75,65 @@ public class MessageStreamHandler {
 
 	public void run() {
 		if (!VALID)
+<<<<<<< HEAD
 			throw new RuntimeException("This stream doesn´t have a valid connection!"); //$NON-NLS-1$
+=======
+			throw new RuntimeException("This stream doesn´t have a valid connection!"); //$NON-NLS-1$
+		while (running) {
+			try {
+				String line = in.nextLine();
+				switch (line) {
+				case "disconnect": //$NON-NLS-1$
+					Console.log(LogType.Information, this,
+							"Remote host requests disconnect"); //$NON-NLS-1$
+					Protocol.disconnect();
+					JOptionPane
+							.showMessageDialog(
+									null,
+									Strings.getString("MessageStreamHandler.OnExitMessage"), //$NON-NLS-1$
+									Strings.getString("MessageStreamHandler.MessageHeaderExit") + toString(), //$NON-NLS-1$
+									JOptionPane.ERROR_MESSAGE);
+					JayCorp.exit(2);
+					break;
+				case "reload": //$NON-NLS-1$
+					Console.log(LogType.Information, this,
+							"Remote host requests data reload"); //$NON-NLS-1$
+					Protocol.collectInformation();
+					break;
+				case "setDays": //$NON-NLS-1$
+					// Change default free days:
+					Console.log(LogType.StdOut, this,
+							"Asked client to set extra days"); //$NON-NLS-1$
+					JOptionPane
+							.showMessageDialog(
+									null,
+									Strings.getString("MessageStreamHandler.OnDaysMessage"), //$NON-NLS-1$
+									Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+									JOptionPane.ERROR_MESSAGE);
+					break;
+				case "changePassword": //$NON-NLS-1$
+					// Change default password:
+					Console.log(LogType.StdOut, this,
+							"Asked client to change it's password"); //$NON-NLS-1$
+					JOptionPane
+							.showMessageDialog(
+									null,
+									Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
+									Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+									JOptionPane.ERROR_MESSAGE);
+					break;
+				default:
+					Console.log(LogType.Information, this,
+							"recieved corupted data: " + line); //$NON-NLS-1$
+				}
+			} catch (NoSuchElementException e) {
+				Console.log(LogType.Error, this, "Scanner broke it's lines");
+				e.printStackTrace();
+			}
+		}
+		in.close();
+		out.close();
+>>>>>>> origin/master
 		try {
 			while (running) {
 				String line = in.nextLine();
