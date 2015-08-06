@@ -54,30 +54,30 @@ public class JayCorp extends JFrame {
 			splashscreen.repaint();
 		}
 		if (setSystemLookAndFeel())
-			Console.log(LogType.StdOut, "ClassLoader",
-					"Successfully loaded Look_and_feel");
+			Console.log(LogType.StdOut, "ClassLoader", //$NON-NLS-1$
+					"Successfully loaded Look_and_feel"); //$NON-NLS-1$
 		lp.getValues(true);
 		{
 			MainFrame mf = new MainFrame();
 			mf.setup();
 			mf.setVisible(true);
 		}
-		Console.log(LogType.StdOut, "ClassLoader",
-				"Successfully loaded MainFrame");
+		Console.log(LogType.StdOut, "ClassLoader", //$NON-NLS-1$
+				"Successfully loaded MainFrame"); //$NON-NLS-1$
 		splashscreen.dispose();
 	}
 
 	private static boolean setSystemLookAndFeel() {
 		// set System Look and Feel
-		System.setProperty("apple.awt.rendering", "quality");
-		System.setProperty("apple.awt.fractionalmetrics", "on");
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		System.setProperty("apple.awt.rendering", "quality"); //$NON-NLS-1$ //$NON-NLS-2$
+		System.setProperty("apple.awt.fractionalmetrics", "on"); //$NON-NLS-1$ //$NON-NLS-2$
+		System.setProperty("apple.laf.useScreenMenuBar", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException
 				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			Console.log(LogType.Error, "ClassLoader",
-					"Error while changing Look_and_feel:");
+			Console.log(LogType.Error, "ClassLoader", //$NON-NLS-1$
+					"Error while changing Look_and_feel:"); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}

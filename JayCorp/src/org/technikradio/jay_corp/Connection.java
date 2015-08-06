@@ -36,7 +36,7 @@ public class Connection {
 		if (connectionEstablished)
 			ps.println(s);
 		else {
-			Console.log(LogType.Error, this, "No connection established yet.");
+			Console.log(LogType.Error, this, "No connection established yet."); //$NON-NLS-1$
 		}
 	}
 
@@ -46,8 +46,8 @@ public class Connection {
 			// System.out.println(s);
 			return s;
 		} else {
-			Console.log(LogType.Error, this, "No connection established yet.");
-			return "null";
+			Console.log(LogType.Error, this, "No connection established yet."); //$NON-NLS-1$
+			return "null"; //$NON-NLS-1$
 		}
 	}
 
@@ -59,7 +59,7 @@ public class Connection {
 
 	@Override
 	public String toString() {
-		return "ServerConnection";
+		return "ServerConnection"; //$NON-NLS-1$
 	}
 
 	public boolean isValidConnection() {

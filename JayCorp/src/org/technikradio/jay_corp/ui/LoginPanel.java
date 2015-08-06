@@ -28,6 +28,7 @@ public class LoginPanel extends JPanel {
 	private JButton abortButton;
 	private JLabel userLabel;
 	private JLabel passLabel;
+	private JLabel copyrightLabel;
 	private boolean didEntered;
 	private JFrame parent;
 
@@ -54,6 +55,10 @@ public class LoginPanel extends JPanel {
 	private void setup() {
 		this.setSize(500, 200);
 		this.setPreferredSize(getSize());
+		this.copyrightLabel = new JLabel("Copyright (c) Leon Dietrich 2014 - 2015"); //$NON-NLS-1$
+		this.copyrightLabel.setBounds(10, this.getHeight() - 25, this.getWidth() - 20, 20);
+		this.copyrightLabel.setForeground(Color.WHITE);
+		this.add(this.copyrightLabel);
 		this.username = new JTextField();
 		this.username.setBounds(150, 10, 300, 30);
 		this.add(username);
@@ -76,12 +81,10 @@ public class LoginPanel extends JPanel {
 				disableInputs();
 				if (username.getText() != "" //$NON-NLS-1$
 						|| new String(password.getPassword()) != "") //$NON-NLS-1$
-					if (Protocol.login(username.getText(),
-							new String(password.getPassword())))
+					if (Protocol.login(username.getText(), new String(password.getPassword())))
 						loadWorkspace();
 					else {
-						JOptionPane.showMessageDialog(parent,
-								Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
+						JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
 						Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
 								"Entered wrong info: User: " //$NON-NLS-1$
 										+ username.getText() + " Password: " //$NON-NLS-1$
@@ -91,8 +94,7 @@ public class LoginPanel extends JPanel {
 						return;
 					}
 				else {
-					JOptionPane.showMessageDialog(parent,
-							Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
+					JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
 				}
 				didEntered = true;
 			}
@@ -103,8 +105,7 @@ public class LoginPanel extends JPanel {
 		this.abortButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Console.log(LogType.Information, this,
-						"Abortbutton clicket: going to stop"); //$NON-NLS-1$
+				Console.log(LogType.Information, this, "Abortbutton clicket: going to stop"); //$NON-NLS-1$
 				System.exit(0);
 			}
 
@@ -167,15 +168,14 @@ public class LoginPanel extends JPanel {
 
 			@Override
 			public void run() {
-				MessageStreamHandler msh = new MessageStreamHandler(
-						Protocol.getMessageHash());
+				MessageStreamHandler msh = new MessageStreamHandler(Protocol.getMessageHash());
 				if (msh.VALID)
 					msh.run();
 			}
 
 		});
 		mst.setDaemon(true);
-		mst.setName("CageThread: MessageStreamHandler");
+		mst.setName("CageThread: MessageStreamHandler"); //$NON-NLS-1$
 		mst.start();
 	}
 

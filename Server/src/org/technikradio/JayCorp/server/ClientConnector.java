@@ -19,8 +19,7 @@ import de.bennyden.coding.Base64Coding;
 
 public class ClientConnector extends Thread {
 
-	private static final int maxLoginAttemps = Integer.parseInt(Settings
-			.getString("ClientConnector.maxLoginAttemps")); //$NON-NLS-1$
+	private static final int maxLoginAttemps = Integer.parseInt(Settings.getString("ClientConnector.maxLoginAttemps")); //$NON-NLS-1$
 	private int loginAttemps = 0;
 
 	private Socket client;
@@ -54,50 +53,43 @@ public class ClientConnector extends Thread {
 				if (loginAttemps > maxLoginAttemps) {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
-					Console.log(LogType.Warning, this,
-							"Trying to log in very often...");
+					Console.log(LogType.Warning, this, "Trying to log in very often...");
 					break;
 				}
 				u = Data.getUser(request[1]);
 				if (u == null) {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
-					Console.log(LogType.StdOut, this, "User >" + request[1]
-							+ "< not existant");
+					Console.log(LogType.StdOut, this, "User >" + request[1] + "< not existant");
 					break;
 				} else {
 					if (u.getPassword().equals(Base64Coding.decode(request[2]))) {
 						user = u;
 						out.println("true;".concat(Integer.toString(u.getID()))); //$NON-NLS-1$
 						out.flush();
-						Console.log(LogType.StdOut, this,
-								"User '" + u.getName()
-										+ "' successfully logged in...");
+						Console.log(LogType.StdOut, this, "User '" + u.getName() + "' successfully logged in...");
 					} else {
 						out.println("false"); //$NON-NLS-1$
 						out.flush();
-						Console.log(LogType.StdOut, this, "Wrong login: User: "
-								+ request[1] + " Password: " + request[2]);
+						Console.log(LogType.StdOut, this,
+								"Wrong login: User: " + request[1] + " Password: " + request[2]);
 						break;
 					}
 				}
 				break;
 			case "getProg": //$NON-NLS-1$
 				ID = Integer.parseInt(request[1]);
-				if ((user.getID() != ID && user.getRights()
-						.isViewOtherSelectionsAllowed()) || user.getID() == ID) {
+				if ((user.getID() != ID && user.getRights().isViewOtherSelectionsAllowed()) || user.getID() == ID) {
 					u = Data.getUser(ID);
 					StringBuilder sb = new StringBuilder();
 					sb.append("true;"); //$NON-NLS-1$
 					if (u.getSelectedDays().getDays() == null) {
-						u.setSelectedDays(Data.getDefaultConfiguration()
-								.clone());
+						u.setSelectedDays(Data.getDefaultConfiguration().clone());
 					}
 					if (u.getSelectedDays().getDays().size() == 0) {
 						sb.append("NO_DATA");
 					} else
-						for (ParaDate pd : u.getSelectedDays().getDays()
-								.keySet()) {
+						for (ParaDate pd : u.getSelectedDays().getDays().keySet()) {
 							Status s = u.getSelectedDays().getDays().get(pd);
 							sb.append(pd.toString());
 							// System.out.println(pd.toString());
@@ -117,8 +109,7 @@ public class ClientConnector extends Thread {
 			case "setDay": //$NON-NLS-1$
 				int pr0 = this.getPriority();
 				this.setPriority(Thread.MAX_PRIORITY);
-				if (!Data.isEditEnabled()
-						&& user.getID() != Data.getUser("root").getID()) {
+				if (!Data.isEditEnabled() && user.getID() != Data.getUser("root").getID()) {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
 					break;
@@ -127,8 +118,7 @@ public class ClientConnector extends Thread {
 				pd = ParaDate.valueOf(request[1]);
 				Status s = Status.valueOf(request[2]);
 				ID = Integer.valueOf(request[3]);
-				if (ID != user.getID()
-						&& !user.getRights().isEditUserInputAllowed()) {
+				if (ID != user.getID() && !user.getRights().isEditUserInputAllowed()) {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
 					break;
@@ -142,14 +132,15 @@ public class ClientConnector extends Thread {
 					Status ss = Status.normal;
 					switch (s) {
 					case allowed:
+						ss = Status.normal;
 					case normal:
+						// Should never happen
 						break;
 					case selected:
 						ss = Status.allowed;
 						break;
 					}
-					Data.getDefaultConfiguration().getDays()
-							.remove(getCompared(pd));
+					Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
 					Data.getDefaultConfiguration().getDays().put(pd, ss);
 				}
 
@@ -175,8 +166,7 @@ public class ClientConnector extends Thread {
 					newUser.setPassword(password);
 					newUser.setWorkAge(workAge);
 					newUser.setUsername(request[5]);
-					newUser.setSelectedDays(Data.getDefaultConfiguration()
-							.clone());
+					newUser.setSelectedDays(Data.getDefaultConfiguration().clone());
 					Data.addUser(newUser);
 					out.println("true"); //$NON-NLS-1$
 					out.flush();
@@ -234,8 +224,7 @@ public class ClientConnector extends Thread {
 					if (us != null) {
 						sb.append(us.getName());
 						sb.append(';');
-						sb.append(Base64Coding.encode(new String(us
-								.getPassword())));
+						sb.append(Base64Coding.encode(new String(us.getPassword())));
 						sb.append(';');
 						sb.append(Integer.toString(us.getWorkAge()));
 						sb.append(';');
@@ -265,8 +254,7 @@ public class ClientConnector extends Thread {
 				break;
 			case "getRights":
 				ID = Integer.valueOf(request[1]);
-				if (user.getID() == ID
-						|| user.getRights().isViewOtherSelectionsAllowed()) {
+				if (user.getID() == ID || user.getRights().isViewOtherSelectionsAllowed()) {
 					Righttable rt = Data.getUser(ID).getRights();
 					StringBuilder sb = new StringBuilder();
 					sb.append("true;");
@@ -284,8 +272,7 @@ public class ClientConnector extends Thread {
 					sb.append(";");
 					sb.append(Boolean.toString(rt.isOpenCloseEditAllowed()));
 					sb.append(";");
-					sb.append(Boolean.toString(rt
-							.isViewOtherSelectionsAllowed()));
+					sb.append(Boolean.toString(rt.isViewOtherSelectionsAllowed()));
 					sb.append(";");
 					out.println(sb.toString());
 					out.flush();
@@ -316,8 +303,7 @@ public class ClientConnector extends Thread {
 				break;
 			case "changePSWD":
 				int reqID = Integer.parseInt(request[1]);
-				if (!(user.getID() == reqID || user.getRights()
-						.isEditUserAllowed())) {
+				if (!(user.getID() == reqID || user.getRights().isEditUserAllowed())) {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
 					break;
@@ -326,9 +312,7 @@ public class ClientConnector extends Thread {
 				u.setPassword(Base64Coding.decode(request[2]));
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
-				if (reqID == user.getID()
-						&& Data.getEntry(user, MetaReg.SHOULD_CHANGE_PASSWORD)
-								.equals("true"))
+				if (reqID == user.getID() && Data.getEntry(user, MetaReg.SHOULD_CHANGE_PASSWORD).equals("true"))
 					Data.setEntry(user, MetaReg.SHOULD_CHANGE_PASSWORD, "false");
 				break;
 			case "changeDays":
@@ -341,11 +325,9 @@ public class ClientConnector extends Thread {
 					out.flush();
 					break;
 				} else if (reqID == user.getID()) {
-					if (Data.getEntry(user, MetaReg.MUST_SET_EXTRA_DAYS)
-							.equals("true")) {
+					if (Data.getEntry(user, MetaReg.MUST_SET_EXTRA_DAYS).equals("true")) {
 						user.setExtraDays(days);
-						Data.setEntry(user, MetaReg.MUST_SET_EXTRA_DAYS,
-								"false");
+						Data.setEntry(user, MetaReg.MUST_SET_EXTRA_DAYS, "false");
 						out.println("true"); //$NON-NLS-1$
 						out.flush();
 						break;
@@ -369,14 +351,12 @@ public class ClientConnector extends Thread {
 				rt.setGetIDCountAllowed(Boolean.parseBoolean(request[6]));
 				rt.setListAllUsersAllowed(Boolean.parseBoolean(request[7]));
 				rt.setOpenCloseEditAllowed(Boolean.parseBoolean(request[8]));
-				rt.setViewOtherSelectionsAllowed(Boolean
-						.parseBoolean(request[9]));
+				rt.setViewOtherSelectionsAllowed(Boolean.parseBoolean(request[9]));
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
 				break;
 			case "disconnect": //$NON-NLS-1$
-				Console.log(LogType.StdOut, this, "User '" + user.getUsername()
-						+ "' diconnected");
+				Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
 				disconnect();
 				if (messageStream != null)
 					messageStream.destroy();
@@ -384,8 +364,7 @@ public class ClientConnector extends Thread {
 			default:
 				out.println("null"); //$NON-NLS-1$
 				out.flush();
-				Console.log(LogType.Warning, this, "Corrupted data recieved: "
-						+ request[0]);
+				Console.log(LogType.Warning, this, "Corrupted data recieved: " + request[0]);
 			}
 			return true;
 		} catch (Exception e) {
@@ -411,13 +390,11 @@ public class ClientConnector extends Thread {
 	public void run() {
 		try {
 			Console.log(LogType.StdOut, this, "Client incomming"); //$NON-NLS-1$
-			in = new BufferedReader(new InputStreamReader(
-					client.getInputStream()));
+			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			out = new PrintStream(client.getOutputStream());
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
-					Console.log(LogType.StdOut, this,
-							"User '" + user.getUsername() + "' lost connection");
+					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
 					break;
 				}
 			}

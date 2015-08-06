@@ -30,13 +30,11 @@ public class MainFrame extends JFrame {
 	public void setup() {
 		{
 			int posy, posx, width, height;
-			Insets s = Toolkit.getDefaultToolkit().getScreenInsets(
-					getGraphicsConfiguration());
+			Insets s = Toolkit.getDefaultToolkit().getScreenInsets(getGraphicsConfiguration());
 			posx = 0 + s.left;
 			posy = 0 + s.top;
 			width = Toolkit.getDefaultToolkit().getScreenSize().width - s.right;
-			height = Toolkit.getDefaultToolkit().getScreenSize().height
-					- s.bottom;
+			height = Toolkit.getDefaultToolkit().getScreenSize().height - s.bottom;
 			super.setBounds(new Rectangle(posx, posy, width, height));
 		}
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,13 +42,11 @@ public class MainFrame extends JFrame {
 			menuStrip = new JMenuBar();
 			{
 				JMenu fileMenu = new JMenu();
-				fileMenu.setText(Strings
-						.getString("MainFrame.MainFrame.Menu.Manage.Name")); //$NON-NLS-1$
+				fileMenu.setText(Strings.getString("MainFrame.MainFrame.Menu.Manage.Name")); //$NON-NLS-1$
 				fileMenu.setName("file-menu"); //$NON-NLS-1$
 				{
 					JMenuItem saveItem = new JMenuItem();
-					saveItem.setText(Strings
-							.getString("MainFrame.FileMenu.Save")); //$NON-NLS-1$
+					saveItem.setText(Strings.getString("MainFrame.FileMenu.Save")); //$NON-NLS-1$
 					saveItem.setName("file-menu:save"); //$NON-NLS-1$
 					saveItem.addActionListener(new ActionListener() {
 
@@ -60,35 +56,27 @@ public class MainFrame extends JFrame {
 
 								@Override
 								public void run() {
-									c.setInfoMessage(Strings
-											.getString("MainFrame.SaveData")); //$NON-NLS-1$
-									if (Protocol.transmitTable(c
-											.buildFromCache(), Protocol
-											.getCurrentUser().getID(),
+									c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+									if (Protocol.transmitTable(c.buildFromCache(), Protocol.getCurrentUser().getID(),
 											new ProgressChangedNotifier() {
 
-												@Override
-												public void progressChanged(
-														int min, int max,
-														int current) {
+										@Override
+										public void progressChanged(int min, int max, int current) {
 
-													c.setInfoMessage(Strings
-															.getString("MainFrame.SaveData") + ": " + current + "/" + max); //$NON-NLS-1$
+											c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
+													+ "/" + max); //$NON-NLS-1$
 
-												}
-											})) {
-										Console.log(LogType.StdOut, this,
-												"Successfully transmitted Data"); //$NON-NLS-1$
+										}
+									})) {
+										Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
 										c.setChanged(false);
 										c.setInfoMessage(""); //$NON-NLS-1$
 									}
 
 									else {
-										Console.log(LogType.StdOut, this,
-												"Failed to transmitt Data"); //$NON-NLS-1$
+										Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
 										c.setChanged(true);
-										c.setInfoMessage(Strings
-												.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
+										c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
 									}
 									Protocol.save();
 								}
@@ -100,8 +88,7 @@ public class MainFrame extends JFrame {
 					});
 					fileMenu.add(saveItem);
 					JMenuItem disconnectItem = new JMenuItem();
-					disconnectItem.setText(Strings
-							.getString("MainFrame.FileMenu.disconnect")); //$NON-NLS-1$
+					disconnectItem.setText(Strings.getString("MainFrame.FileMenu.disconnect")); //$NON-NLS-1$
 					disconnectItem.setName("file-menu:disconnect"); //$NON-NLS-1$
 					disconnectItem.addActionListener(new ActionListener() {
 
@@ -109,38 +96,29 @@ public class MainFrame extends JFrame {
 						public void actionPerformed(ActionEvent arg0) {
 							try {
 								if (c.isChanged()) {
-									Object[] elements = {
-											Strings.getString("MainFrame.Dialog.Yes"), Strings.getString("MainFrame.Dialog.No"), Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
 									};
-									int n = FixedOptionPane
-											.showFixedOptionDialog(
-													ownHandle,
-													Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
-													Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
-													JOptionPane.YES_NO_CANCEL_OPTION,
-													JOptionPane.QUESTION_MESSAGE,
-													null, elements, elements[2]);
+									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
+											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
+											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+											elements, elements[2]);
 									if (n == 1) {
-										c.setInfoMessage(Strings
-												.getString("MainFrame.SaveData")); //$NON-NLS-1$
-										if (Protocol.transmitTable(c
-												.buildFromCache(), Protocol
-												.getCurrentUser().getID(),
-												new ProgressChangedNotifier() {
+										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+										if (Protocol.transmitTable(c.buildFromCache(),
+												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
-													@Override
-													public void progressChanged(
-															int min, int max,
-															int current) {
-														c.setInfoMessage(Strings
-																.getString("MainFrame.SaveData") + ": " + current + "/" + max); //$NON-NLS-1$
-													}
-												}))
-											Console.log(LogType.StdOut, this,
-													"Successfully transmitted Data"); //$NON-NLS-1$
+											@Override
+											public void progressChanged(int min, int max, int current) {
+												c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
+														+ current + "/" + max); //$NON-NLS-1$
+											}
+										}))
+											Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
 										else
-											Console.log(LogType.StdOut, this,
-													"Failed to transmitt Data"); //$NON-NLS-1$
+											Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
 										Protocol.save();
 										c.setChanged(false);
 										c.setInfoMessage(""); //$NON-NLS-1$
@@ -151,8 +129,7 @@ public class MainFrame extends JFrame {
 								Protocol.disconnect();
 								JayCorp.exit(0);
 							} catch (Exception e) {
-								Console.log(LogType.Error, this,
-										"Couldn�t disconnect the client."); //$NON-NLS-1$
+								Console.log(LogType.Error, this, "Couldn�t disconnect the client."); //$NON-NLS-1$
 								e.printStackTrace();
 								JayCorp.exit(1);
 							}
@@ -170,38 +147,29 @@ public class MainFrame extends JFrame {
 						public void windowClosing(WindowEvent e) {
 							try {
 								if (c.isChanged()) {
-									Object[] elements = {
-											Strings.getString("MainFrame.Dialog.Yes"), Strings.getString("MainFrame.Dialog.No"), Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
 									};
-									int n = FixedOptionPane
-											.showFixedOptionDialog(
-													ownHandle,
-													Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
-													Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
-													JOptionPane.YES_NO_CANCEL_OPTION,
-													JOptionPane.QUESTION_MESSAGE,
-													null, elements, elements[2]);
+									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
+											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
+											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+											elements, elements[2]);
 									if (n == 1) {
-										c.setInfoMessage(Strings
-												.getString("MainFrame.SaveData")); //$NON-NLS-1$
-										if (Protocol.transmitTable(c
-												.buildFromCache(), Protocol
-												.getCurrentUser().getID(),
-												new ProgressChangedNotifier() {
+										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+										if (Protocol.transmitTable(c.buildFromCache(),
+												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
-													@Override
-													public void progressChanged(
-															int min, int max,
-															int current) {
-														c.setInfoMessage(Strings
-																.getString("MainFrame.SaveData") + ": " + current + "/" + max); //$NON-NLS-1$
-													}
-												}))
-											Console.log(LogType.StdOut, this,
-													"Successfully transmitted Data"); //$NON-NLS-1$
+											@Override
+											public void progressChanged(int min, int max, int current) {
+												c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
+														+ current + "/" + max); //$NON-NLS-1$
+											}
+										}))
+											Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
 										else
-											Console.log(LogType.StdOut, this,
-													"Failed to transmitt Data"); //$NON-NLS-1$
+											Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
 										Protocol.save();
 										c.setChanged(false);
 										c.setInfoMessage(""); //$NON-NLS-1$
@@ -212,8 +180,7 @@ public class MainFrame extends JFrame {
 								Protocol.disconnect();
 								JayCorp.exit(0);
 							} catch (Exception e1) {
-								Console.log(LogType.Error, this,
-										"Couldn�t disconnect the client."); //$NON-NLS-1$
+								Console.log(LogType.Error, this, "Couldn�t disconnect the client."); //$NON-NLS-1$
 								e1.printStackTrace();
 								JayCorp.exit(1);
 							}
@@ -247,14 +214,14 @@ public class MainFrame extends JFrame {
 					fileMenu.add(disconnectItem);
 
 					JMenuItem settingsItem = new JMenuItem();
-					settingsItem.setText(Strings
-							.getString("MainFrame.FileMenu.settings")); //$NON-NLS-1$
+					settingsItem.setText(Strings.getString("MainFrame.FileMenu.settings")); //$NON-NLS-1$
 					settingsItem.setName("file-menu:settings"); //$NON-NLS-1$
 					settingsItem.addActionListener(new ActionListener() {
 
 						@Override
 						public void actionPerformed(ActionEvent arg0) {
 							SettingsFrame sf = new SettingsFrame();
+							sf.setOwner(ownHandle);
 							sf.setVisible(true);
 						}
 
@@ -268,21 +235,17 @@ public class MainFrame extends JFrame {
 			try {
 				c.setContent(Protocol.getCurrentUser().getSelectedDays());
 			} catch (NullPointerException e) {
-				Console.log(LogType.Error, this,
-						"Didn´t recieved user information yet"); //$NON-NLS-1$
+				Console.log(LogType.Error, this, "Didn´t recieved user information yet"); //$NON-NLS-1$
 			} catch (Exception e) {
 				Console.log(LogType.Error, this, "An unknown error occured:"); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 			c.setEditEnabled(Protocol.isEditEnabled());
+			c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 			this.add(c);
 		}
 
-		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge())
-				+ Protocol.getCurrentUser().getExtraDays());
-		c.setEditEnabled(Protocol.isEditEnabled());
-		Console.log(LogType.Information, this,
-				"Edit state: " + Boolean.toString(Protocol.isEditEnabled()));
+		Console.log(LogType.Information, this, "Edit state: " + Boolean.toString(Protocol.isEditEnabled())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -294,6 +257,13 @@ public class MainFrame extends JFrame {
 		if (workAge < 0)
 			return 365;
 		return 0;
+	}
+
+	public void updateState() {
+		Protocol.collectInformation();
+		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
+		c.setEditEnabled(Protocol.isEditEnabled());
+		c.repaint();
 	}
 
 }

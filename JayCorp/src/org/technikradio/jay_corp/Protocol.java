@@ -27,20 +27,20 @@ public class Protocol {
 	}
 
 	private static String[] decodeAnswer(String answer) {
-		if (answer == "null")
+		if (answer == "null") //$NON-NLS-1$
 			throw new NullPointerException();
-		return answer.split(";");
+		return answer.split(";"); //$NON-NLS-1$
 	}
 
 	public static User getUser(int ID) throws PermissionDeninedException,
 			IOException {
 		User u = new User();
 		u.setID(ID);
-		c.transmit("getUser ".concat(Integer.toString(ID)));
+		c.transmit("getUser ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
-		if (result[0].equals("$NOUSER§"))
+		if (result[0].equals("$NOUSER§")) //$NON-NLS-1$
 			return null;
-		if (result[0] == "false") {
+		if (result[0] == "false") { //$NON-NLS-1$
 			throw new PermissionDeninedException();
 		} else {
 			u.setName(result[1]);
@@ -50,9 +50,9 @@ public class Protocol {
 			try {
 				u.setUsername(result[5]);
 			} catch (ArrayIndexOutOfBoundsException e) {
-				Console.log(LogType.Warning, "ProtocolHandler",
-						"The server uses an outdated protocol and didn´t transferred the username...");
-				u.setUsername("Username not given by server");
+				Console.log(LogType.Warning, "ProtocolHandler", //$NON-NLS-1$
+						"The server uses an outdated protocol and didn´t transferred the username..."); //$NON-NLS-1$
+				u.setUsername("Username not given by server"); //$NON-NLS-1$
 			}
 		}
 		return u;
@@ -62,15 +62,15 @@ public class Protocol {
 			PermissionDeninedException {
 		DayTable d = new DayTable();
 		Hashtable<ParaDate, Status> ht = new Hashtable<ParaDate, Status>();
-		c.transmit("getProg ".concat(Integer.toString(ID)));
+		c.transmit("getProg ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
-		if (result[0] == "false") {
+		if (result[0] == "false") { //$NON-NLS-1$
 			throw new PermissionDeninedException();
-		} else if (result[0] == "NO_DATA" || result[0] == "NO") {
+		} else if (result[0] == "NO_DATA" || result[0] == "NO") { //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		} else {
 			for (int i = 1; i < result.length; i++) {
-				String[] a = result[i].split("=");
+				String[] a = result[i].split("="); //$NON-NLS-1$
 				ParaDate pd = ParaDate.valueOf(a[0]);
 				ht.put(pd, Status.valueOf(a[1]));
 			}
@@ -80,7 +80,7 @@ public class Protocol {
 	}
 
 	public static boolean login(String username, String password) {
-		c.transmit("login ".concat(username).concat(" ")
+		c.transmit("login ".concat(username).concat(" ") //$NON-NLS-1$ //$NON-NLS-2$
 				.concat(Base64Coding.encode(password)));
 		try {
 			String result = c.receive();
@@ -89,8 +89,8 @@ public class Protocol {
 			if (validLogin) {
 				currentUser = getUser(Integer.parseInt(a[1]));
 			} else {
-				Console.log(LogType.Warning, "ProtocolHandler",
-						"Incorrect login");
+				Console.log(LogType.Warning, "ProtocolHandler", //$NON-NLS-1$
+						"Incorrect login"); //$NON-NLS-1$
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -99,7 +99,7 @@ public class Protocol {
 			e.printStackTrace();
 			return false;
 		} catch (NullPointerException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
 					e.getLocalizedMessage());
 			return false;
 		} catch (Exception e) {
@@ -113,7 +113,7 @@ public class Protocol {
 
 	public static boolean setDay(ParaDate d, Status s, int ID) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("setDay ");
+		sb.append("setDay "); //$NON-NLS-1$
 		sb.append(d.toString());
 		sb.append(' ');
 		sb.append(s.toString());
@@ -123,8 +123,8 @@ public class Protocol {
 		try {
 			return Boolean.valueOf(c.receive());
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"An unexpected exception occured: " + e.getMessage());
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"An unexpected exception occured: " + e.getMessage()); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}
@@ -132,17 +132,17 @@ public class Protocol {
 
 	public static boolean addUser(String name, String username,
 			String password, int ID, int workingAge) {
-		c.transmit("addUser "
+		c.transmit("addUser " //$NON-NLS-1$
 				.concat(Base64Coding.encode(name))
-				.concat(" ")
+				.concat(" ") //$NON-NLS-1$
 				.concat(Base64Coding.encode(password))
-				.concat(" ")
-				.concat(Integer.toString(ID).concat(" ")
-						.concat(Integer.toString(workingAge))).concat(" ")
+				.concat(" ") //$NON-NLS-1$
+				.concat(Integer.toString(ID).concat(" ") //$NON-NLS-1$
+						.concat(Integer.toString(workingAge))).concat(" ") //$NON-NLS-1$
 				.concat(username));
 		try {
 			String a = decodeAnswer(c.receive())[0];
-			if (a == "false")
+			if (a == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -165,7 +165,7 @@ public class Protocol {
 	}
 
 	public static int[] getUsers() {
-		c.transmit("getUsers");
+		c.transmit("getUsers"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
 			int[] rtv = new int[a.length];
@@ -180,7 +180,7 @@ public class Protocol {
 	}
 
 	public static int getIDCount() {
-		c.transmit("getIDCount");
+		c.transmit("getIDCount"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
 			return Integer.parseInt(a[0]);
@@ -193,10 +193,10 @@ public class Protocol {
 	}
 
 	public static boolean save() {
-		c.transmit("save");
+		c.transmit("save"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -206,7 +206,7 @@ public class Protocol {
 	}
 
 	public static void disconnect() {
-		c.transmit("disconnect");
+		c.transmit("disconnect"); //$NON-NLS-1$
 		try {
 			c.stop();
 		} catch (IOException e) {
@@ -219,10 +219,10 @@ public class Protocol {
 	}
 
 	public static boolean assoziateID(int ID, String username) {
-		c.transmit("assoziate " + Integer.toString(ID) + " " + username);
+		c.transmit("assoziate " + Integer.toString(ID) + " " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -232,10 +232,10 @@ public class Protocol {
 	}
 
 	public static boolean setEditEnableOnServer(boolean flag) {
-		c.transmit("setEditEnable " + Boolean.toString(flag));
+		c.transmit("setEditEnable " + Boolean.toString(flag)); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -247,10 +247,10 @@ public class Protocol {
 
 	public static Righttable getRights(int ID) {
 		Righttable rt = new Righttable();
-		c.transmit("getRights ".concat(Integer.toString(ID)));
+		c.transmit("getRights ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return null;
 			rt.setAccessUserInputAllowed(Boolean.valueOf(a[1]));
 			rt.setAddUserAllowed(Boolean.valueOf(a[2]));
@@ -268,15 +268,15 @@ public class Protocol {
 	}
 
 	public static boolean loadEditEnabled() {
-		c.transmit("getEditEnabled");
+		c.transmit("getEditEnabled"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
 			// System.out.println(a[0]);
-			if (a[0].toLowerCase().equals("false"))
+			if (a[0].toLowerCase().equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"An unexpected error occured (perhaps networking?):");
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"An unexpected error occured (perhaps networking?):"); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}
@@ -289,13 +289,13 @@ public class Protocol {
 		try {
 			currentUser.setSelectedDays(getProgress(currentUser.getID()));
 		} catch (IOException | PermissionDeninedException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"An error occured doing content excange");
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"An error occured doing content excange"); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}
-		Console.log(LogType.StdOut, "ProtocolHandler",
-				"Successfully loaded all data.");
+		Console.log(LogType.StdOut, "ProtocolHandler", //$NON-NLS-1$
+				"Successfully loaded all data."); //$NON-NLS-1$
 		return true;
 	}
 
@@ -335,12 +335,12 @@ public class Protocol {
 	}
 
 	public static String getMessageHash() {
-		c.transmit("getMessageHash");
+		c.transmit("getMessageHash"); //$NON-NLS-1$
 		try {
 			return c.receive();
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"Failed to recieve message hash");
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"Failed to recieve message hash"); //$NON-NLS-1$
 			e.printStackTrace();
 			return null;
 		}
@@ -348,18 +348,18 @@ public class Protocol {
 
 	public static boolean changePassword(String newPassword, int id) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("changePSWD ");
+		sb.append("changePSWD "); //$NON-NLS-1$
 		sb.append(id);
 		sb.append(' ');
 		sb.append(Base64Coding.encode(newPassword));
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"Failed to recieve critical request answer:");
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}
@@ -368,18 +368,18 @@ public class Protocol {
 
 	public static boolean changeExtraDays(int days, int id) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("changeDays ");
+		sb.append("changeDays "); //$NON-NLS-1$
 		sb.append(id);
 		sb.append(' ');
 		sb.append(days);
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"Failed to recieve critical request answer:");
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}
@@ -388,7 +388,7 @@ public class Protocol {
 
 	public static boolean changeRights(int id, Righttable rt) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("setRights ");
+		sb.append("setRights "); //$NON-NLS-1$
 		sb.append(id);
 		sb.append(' ');
 		sb.append(Boolean.toString(rt.isAccessUserInputAllowed()));
@@ -409,11 +409,11 @@ public class Protocol {
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false")
+			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ProtocolHandler",
-					"Failed to recieve critical request answer:");
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}

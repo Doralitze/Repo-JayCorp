@@ -45,14 +45,14 @@ public class CSVImporter {
 
 	public void upload() {
 		workFile = AdvancedFileInputDialog.showDialog(null, null, f,
-				Strings.getString("CSVImporter.DialogTitle"));
+				Strings.getString("CSVImporter.DialogTitle")); //$NON-NLS-1$
 		if (workFile == null)
 			return;
 		Righttable defaultRT = RightEditFrame.showDialog(new Righttable());
 		// Righttable defaultRT = new Righttable();
 		progressIndicator.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		progressIndicator.setValv(0, 100, 1);
-		progressIndicator.setInfoLabelText("Lade datei hoch...");
+		progressIndicator.setInfoLabelText(Strings.getString("CSVImporter.UploadHint")); //$NON-NLS-1$
 		progressIndicator.setVisible(true);
 		BufferedReader br = null;
 		DataInputStream in = null;
@@ -78,7 +78,7 @@ public class CSVImporter {
 					u.setRights(defaultRT);
 					Protocol.addUser(u);
 					Console.log(LogType.StdOut, this,
-							"Adding user: " + u.getName());
+							"Adding user: " + u.getName()); //$NON-NLS-1$
 				}
 				i++;
 			}
@@ -106,7 +106,7 @@ public class CSVImporter {
 				Console.log(LogType.Error, this, "An unknown error occured:"); //$NON-NLS-1$
 				e.printStackTrace();
 			}
-			Console.log(LogType.StdOut, this, "Done uploading file");
+			Console.log(LogType.StdOut, this, "Done uploading file"); //$NON-NLS-1$
 		}
 
 	}

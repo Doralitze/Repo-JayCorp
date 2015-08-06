@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.Window;
@@ -15,10 +16,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -44,6 +48,8 @@ public class SettingsFrame extends JDialog {
 	private JPanel[] pages;
 	private JCheckBox enableAccessCheckBox;
 	private JTable userTable;
+	private JSpinner allowedDaysSelector;
+	private MainFrame owner;
 	private final SettingsFrame ownHandle = this;
 
 	public SettingsFrame() {
@@ -111,20 +117,17 @@ public class SettingsFrame extends JDialog {
 		setup();
 	}
 
-	public SettingsFrame(Frame arg0, String arg1, boolean arg2,
-			GraphicsConfiguration arg3) {
+	public SettingsFrame(Frame arg0, String arg1, boolean arg2, GraphicsConfiguration arg3) {
 		super(arg0, arg1, arg2, arg3);
 		setup();
 	}
 
-	public SettingsFrame(Dialog arg0, String arg1, boolean arg2,
-			GraphicsConfiguration arg3) {
+	public SettingsFrame(Dialog arg0, String arg1, boolean arg2, GraphicsConfiguration arg3) {
 		super(arg0, arg1, arg2, arg3);
 		setup();
 	}
 
-	public SettingsFrame(Window arg0, String arg1, ModalityType arg2,
-			GraphicsConfiguration arg3) {
+	public SettingsFrame(Window arg0, String arg1, ModalityType arg2, GraphicsConfiguration arg3) {
 		super(arg0, arg1, arg2, arg3);
 		setup();
 	}
@@ -158,32 +161,24 @@ public class SettingsFrame extends JDialog {
 		cancleButton.setText(Strings.getString("SettingsFrame.CancleButton")); //$NON-NLS-1$
 		okButton.setText(Strings.getString("SettingsFrame.OKButton")); //$NON-NLS-1$
 		addUserButton.setText(Strings.getString("SettingsFrame.AddUserButton")); //$NON-NLS-1$
-		addUserBySystem.setText(Strings
-				.getString("SettingsFrame.LoadUserFileButton")); //$NON-NLS-1$
+		addUserBySystem.setText(Strings.getString("SettingsFrame.LoadUserFileButton")); //$NON-NLS-1$
 		okButton.setSize(100, 25);
 		cancleButton.setSize(100, 25);
 		okButton.setPreferredSize(okButton.getSize());
 		cancleButton.setPreferredSize(cancleButton.getSize());
-		enableAccessCheckBox.setText(Strings
-				.getString("SettingsFrame.openEditEnabled")); //$NON-NLS-1$
+		enableAccessCheckBox.setText(Strings.getString("SettingsFrame.openEditEnabled")); //$NON-NLS-1$
 		try {
-			enableAccessCheckBox.setEnabled(Protocol.getCurrentUser()
-					.getRights().isOpenCloseEditAllowed());
+			enableAccessCheckBox.setEnabled(Protocol.getCurrentUser().getRights().isOpenCloseEditAllowed());
 		} catch (NullPointerException e) {
-			Console.log(LogType.Error, this,
-					Strings.getString("ErrorMessages.SettingsFrame.NullData")); //$NON-NLS-1$
+			Console.log(LogType.Error, this, Strings.getString("ErrorMessages.SettingsFrame.NullData")); //$NON-NLS-1$
 			enableAccessCheckBox.setEnabled(false);
 		}
 		pages[0].add(enableAccessCheckBox);
 		{
-			changePSWButton.setText(Strings
-					.getString("SettingsFrame.ChangePasswordText")); //$NON-NLS-1$
-			changePSWButton.setToolTipText(Strings
-					.getString("SettingsFrame.ChangePasswordToolTip")); //$NON-NLS-1$
-			downloadFileButton.setText(Strings
-					.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
-			downloadFileButton.setToolTipText(Strings
-					.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
+			changePSWButton.setText(Strings.getString("SettingsFrame.ChangePasswordText")); //$NON-NLS-1$
+			changePSWButton.setToolTipText(Strings.getString("SettingsFrame.ChangePasswordToolTip")); //$NON-NLS-1$
+			downloadFileButton.setText(Strings.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
+			downloadFileButton.setToolTipText(Strings.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
 			changePSWButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -192,22 +187,16 @@ public class SettingsFrame extends JDialog {
 
 						@Override
 						public void run() {
-							Console.log(LogType.StdOut, ownHandle,
-									"Change password button pressed");
-							String newPSWD = PasswordInputDialog.showDialog(
-									null, "", "Passwort ändern");
+							Console.log(LogType.StdOut, ownHandle, "Change password button pressed"); //$NON-NLS-1$
+							String newPSWD = PasswordInputDialog.showDialog(null, "", Strings.getString("SettingsFrame.ChangePassword")); //$NON-NLS-1$ //$NON-NLS-2$
 							boolean success = false;
 							if (newPSWD != null)
-								success = Protocol.changePassword(newPSWD,
-										Protocol.getCurrentUser().getID());
-							Console.log(
-									LogType.StdOut,
-									ownHandle,
-									"Successfull password change: "
-											+ Boolean.toString(success));
+								success = Protocol.changePassword(newPSWD, Protocol.getCurrentUser().getID());
+							Console.log(LogType.StdOut, ownHandle,
+									"Successfull password change: " + Boolean.toString(success)); //$NON-NLS-1$
 						}
 					});
-					t.setName("PasswordWaiterThread");
+					t.setName("PasswordWaiterThread"); //$NON-NLS-1$
 					t.start();
 				}
 			});
@@ -219,13 +208,12 @@ public class SettingsFrame extends JDialog {
 
 						@Override
 						public void run() {
-							Console.log(LogType.Information, this,
-									"Downloading userfile"); //$NON-NLS-1$
+							Console.log(LogType.Information, this, "Downloading userfile"); //$NON-NLS-1$
 							new DataDownloadProcessor(pages[0]).download();
 							;
 						}
 					});
-					t.setName("DownloadWaiterThread");
+					t.setName("DownloadWaiterThread"); //$NON-NLS-1$
 					t.start();
 
 				}
@@ -244,7 +232,7 @@ public class SettingsFrame extends JDialog {
 						new CSVImporter(pages[1]).upload();
 					}
 				});
-				t.setName("UploadWaiterThread");
+				t.setName("UploadWaiterThread"); //$NON-NLS-1$
 				t.start();
 
 			}
@@ -272,7 +260,7 @@ public class SettingsFrame extends JDialog {
 			tabBox.addTab(p.getName(), p);
 		}
 		this.setSize(660, 500);
-		this.setTitle(Strings.getString("SettingsFrame.Title")); //$NON-NLS-1$
+		this.setTitle(Strings.getString("SettingsFrame.TitleLoading")); //$NON-NLS-1$
 		{
 			JPanel jc = new JPanel();
 			jc.add(tabBox);
@@ -308,84 +296,112 @@ public class SettingsFrame extends JDialog {
 				}
 			});
 		}
-		// Load the data
 		{
-			{
-				enableAccessCheckBox.setEnabled(Protocol.getCurrentUser()
-						.getRights().isOpenCloseEditAllowed());
-				enableAccessCheckBox.setSelected(Protocol.isEditEnabled());
-				addUserButton.setEnabled(Protocol.getCurrentUser().getRights()
-						.isAddUserAllowed());
-				addUserBySystem.setEnabled(Protocol.getCurrentUser()
-						.getRights().isAddUserAllowed());
-			}
-			try {
-				if (Protocol.getCurrentUser().getRights()
-						.isListAllUsersAllowed()
-						&& Protocol.getCurrentUser().getRights()
-								.isEditUserAllowed()) {
-					String[] tableNames = {
-							Strings.getString("SettingsFrame.UserNameHeader"), Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$ //$NON-NLS-2$
-							Strings.getString("SettingsFrame.RightsHeader"), Strings.getString("SettingsFrame.AgeHeader"), Strings.getString("SettingsFrame.IDHeader") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					ArrayList<User> users = new ArrayList<User>();
-					int ids[] = Protocol.getUsers();
-					for (int id : ids) {
-						try {
-							User u = Protocol.getUser(id);
-							u.setRights(Protocol.getRights(id));
-							users.add(u);
-						} catch (Exception e) {
-							Console.log(LogType.Error, this,
-									"An unknown error occured"); //$NON-NLS-1$
-							e.printStackTrace();
-						}
-					}
-					for (int i = 0; i < tableNames.length; i++) {
-						TableColumn c = new TableColumn();
-						c.setHeaderValue(tableNames[i]);
-						c.setMinWidth(125);
-						c.setResizable(true);
-						userTable.getColumnModel().addColumn(c);
-					}
-					DefaultTableModel dtm = (DefaultTableModel) userTable
-							.getModel();
-					for (User u : users) {
-						String[] data = new String[5];
-						data[0] = u.getUsername();
-						data[1] = u.getName();
-						data[2] = Byte.toString(RightEditFrame.getRight(u
-								.getRights()));
-						data[3] = Integer.toString(u.getWorkAge());
-						data[4] = Integer.toString(u.getID());
-						Console.log(LogType.StdOut, this,
-								"Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
-						dtm.addRow(data);
-					}
-					{
-						System.out.println(dtm.getRowCount());
-					}
-					userTable.setSize(50, 50);
-					userTable.setBackground(Color.black);
-					userTable.repaint();
-				}
-			} catch (Exception e) {
-				Console.log(LogType.Error, this,
-						"An unknown exception occured while loading the data: "); //$NON-NLS-1$
-				e.printStackTrace();
+			allowedDaysSelector = new JSpinner();
+			allowedDaysSelector.setModel(new SpinnerNumberModel(Protocol.getCurrentUser().getExtraDays(), 0, 365, 1));
+			allowedDaysSelector
+					.setToolTipText(Strings.getString("SettingsFrame.AllowedDaysToolTip")); //$NON-NLS-1$
+			JLabel hintLabel = new JLabel(Strings.getString("SettingsFrame.AllowedDaysText")); //$NON-NLS-1$
+			JPanel containerLabel = new JPanel();
+			containerLabel.setLayout(new FlowLayout());
+			containerLabel.add(hintLabel);
+			containerLabel.add(allowedDaysSelector);
+			pages[0].add(containerLabel);
+			if (Protocol.getCurrentUser().getID() == 0) {
+				containerLabel.setEnabled(false);
+				hintLabel.setEnabled(false);
+				allowedDaysSelector.setEnabled(false);
 			}
 		}
+
+		// Load the data
+		Thread t = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				{
+					enableAccessCheckBox.setEnabled(Protocol.getCurrentUser().getRights().isOpenCloseEditAllowed());
+					enableAccessCheckBox.setSelected(Protocol.isEditEnabled());
+					addUserButton.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
+					addUserBySystem.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
+				}
+				try {
+					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
+							&& Protocol.getCurrentUser().getRights().isEditUserAllowed()) {
+						String[] tableNames = { Strings.getString("SettingsFrame.UserNameHeader"), //$NON-NLS-1$
+								Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$
+								Strings.getString("SettingsFrame.RightsHeader"), //$NON-NLS-1$
+								Strings.getString("SettingsFrame.AgeHeader"), //$NON-NLS-1$
+								Strings.getString("SettingsFrame.IDHeader") }; //$NON-NLS-1$
+						ArrayList<User> users = new ArrayList<User>();
+						int ids[] = Protocol.getUsers();
+						for (int id : ids) {
+							try {
+								User u = Protocol.getUser(id);
+								u.setRights(Protocol.getRights(id));
+								users.add(u);
+							} catch (Exception e) {
+								Console.log(LogType.Error, this, "An unknown error occured"); //$NON-NLS-1$
+								e.printStackTrace();
+							}
+						}
+						for (int i = 0; i < tableNames.length; i++) {
+							TableColumn c = new TableColumn();
+							c.setHeaderValue(tableNames[i]);
+							c.setMinWidth(125);
+							c.setResizable(true);
+							userTable.getColumnModel().addColumn(c);
+						}
+						DefaultTableModel dtm = (DefaultTableModel) userTable.getModel();
+						for (User u : users) {
+							String[] data = new String[5];
+							data[0] = u.getUsername();
+							data[1] = u.getName();
+							data[2] = Byte.toString(RightEditFrame.getRight(u.getRights()));
+							data[3] = Integer.toString(u.getWorkAge());
+							data[4] = Integer.toString(u.getID());
+							Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
+							dtm.addRow(data);
+						}
+						userTable.setModel(dtm);
+						userTable.setSize(50, 50);
+						userTable.setBackground(Color.black);
+						userTable.repaint();
+					}
+					Console.log(LogType.StdOut, Strings.getString("ErrorMessages.SettingsFrame.name"), //$NON-NLS-1$
+							"Successfully loaded the data"); //$NON-NLS-1$
+				} catch (Exception e) {
+					Console.log(LogType.Error, this, "An unknown exception occured while loading the data: "); //$NON-NLS-1$
+					e.printStackTrace();
+				}
+				ownHandle.setTitle(Strings.getString("SettingsFrame.Title")); //$NON-NLS-1$
+			}
+		});
+		t.setPriority(Thread.MAX_PRIORITY);
+		t.setName("SettingsDataLoadThread"); //$NON-NLS-1$
+		t.start();
 		userTable.setVisible(false);
+
 		repaint();
 	}
 
 	private void pushSettings() {
-		if (enableAccessCheckBox.isSelected() != Protocol.isEditEnabled()
-				&& enableAccessCheckBox.isEnabled()) {
+		if (enableAccessCheckBox.isSelected() != Protocol.isEditEnabled() && enableAccessCheckBox.isEnabled()) {
 			// set EDIT_ENABLED_FLAG
 			Protocol.setEditEnableOnServer(enableAccessCheckBox.isSelected());
 		}
-
+		if (Protocol.getCurrentUser().getID() != 0) {
+			SpinnerNumberModel model = (SpinnerNumberModel) allowedDaysSelector.getModel();
+			if (model.getNumber().intValue() != 0) {
+				Protocol.changeExtraDays(model.getNumber().intValue(), Protocol.getCurrentUser().getID());
+			}
+		}
 		Console.log(LogType.StdOut, this, "Successfully transmitted settings"); //$NON-NLS-1$
+		owner.updateState();
+	}
+
+	public void setOwner(MainFrame mf) {
+		this.owner = mf;
 	}
 
 }

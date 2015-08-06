@@ -3,6 +3,7 @@ package org.technikradio.jay_corp;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
@@ -27,9 +28,7 @@ public class MessageStreamHandler {
 			// Wait for Server to catch up
 			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
-			Console.log(
-					LogType.Error,
-					this,
+			Console.log(LogType.Error, this,
 					"This thread was interrupted doing a critical operation. Expect this data to be corupted!"); //$NON-NLS-1$
 			e1.printStackTrace();
 		}
@@ -39,11 +38,9 @@ public class MessageStreamHandler {
 		}
 		try {
 			s = new Socket(Settings.getString("Connection.Address"), //$NON-NLS-1$
-					Integer.parseInt(Settings
-							.getString("Connection.MessagePort"))); //$NON-NLS-1$
+					Integer.parseInt(Settings.getString("Connection.MessagePort"))); //$NON-NLS-1$
 		} catch (NumberFormatException | IOException e) {
-			Console.log(LogType.Error, this,
-					"Couldn´t connect to the message stream:"); //$NON-NLS-1$
+			Console.log(LogType.Error, this, "Couldn´t connect to the message stream:"); //$NON-NLS-1$
 			e.printStackTrace();
 			VALID = false;
 			return;
@@ -51,8 +48,7 @@ public class MessageStreamHandler {
 		try {
 			in = new Scanner(s.getInputStream());
 		} catch (IOException e) {
-			Console.log(LogType.Error, this,
-					"Couldn´t bind scanner to the message stream:"); //$NON-NLS-1$
+			Console.log(LogType.Error, this, "Couldn´t bind scanner to the message stream:"); //$NON-NLS-1$
 			e.printStackTrace();
 			VALID = false;
 			return;
@@ -60,8 +56,7 @@ public class MessageStreamHandler {
 		try {
 			out = new PrintStream(s.getOutputStream());
 		} catch (IOException e) {
-			Console.log(LogType.Error, this,
-					"Couldn´t bind output printer to the message stream:"); //$NON-NLS-1$
+			Console.log(LogType.Error, this, "Couldn´t bind output printer to the message stream:"); //$NON-NLS-1$
 			e.printStackTrace();
 			VALID = false;
 			return;
@@ -69,9 +64,7 @@ public class MessageStreamHandler {
 		out.println(hash);
 		String entry = in.nextLine();
 		if (!entry.matches("Success")) { //$NON-NLS-1$
-			Console.log(
-					LogType.Error,
-					this,
+			Console.log(LogType.Error, this,
 					"Couldn´t connect to the message stream: something went wrong on the server side: " //$NON-NLS-1$
 							+ entry);
 			VALID = false;
@@ -82,63 +75,51 @@ public class MessageStreamHandler {
 
 	public void run() {
 		if (!VALID)
-			throw new RuntimeException(
-					"This stream doesn´t have a valid connection!"); //$NON-NLS-1$
-		while (running) {
-			String line = in.nextLine();
-			switch (line) {
-			case "disconnect": //$NON-NLS-1$
-				Console.log(LogType.Information, this,
-						"Remote host requests disconnect"); //$NON-NLS-1$
-				Protocol.disconnect();
-				JOptionPane
-						.showMessageDialog(
-								null,
-								Strings.getString("MessageStreamHandler.OnExitMessage"), //$NON-NLS-1$
-								Strings.getString("MessageStreamHandler.MessageHeaderExit") + toString(), //$NON-NLS-1$
-								JOptionPane.ERROR_MESSAGE);
-				JayCorp.exit(2);
-				break;
-			case "reload": //$NON-NLS-1$
-				Console.log(LogType.Information, this,
-						"Remote host requests data reload"); //$NON-NLS-1$
-				Protocol.collectInformation();
-				break;
-			case "setDays": //$NON-NLS-1$
-				// Change default free days:
-				Console.log(LogType.StdOut, this,
-						"Asked client to set extra days"); //$NON-NLS-1$
-				JOptionPane
-						.showMessageDialog(
-								null,
-								Strings.getString("MessageStreamHandler.OnDaysMessage"), //$NON-NLS-1$
-								Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
-								JOptionPane.ERROR_MESSAGE);
-				break;
-			case "changePassword": //$NON-NLS-1$
-				// Change default password:
-				Console.log(LogType.StdOut, this,
-						"Asked client to change it's password"); //$NON-NLS-1$
-				JOptionPane
-						.showMessageDialog(
-								null,
-								Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
-								Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
-								JOptionPane.ERROR_MESSAGE);
-				break;
-			default:
-				Console.log(LogType.Information, this,
-						"recieved corupted data: " + line); //$NON-NLS-1$
-			}
-		}
-		in.close();
-		out.close();
+			throw new RuntimeException("This stream doesn´t have a valid connection!"); //$NON-NLS-1$
 		try {
-			s.close();
-		} catch (IOException e) {
-			Console.log(LogType.Error, this,
-					"An error occured while closing the message stream connection"); //$NON-NLS-1$
-			e.printStackTrace();
+			while (running) {
+				String line = in.nextLine();
+				switch (line) {
+				case "disconnect": //$NON-NLS-1$
+					Console.log(LogType.Information, this, "Remote host requests disconnect"); //$NON-NLS-1$
+					Protocol.disconnect();
+					JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnExitMessage"), //$NON-NLS-1$
+							Strings.getString("MessageStreamHandler.MessageHeaderExit") + toString(), //$NON-NLS-1$
+							JOptionPane.ERROR_MESSAGE);
+					JayCorp.exit(2);
+					break;
+				case "reload": //$NON-NLS-1$
+					Console.log(LogType.Information, this, "Remote host requests data reload"); //$NON-NLS-1$
+					Protocol.collectInformation();
+					break;
+				case "setDays": //$NON-NLS-1$
+					// Change default free days:
+					Console.log(LogType.StdOut, this, "Asked client to set extra days"); //$NON-NLS-1$
+					JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnDaysMessage"), //$NON-NLS-1$
+							Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+							JOptionPane.ERROR_MESSAGE);
+					break;
+				case "changePassword": //$NON-NLS-1$
+					// Change default password:
+					Console.log(LogType.StdOut, this, "Asked client to change it's password"); //$NON-NLS-1$
+					JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
+							Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+							JOptionPane.ERROR_MESSAGE);
+					break;
+				default:
+					Console.log(LogType.Information, this, "recieved corupted data: " + line); //$NON-NLS-1$
+				}
+			}
+			in.close();
+			out.close();
+			try {
+				s.close();
+			} catch (IOException e) {
+				Console.log(LogType.Error, this, "An error occured while closing the message stream connection"); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+		} catch (NoSuchElementException e) {
+			Console.log(LogType.Error, this, "Scanner interrupted");
 		}
 	}
 

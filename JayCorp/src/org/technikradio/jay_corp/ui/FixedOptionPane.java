@@ -50,7 +50,7 @@ public class FixedOptionPane extends JOptionPane {
 	}
 
 	private void setup() {
-		this.getRootPane().putClientProperty("apple.awt.documentModalSheet",
+		this.getRootPane().putClientProperty("apple.awt.documentModalSheet", //$NON-NLS-1$
 				Boolean.TRUE);
 	}
 
@@ -68,9 +68,9 @@ public class FixedOptionPane extends JOptionPane {
 				: parentComponent).getComponentOrientation());
 
 		JDialog dialog = pane.createDialog(parentComponent, title);
-		pane.getRootPane().putClientProperty("apple.awt.documentModalSheet",
+		pane.getRootPane().putClientProperty("apple.awt.documentModalSheet", //$NON-NLS-1$
 				Boolean.TRUE);
-		dialog.getRootPane().putClientProperty("apple.awt.documentModalSheet",
+		dialog.getRootPane().putClientProperty("apple.awt.documentModalSheet", //$NON-NLS-1$
 				Boolean.TRUE);
 		dialog.setModal(true);
 		pane.selectInitialValue();

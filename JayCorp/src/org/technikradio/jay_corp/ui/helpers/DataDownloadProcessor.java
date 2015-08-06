@@ -31,13 +31,13 @@ public class DataDownloadProcessor {
 
 	static {
 		smartSearch = Boolean.parseBoolean(Settings
-				.getString("DataDownloader.SmartSearch"));
-		Console.log(LogType.Information, "DataDownloadProcessor",
-				"SmartSearchEngine enabled: " + Boolean.toString(smartSearch));
+				.getString("DataDownloader.SmartSearch")); //$NON-NLS-1$
+		Console.log(LogType.Information, "DataDownloadProcessor", //$NON-NLS-1$
+				"SmartSearchEngine enabled: " + Boolean.toString(smartSearch)); //$NON-NLS-1$
 		richOutput = Boolean.parseBoolean(Settings
-				.getString("DataDownloader.RichOutput"));
-		Console.log(LogType.Information, "DataDownloadProcessor",
-				"rich output enabled: " + Boolean.toString(richOutput));
+				.getString("DataDownloader.RichOutput")); //$NON-NLS-1$
+		Console.log(LogType.Information, "DataDownloadProcessor", //$NON-NLS-1$
+				"rich output enabled: " + Boolean.toString(richOutput)); //$NON-NLS-1$
 	}
 
 	public DataDownloadProcessor() {
@@ -161,7 +161,7 @@ public class DataDownloadProcessor {
 											Console.log(
 													LogType.StdOut,
 													this,
-													"found: "
+													"found: " //$NON-NLS-1$
 															+ pd.getMinimalDate());
 										break;
 									} else {
@@ -174,7 +174,7 @@ public class DataDownloadProcessor {
 											Console.log(
 													LogType.StdOut,
 													this,
-													"found: "
+													"found: " //$NON-NLS-1$
 															+ pd.getMinimalDate());
 										break;
 									}

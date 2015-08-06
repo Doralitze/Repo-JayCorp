@@ -26,9 +26,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private static final long serialVersionUID = -1865312314642912485L;
 	private DayTable content;
 	private boolean editEnabled = false;
-	private int maxNumDay = 30;
-	private boolean advancedOutputFlag = Boolean.valueOf(Settings
-			.getString(Settings.getString("AdvancedOutputMode"))); //$NON-NLS-2$
+	private int maxNumDay = 0;
+	private boolean advancedOutputFlag = Boolean.valueOf(Settings.getString(Settings.getString("AdvancedOutputMode"))); // $NON-NLS-2$
 	private String infoMessage = "";
 
 	// Internal data cache
@@ -39,7 +38,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private boolean changed = false;
 
 	public enum Month {
-		JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULI, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER, ;
+		JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULI, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER,;
 
 		public static Month valueOf(int ordinal) throws DateException {
 			if (ordinal < 0 || ordinal > 11)
@@ -83,8 +82,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		content = null;
 		this.addMouseListener(this);
 		this.addKeyListener(this);
-		Console.log(LogType.StdOut, this,
-				"Loaded font: " + Settings.getString("Calendar.UsedFont"));//$NON-NLS-2$
+		Console.log(LogType.StdOut, this, "Loaded font: " + Settings.getString("Calendar.UsedFont"));//$NON-NLS-2$
 	}
 
 	private void calcCache(DayTable d) {
@@ -249,12 +247,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		int width = this.getWidth();
 		int height = this.getHeight();
 		if (content == null) {
-			g.drawString(
-					Strings.getString("Calendar.Messages.LoadingData"), width / 2 - 50, height / 2 - 25); //$NON-NLS-1$
+			g.drawString(Strings.getString("Calendar.Messages.LoadingData"), width / 2 - 50, height / 2 - 25); //$NON-NLS-1$
 			// Render loading animation
 		} else {
 			// Draw the header
-			g.setFont(new Font(Settings.getString("Calendar.UsedFont"), //$NON-NLS-2$
+			g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$
 					Font.BOLD, 15));
 			g.drawLine(0, 25, width, 25);
 			g.drawString(monthToString(currentSelected), 5, 15);
@@ -263,8 +260,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				if (getMaxNumDay() - selectedDays < 1) {
 					g.setColor(Color.RED);
 					if (isAdvancedOutputFlag())
-						Console.log(LogType.Information, this,
-								"There are 0 days left");
+						Console.log(LogType.Information, this, "There are 0 days left");
 				}
 				String s = Strings.getString("Calendar.DaysLeft") //$NON-NLS-1$
 						+ Integer.toString(getMaxNumDay() - selectedDays);
@@ -293,7 +289,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			}
 			{
 				// Render calendar
-				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), //$NON-NLS-2$
+				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$
 						Font.BOLD, 20));
 				float mul = (float) width / 400;
 				while (true)
@@ -305,60 +301,46 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				if (mul > 2)
 					dmul = (float) (mul * 0.5);
 				if (isAdvancedOutputFlag())
-					Console.log(LogType.Information, this,
-							"MUL -> " + Float.toString(mul) + "; DMUL -> " //$NON-NLS-1$ //$NON-NLS-2$
-									+ Float.toString(dmul));
+					Console.log(LogType.Information, this, "MUL -> " + Float.toString(mul) + "; DMUL -> " //$NON-NLS-1$ //$NON-NLS-2$
+							+ Float.toString(dmul));
 				for (int i = 1; i <= 7; i++) {
 					if (i < 6)
 						g.setColor(Color.BLACK);
 					else
 						g.setColor(Color.decode("0xb30000"));
-					int x = (int) ((i * (35 * mul)) + (width - (245 * mul)) / 2)
-							- (int) (30 * mul);
+					int x = (int) ((i * (35 * mul)) + (width - (245 * mul)) / 2) - (int) (30 * mul);
 					int y = (int) (35 * (mul) - 20 * mul);
 					if (y < 50)
 						y = 50;
 					g.drawString(getDayName(i, width), x, y);
 				}
-				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), //$NON-NLS-2$
+				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$
 						Font.BOLD, (int) (10 + mul * mul * 2)));
-				for (int i = 1, r = 1, s = getMonthConversion(currentSelected
-						.ordinal()) - 1; i <= getMonthLenght(currentYear,
-						currentSelected); i++) {
+				for (int i = 1, r = 1, s = getMonthConversion(currentSelected.ordinal()) - 1; i <= getMonthLenght(
+						currentYear, currentSelected); i++) {
 					try {
-						g.setColor(getColor(Status
-								.valueOf(cachedData[currentSelected.ordinal() + 1][i])));
+						g.setColor(getColor(Status.valueOf(cachedData[currentSelected.ordinal() + 1][i])));
 					} catch (Exception e) {
-						Console.log(LogType.Error, this,
-								"An unexpected exception occured: " //$NON-NLS-1$
-										+ e.getMessage());
+						Console.log(LogType.Error, this, "An unexpected exception occured: " //$NON-NLS-1$
+								+ e.getMessage());
 						e.printStackTrace();
 					}
 					int x = (int) ((s * (35 * mul)) + (width - (245 * mul)) / 2);
 					int y = (int) ((r * (35 * mul) + 30) - (35 * mul * 0.5));
-					g.fillRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul),
-							(int) (25 * mul), (int) (25 * mul),
+					g.fillRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul), (int) (25 * mul), (int) (25 * mul),
 							(int) (5 * dmul), (int) (5 * dmul));
 					if (s < 5)
 						g.setColor(Color.BLACK);
 					else
 						g.setColor(Color.decode("0xb30000"));
-					g.drawRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul),
-							(int) (25 * mul), (int) (25 * mul),
+					g.drawRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul), (int) (25 * mul), (int) (25 * mul),
 							(int) (5 * dmul), (int) (5 * dmul));
-					g.drawRoundRect(x + (int) (5 * dmul) + 1, y
-							+ (int) (5 * dmul) + 1, (int) (25 * mul) - 2,
-							(int) (25 * mul) - 2, (int) (5 * dmul) - 1,
-							(int) (5 * dmul) - 1);
+					g.drawRoundRect(x + (int) (5 * dmul) + 1, y + (int) (5 * dmul) + 1, (int) (25 * mul) - 2,
+							(int) (25 * mul) - 2, (int) (5 * dmul) - 1, (int) (5 * dmul) - 1);
 					{
-						int xi = (int) ((25 * mul) / 2)
-								- g.getFontMetrics().stringWidth(
-										Integer.toString(i)) / 2;
-						int yi = (int) ((25 * mul) / 2)
-								+ g.getFontMetrics().getHeight() / 3;
-						g.drawString(Integer.toString(i),
-								(x + (int) (5 * dmul)) + xi,
-								(y + (int) (5 * dmul)) + yi);
+						int xi = (int) ((25 * mul) / 2) - g.getFontMetrics().stringWidth(Integer.toString(i)) / 2;
+						int yi = (int) ((25 * mul) / 2) + g.getFontMetrics().getHeight() / 3;
+						g.drawString(Integer.toString(i), (x + (int) (5 * dmul)) + xi, (y + (int) (5 * dmul)) + yi);
 					}
 					s++;
 					if (s == 7) {
@@ -371,8 +353,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 					g.setColor(Color.BLACK);
 					g.drawLine(0, height - 25, width, height - 25);
 					{
-						g.setFont(new Font(Settings
-								.getString("Calendar.UsedFont"), //$NON-NLS-2$
+						g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$
 								Font.BOLD, 11));
 						int x = 25;
 						g.setColor(getColor(Status.normal));
@@ -380,11 +361,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						g.drawString(
-								Strings.getString("Calendar.Messages.InfoNormal"), x, height - 7);//$NON-NLS-1$
-						x += g.getFontMetrics()
-								.stringWidth(
-										Strings.getString("Calendar.Messages.InfoNormal")) + 10;
+						g.drawString(Strings.getString("Calendar.Messages.InfoNormal"), x, height - 7);//$NON-NLS-1$
+						x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoNormal")) + 10;
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
 						g.setColor(getColor(Status.allowed));
@@ -392,11 +370,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						g.drawString(
-								Strings.getString("Calendar.Messages.InfoAllowed"), x, height - 7);//$NON-NLS-1$
-						x += g.getFontMetrics()
-								.stringWidth(
-										Strings.getString("Calendar.Messages.InfoAllowed")) + 10;
+						g.drawString(Strings.getString("Calendar.Messages.InfoAllowed"), x, height - 7);//$NON-NLS-1$
+						x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoAllowed")) + 10;
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
 						g.setColor(getColor(Status.selected));
@@ -404,26 +379,17 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						g.drawString(
-								Strings.getString("Calendar.Messages.InfoSelected"), x, height - 7);//$NON-NLS-1$
-						x += g.getFontMetrics()
-								.stringWidth(
-										Strings.getString("Calendar.Messages.InfoSelected")) + 10;
+						g.drawString(Strings.getString("Calendar.Messages.InfoSelected"), x, height - 7);//$NON-NLS-1$
+						x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoSelected")) + 10;
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
 						if (isChanged()) {
-							g.drawString(
-									Strings.getString("Calendar.Messages.Unsaved"), x, height - 7);//$NON-NLS-1$
-							x += g.getFontMetrics()
-									.stringWidth(
-											Strings.getString("Calendar.Messages.Unsaved")) + 10;
+							g.drawString(Strings.getString("Calendar.Messages.Unsaved"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.Unsaved")) + 10;
 							g.drawLine(x, height - 25, x, height);
 						} else {
-							g.drawString(
-									Strings.getString("Calendar.Messages.Saved"), x, height - 7);//$NON-NLS-1$
-							x += g.getFontMetrics()
-									.stringWidth(
-											Strings.getString("Calendar.Messages.Saved")) + 10;
+							g.drawString(Strings.getString("Calendar.Messages.Saved"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.Saved")) + 10;
 						}
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
@@ -433,8 +399,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			}
 		}
 		if (isAdvancedOutputFlag())
-			Console.log(LogType.Information, this,
-					"Successfully painted control"); //$NON-NLS-1$
+			Console.log(LogType.Information, this, "Successfully painted control"); //$NON-NLS-1$
 		if (!isEditEnabled()) {
 			g.setColor(new Color(100, 100, 100, 200));
 			g.fillRect(0, 26, width, height - (26 * 2) + 1);
@@ -444,14 +409,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private Color getColor(Status s) {
 		switch (s) {
 		case allowed:
-			return Color.decode(Settings
-					.getString("Calendar.Color.StatusAllowed"));//$NON-NLS-2$
+			return Color.decode(Settings.getString("Calendar.Color.StatusAllowed"));// $NON-NLS-2$
 		case normal:
-			return Color.decode(Settings
-					.getString("Calendar.Color.StatusNormal"));//$NON-NLS-2$
+			return Color.decode(Settings.getString("Calendar.Color.StatusNormal"));// $NON-NLS-2$
 		case selected:
-			return Color.decode(Settings
-					.getString("Calendar.Color.StatusSelected"));//$NON-NLS-2$
+			return Color.decode(Settings.getString("Calendar.Color.StatusSelected"));// $NON-NLS-2$
 		default:
 			return Color.BLACK;
 		}
@@ -477,16 +439,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				if (y >= 5 && y <= 20) {
 					if (currentSelected != Month.JANUARY) {
 						try {
-							currentSelected = Month.valueOf(currentSelected
-									.ordinal() - 1);
+							currentSelected = Month.valueOf(currentSelected.ordinal() - 1);
 							if (isAdvancedOutputFlag())
-								Console.log(LogType.Information, this,
-										"Pressed on rew button");
+								Console.log(LogType.Information, this, "Pressed on rew button");
 						} catch (DateException e1) {
-							Console.log(
-									LogType.Error,
-									this,
-									"An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
+							Console.log(LogType.Error, this, "An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
 							e1.printStackTrace();
 						}
 					}
@@ -496,16 +453,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				if (y >= 5 && y <= 20) {
 					if (currentSelected != Month.DECEMBER) {
 						try {
-							currentSelected = Month.valueOf(currentSelected
-									.ordinal() + 1);
+							currentSelected = Month.valueOf(currentSelected.ordinal() + 1);
 							if (isAdvancedOutputFlag())
-								Console.log(LogType.Information, this,
-										"Pressed on next button");
+								Console.log(LogType.Information, this, "Pressed on next button");
 						} catch (DateException e1) {
-							Console.log(
-									LogType.Error,
-									this,
-									"An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
+							Console.log(LogType.Error, this, "An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
 							e1.printStackTrace();
 						}
 					}
@@ -513,9 +465,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			}
 		} else {
 			if (isEditEnabled())
-				for (int i = 1, r = 1, s = getMonthConversion(currentSelected
-						.ordinal()) - 1; i <= getMonthLenght(currentYear,
-						currentSelected); i++) {
+				for (int i = 1, r = 1, s = getMonthConversion(currentSelected.ordinal()) - 1; i <= getMonthLenght(
+						currentYear, currentSelected); i++) {
 					float t = (float) width / 400;
 					while (true)
 						if ((t * 35) + 50 > height)
@@ -527,28 +478,21 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						w = (float) (t * 0.5);
 					int u = (int) ((s * (35 * t)) + (width - (245 * t)) / 2);
 					int v = (int) ((r * (35 * t) + 30) - (35 * t * 0.5));
-					if (x >= (u + (int) (5 * w))
-							&& x <= ((u + (int) (5 * w)) + (int) (25 * t))) {
-						if (y >= v + (int) (5 * w)
-								&& y <= (v + (int) (5 * w) + (int) (25 * t))) {
+					if (x >= (u + (int) (5 * w)) && x <= ((u + (int) (5 * w)) + (int) (25 * t))) {
+						if (y >= v + (int) (5 * w) && y <= (v + (int) (5 * w) + (int) (25 * t))) {
 							if (isAdvancedOutputFlag())
-								Console.log(LogType.Information, this,
-										"Pressed on day element: (" + i + ") ");
+								Console.log(LogType.Information, this, "Pressed on day element: (" + i + ") ");
 							setChanged(true);
-							if (cachedData[currentSelected.ordinal() + 1][i] == Status.allowed
-									.ordinal()) {
+							if (cachedData[currentSelected.ordinal() + 1][i] == Status.allowed.ordinal()) {
 								if (getMaxNumDay() - selectedDays > 0) {
 									selectedDays++;
-									cachedData[currentSelected.ordinal() + 1][i] = Status.selected
-											.ordinal();
+									cachedData[currentSelected.ordinal() + 1][i] = Status.selected.ordinal();
 								}
 								if (isAdvancedOutputFlag())
 									System.out.print("allowed found");
-							} else if (cachedData[currentSelected.ordinal() + 1][i] == Status.selected
-									.ordinal()) {
+							} else if (cachedData[currentSelected.ordinal() + 1][i] == Status.selected.ordinal()) {
 								selectedDays--;
-								cachedData[currentSelected.ordinal() + 1][i] = Status.allowed
-										.ordinal();
+								cachedData[currentSelected.ordinal() + 1][i] = Status.allowed.ordinal();
 								if (isAdvancedOutputFlag())
 									System.out.print("selected found");
 							} else {
@@ -620,14 +564,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 					t.setSeconds((short) 0);
 					dt.getDays().put(pd, Status.valueOf(cachedData[i][d]));
 					if (isAdvancedOutputFlag())
-						System.out.println("DTC: " + Integer.toString(d) + "."
-								+ Integer.toString(i) + "."
-								+ Integer.toString(currentYear) + " -> "
-								+ Status.valueOf(cachedData[i][d]).toString());
+						System.out.println("DTC: " + Integer.toString(d) + "." + Integer.toString(i) + "."
+								+ Integer.toString(currentYear) + " -> " + Status.valueOf(cachedData[i][d]).toString());
 				}
 			} catch (Exception e) {
-				Console.log(LogType.Error, this,
-						"An unexpected exception occured: " + e.getMessage()); //$NON-NLS-1$
+				Console.log(LogType.Error, this, "An unexpected exception occured: " + e.getMessage()); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 		}
@@ -664,37 +605,26 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (isAdvancedOutputFlag())
-			Console.log(LogType.Information, this,
-					"Key released: " + e.getKeyCode());
+			Console.log(LogType.Information, this, "Key released: " + e.getKeyCode());
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			if (currentSelected != Month.JANUARY) {
 				try {
-					currentSelected = Month
-							.valueOf(currentSelected.ordinal() - 1);
+					currentSelected = Month.valueOf(currentSelected.ordinal() - 1);
 					if (isAdvancedOutputFlag())
-						Console.log(LogType.Information, this,
-								"Pressed on rew key");
+						Console.log(LogType.Information, this, "Pressed on rew key");
 				} catch (DateException e1) {
-					Console.log(
-							LogType.Error,
-							this,
-							"An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
+					Console.log(LogType.Error, this, "An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
 					e1.printStackTrace();
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			if (currentSelected != Month.DECEMBER) {
 				try {
-					currentSelected = Month
-							.valueOf(currentSelected.ordinal() + 1);
+					currentSelected = Month.valueOf(currentSelected.ordinal() + 1);
 					if (isAdvancedOutputFlag())
-						Console.log(LogType.Information, this,
-								"Pressed on next key");
+						Console.log(LogType.Information, this, "Pressed on next key");
 				} catch (DateException e1) {
-					Console.log(
-							LogType.Error,
-							this,
-							"An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
+					Console.log(LogType.Error, this, "An unexpected exception occured: " + e1.getMessage()); //$NON-NLS-1$
 					e1.printStackTrace();
 				}
 			}

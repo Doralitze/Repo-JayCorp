@@ -51,7 +51,7 @@ public class ProgressIndicator extends JDialog {
 	public void setValv(int min, int max, int prog) {
 		if ((prog > max) || (prog < min))
 			throw new RuntimeException(
-					"Invalid percentage value recieved: min -> " + min + ", max -> " + max + ", value -> " + prog); //$NON-NLS-1$
+					"Invalid percentage value recieved: min -> " + min + ", max -> " + max + ", value -> " + prog); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		pb.setMaximum(max);
 		pb.setMinimum(min);
 		pb.setValue(prog);

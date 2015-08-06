@@ -20,13 +20,13 @@ public class CSVFileFilter extends FileFilter {
 			return true;
 		if (f.isDirectory())
 			return true;
-		if (getEnding(f.getName()).equals("csv"))
+		if (getEnding(f.getName()).equals("csv")) //$NON-NLS-1$
 			return true;
 		return false;
 	}
 
 	private String getEnding(String s) {
-		String[] sa = s.split("\\.");
+		String[] sa = s.split("\\."); //$NON-NLS-1$
 		return sa[sa.length - 1];
 	}
 

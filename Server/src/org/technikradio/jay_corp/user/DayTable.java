@@ -2,6 +2,7 @@ package org.technikradio.jay_corp.user;
 
 import java.util.Hashtable;
 
+import org.technikradio.task.ID;
 import org.technikradio.universal_tools.ParaDate;
 
 public class DayTable {
@@ -9,7 +10,8 @@ public class DayTable {
 	public static final Status defaultStatus = Status.normal;
 
 	public enum Status {
-		normal, allowed, selected, ;
+		normal, allowed, selected,;
+		public final ID ptr = new ID("StatePtr", false);
 
 		public static Status valueOf(int ordinal) throws Exception {
 			switch (ordinal) {
@@ -53,8 +55,7 @@ public class DayTable {
 			dt.setDays((Hashtable<ParaDate, Status>) o);
 			Hashtable<ParaDate, Status> a = dt.getDays();
 			for (ParaDate p : this.getDays().keySet()) {
-				a.put(ParaDate.valueOf(p.toString()),
-						Status.valueOf(this.getDays().get(p).toString()));
+				a.put(ParaDate.valueOf(p.toString()), Status.valueOf(this.getDays().get(p).toString()));
 			}
 		} else
 			throw new IllegalStateException("Illegal clone operation");

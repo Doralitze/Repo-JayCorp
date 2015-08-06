@@ -46,13 +46,6 @@ public class PasswordInputDialog extends JFrame {
 		this.setResizable(false);
 		this.setSize(800, 150);
 
-		infoLabelMain = new JLabel(Strings.getString("PasswordInputDialog.FirstHelperLabel")); //$NON-NLS-1$
-		infoLabelMain.setLocation(630, 30);
-		infoLabelMain.setVisible(true);
-		infoLabelProof = new JLabel(Strings.getString("PasswordInputDialog.SecondHelperLabel")); //$NON-NLS-1$
-		infoLabelProof.setLocation(630, 50);
-		infoLabelProof.setVisible(true);
-
 		okButton = new JButton(Strings.getString("PasswordInputDialog.Submit")); //$NON-NLS-1$
 		okButton.setToolTipText(Strings.getString("PasswordInputDialog.SubmitToolTip")); //$NON-NLS-1$
 		okButton.setLocation(630, 95);
@@ -74,11 +67,9 @@ public class PasswordInputDialog extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (new String(pathText.getPassword()).equals(new String(pass2
-						.getPassword())))
+				if (new String(pathText.getPassword()).equals(new String(pass2.getPassword())))
 					found = WorkState.found;
-				JOptionPane.showMessageDialog(null,
-						Strings.getString("PasswordInputDialog.NoMatchMessageText"), //$NON-NLS-1$
+				JOptionPane.showMessageDialog(null, Strings.getString("PasswordInputDialog.NoMatchMessageText"), //$NON-NLS-1$
 						Strings.getString("PasswordInputDialog.NoMatchMessageHeader"), //$NON-NLS-1$
 						JOptionPane.ERROR_MESSAGE);
 			}
@@ -91,6 +82,15 @@ public class PasswordInputDialog extends JFrame {
 				found = WorkState.aborted;
 			}
 		});
+
+		infoLabelMain = new JLabel(Strings.getString("PasswordInputDialog.FirstHelperLabel")); //$NON-NLS-1$
+		infoLabelMain.setLocation(30 + pathText.size().width, 15);
+		infoLabelMain.setVisible(true);
+		infoLabelMain.setSize(150, 25);
+		infoLabelProof = new JLabel(Strings.getString("PasswordInputDialog.SecondHelperLabel")); //$NON-NLS-1$
+		infoLabelProof.setLocation(30 + pathText.size().width, 50);
+		infoLabelProof.setVisible(true);
+		infoLabelProof.setSize(150, 25);
 
 		okButton.setVisible(true);
 		abortButton.setVisible(true);
@@ -169,7 +169,7 @@ public class PasswordInputDialog extends JFrame {
 					Console.log(LogType.Error, "UIVisualizerThread", //$NON-NLS-1$
 							"This shouln´t had happen:"); //$NON-NLS-1$
 					e.printStackTrace();
-				}// Wait for UI Thread
+				} // Wait for UI Thread
 				afid.setVisible(true);
 			}
 		});

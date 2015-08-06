@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 public class SettingsLayoutManager implements LayoutManager2 {
 
-	public static final String POSITION_CONTAINER = "CONTAINER";
-	public static final String POSITION_FOOTER = "FOOTER";
+	public static final String POSITION_CONTAINER = "CONTAINER"; //$NON-NLS-1$
+	public static final String POSITION_FOOTER = "FOOTER"; //$NON-NLS-1$
 
 	private ArrayList<Component> mainComponents;
 	private ArrayList<Component> footerComponents;
@@ -137,7 +137,7 @@ public class SettingsLayoutManager implements LayoutManager2 {
 
 	@Override
 	public String toString() {
-		return "SettingsLayoutManager";
+		return "SettingsLayoutManager"; //$NON-NLS-1$
 	}
 
 }
