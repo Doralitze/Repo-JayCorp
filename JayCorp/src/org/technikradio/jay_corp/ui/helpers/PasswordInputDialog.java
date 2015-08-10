@@ -69,9 +69,10 @@ public class PasswordInputDialog extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (new String(pathText.getPassword()).equals(new String(pass2.getPassword())))
 					found = WorkState.found;
-				JOptionPane.showMessageDialog(null, Strings.getString("PasswordInputDialog.NoMatchMessageText"), //$NON-NLS-1$
-						Strings.getString("PasswordInputDialog.NoMatchMessageHeader"), //$NON-NLS-1$
-						JOptionPane.ERROR_MESSAGE);
+				else
+					JOptionPane.showMessageDialog(null, Strings.getString("PasswordInputDialog.NoMatchMessageText"), //$NON-NLS-1$
+							Strings.getString("PasswordInputDialog.NoMatchMessageHeader"), //$NON-NLS-1$
+							JOptionPane.ERROR_MESSAGE);
 			}
 		});
 
@@ -181,7 +182,7 @@ public class PasswordInputDialog extends JFrame {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				Console.log(LogType.Warning, "AdvancedFileInputDialog", //$NON-NLS-1$
-						"The process of choosing a file was interrupted"); //$NON-NLS-1$
+						"The process of choosing a new password was interrupted"); //$NON-NLS-1$
 				e.printStackTrace();
 				Thread.currentThread().interrupt();
 				return null;

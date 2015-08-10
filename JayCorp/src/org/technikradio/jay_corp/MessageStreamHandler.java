@@ -76,6 +76,7 @@ public class MessageStreamHandler {
 	public void run() {
 		if (!VALID)
 			try {
+				boolean useInternalPSWDManager = Boolean.parseBoolean(Settings.getString("UseInternalPSDWM"));
 				while (running) {
 					String line = in.nextLine();
 					switch (line) {
@@ -100,10 +101,12 @@ public class MessageStreamHandler {
 						break;
 					case "changePassword": //$NON-NLS-1$
 						// Change default password:
-						Console.log(LogType.StdOut, this, "Asked client to change it's password"); //$NON-NLS-1$
-						JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
-								Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
-								JOptionPane.ERROR_MESSAGE);
+						if (!useInternalPSWDManager)
+							Console.log(LogType.StdOut, this, "Asked client to change it's password"); //$NON-NLS-1$
+						if (!useInternalPSWDManager)
+							JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
+									Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+									JOptionPane.ERROR_MESSAGE);
 						break;
 					default:
 						Console.log(LogType.Information, this, "recieved corupted data: " + line); //$NON-NLS-1$

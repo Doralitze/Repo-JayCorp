@@ -6,8 +6,7 @@ import java.util.ResourceBundle;
 public class Settings {
 	private static final String BUNDLE_NAME = "org.technikradio.jay_corp.ui.settings"; //$NON-NLS-1$
 
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-			.getBundle(BUNDLE_NAME);
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
 	private Settings() {
 	}

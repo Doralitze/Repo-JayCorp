@@ -24,6 +24,7 @@ import org.technikradio.universal_tools.Time;
 public class Calendar extends JComponent implements MouseListener, KeyListener {
 
 	private static final long serialVersionUID = -1865312314642912485L;
+	private static final float OVER_SIZE_DIVISOR = 1.05f;
 	private DayTable content;
 	private boolean editEnabled = false;
 	private int maxNumDay = 0;
@@ -320,7 +321,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				// Render calendar
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, 20));
-				float mul = (float) width / 400;
+				float mul = 0;
+				if (getMonthConversion(currentSelected.ordinal()) - 1 <= 4)
+					mul = (float) width / 400;
+				else
+					mul = (float) (width / 400) / OVER_SIZE_DIVISOR;
 				while (true)
 					if ((mul * 35) + 50 > height)
 						mul = (float) (mul - 0.25);

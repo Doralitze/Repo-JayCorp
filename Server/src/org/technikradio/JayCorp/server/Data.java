@@ -139,8 +139,7 @@ public class Data {
 	public static User getUser(String userName) {
 		User user = null;
 		for (User u : users) {
-			if (u.getUsername().equals(userName)
-					|| u.getName().equals(userName)) {
+			if (u.getUsername().equals(userName) || u.getName().equals(userName)) {
 				user = u;
 				break;
 			}
@@ -165,8 +164,7 @@ public class Data {
 				u.setID(getLatestID() + 1);
 			return users.add(u);
 		} catch (Exception e) {
-			Console.log(LogType.Error, "Database",
-					"An unexpected error occured:");
+			Console.log(LogType.Error, "Database", "An unexpected error occured:");
 			e.printStackTrace();
 			return false;
 		} finally {
@@ -200,27 +198,20 @@ public class Data {
 		File f = new File(file);
 		Data.file = f;
 		if (!(f.exists() && !f.isDirectory())) {
-			Console.log(LogType.Warning, "Database",
-					"provided database not found. creating new one.");
+			Console.log(LogType.Warning, "Database", "provided database not found. creating new one.");
 			defaultConfiguration = Initiator.getDefaultDayTable();
 			User ru = Initiator.getRootUser();
 			users.add(ru);
 			ru.setSelectedDays(defaultConfiguration.clone());
 
-			ParaDate[] s = ru
-					.getSelectedDays()
-					.getDays()
-					.keySet()
-					.toArray(
-							new ParaDate[ru.getSelectedDays().getDays()
-									.keySet().size()]);
+			ParaDate[] s = ru.getSelectedDays().getDays().keySet()
+					.toArray(new ParaDate[ru.getSelectedDays().getDays().keySet().size()]);
 			for (ParaDate pd : s) {
 				ru.getSelectedDays().getDays().remove(pd);
 				ru.getSelectedDays().getDays().put(pd, Status.allowed);
 			}
 			save();
-			Console.log(LogType.Information, "Database",
-					"Successfully created new Database");
+			Console.log(LogType.Information, "Database", "Successfully created new Database");
 		}
 		Loader pl = JAXB.unmarshal(f, Loader.class);
 		if (pl == null) {
@@ -232,8 +223,7 @@ public class Data {
 				defaultConfiguration = pl.getDefaultConfiguration();
 				meta = pl.getMeta();
 			} else {
-				Console.log(LogType.StdOut, "Database",
-						"Importing depreached database");
+				Console.log(LogType.StdOut, "Database", "Importing depreached database");
 				loadOldDataFile(file);
 			}
 		}
@@ -260,8 +250,7 @@ public class Data {
 	}
 
 	public static void checkDatabase() {
-		Console.log(LogType.StdOut, "Database",
-				"Checking database for corrupted data");
+		Console.log(LogType.StdOut, "Database", "Checking database for corrupted data");
 		boolean ok = true;
 		if (meta == null) {
 			meta = new Hashtable<User, MetaSheet>();
@@ -281,18 +270,18 @@ public class Data {
 	}
 
 	private static void repairDatabase() {
-		Console.log(LogType.Warning, "Database",
-				"Some corrupted data was found. The system now trys to correct it.");
+		Console.log(LogType.Warning, "Database", "Some corrupted data was found. The system now trys to correct it.");
+		boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
 		for (User u : users) {
 			if (!meta.containsKey(u)) {
-				Console.log(LogType.Information, "Database",
-						"Adding missing meta data for user " + u.getName());
+				if (crt)
+					Console.log(LogType.Information, "Database", "Adding missing meta data for user " + u.getName());
 				MetaSheet s = new MetaSheet(u.getID());
 				MetaReg.setDefaultMetaData(s);
 				meta.put(u, s);
 			} else {
-				Console.log(LogType.Information, "Database",
-						"Rerouting incorrect placed data of " + u.getName());
+				if (crt)
+					Console.log(LogType.Information, "Database", "Rerouting incorrect placed data of " + u.getName());
 				MetaSheet s = meta.get(u);
 				if (u.getID() != s.getAssoziatedUser()) {
 					meta.remove(u);

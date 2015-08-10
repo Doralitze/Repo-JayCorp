@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Hashtable;
 
 import org.technikradio.jay_corp.user.DayTable;
 import org.technikradio.jay_corp.user.DayTable.Status;
@@ -207,6 +208,7 @@ public class ClientConnector extends Thread {
 					switch (s) {
 					case allowed:
 						ss = Status.normal;
+						break;
 					case undefined:
 					case normal:
 						// Should never happen
@@ -403,7 +405,8 @@ public class ClientConnector extends Thread {
 					out.flush();
 					break;
 				} else if (reqID == user.getID()) {
-					if (Data.getEntry(user, MetaReg.MUST_SET_EXTRA_DAYS).equals("true")) {
+					if (Data.getEntry(user, MetaReg.MUST_SET_EXTRA_DAYS).equals("true")
+							|| Boolean.parseBoolean(Settings.getString("Settings.MultiEDSetAllowed"))) {
 						user.setExtraDays(days);
 						Data.setEntry(user, MetaReg.MUST_SET_EXTRA_DAYS, "false");
 						out.println("true"); //$NON-NLS-1$
@@ -593,32 +596,33 @@ public class ClientConnector extends Thread {
 				int total = 0;
 				DayTable dc = Data.getDefaultConfiguration();
 				for (int id = 1; id <= Data.getLatestID(); id++) {
-					User user = Data.getUser(id);
-					if (user != null) {
-						DayTable days = user.getSelectedDays().clone();
-						for (ParaDate p : days.getDays().keySet()) {
-							ParaDate fm = find(p, dc);
-							Status expected = dc.getDays().get(fm);
-							if (fm != null)
-								total++;
+					User _user = Data.getUser(id);
+					if (_user != null /* && _user != Data.getUser("root") */) {
+						DayTable dtUser = _user.getSelectedDays();
+						DayTable dtUserNew = new DayTable();
+						for (ParaDate pdDC : dc.getDays().keySet()) {
+							ParaDate pdUser = find(pdDC, dtUser);
+							Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
 							switch (expected) {
-							case selected:
-								if (days.getDays().get(p) == Status.normal) {
-									// days.getDays().remove(p);
-									days.getDays().put(p, Status.allowed);
-								}
-								break;
-							case undefined:
 							case allowed:
+							case undefined:
 							case normal:
-								if (days.getDays().get(p) != Status.normal) {
-									// days.getDays().remove(p);
-									days.getDays().put(p, Status.normal);
-									changed++;
-								}
+								if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
+									Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
 								break;
+							case selected:
+								if ((got == Status.normal) || (got == Status.undefined)) {
+									if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+										Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+								} else
+									dtUserNew.getDays().put(pdUser, got);
+								break;
+							default:
+								break;
+
 							}
 						}
+						_user.setSelectedDays(dtUserNew);
 					}
 				}
 				Console.log(LogType.Information, this,
@@ -633,6 +637,24 @@ public class ClientConnector extends Thread {
 	}
 
 	private void processDCWrite() {
-
+		Hashtable<ParaDate, Status> dcp = Data.getDefaultConfiguration().getDays();
+		for (ParaDate p : dcp.keySet()) {
+			Status ss = dcp.get(p);
+			Status s = Status.normal;
+			switch (ss) {
+			case selected:
+				s = Status.allowed;
+				break;
+			case allowed:
+			case normal:
+			case undefined:
+			default:
+				s = Status.normal;
+				break;
+			}
+			if (dcp.put(p, s) == null)
+				Console.log(LogType.Error, this, "Invalid operation @processDCWrite()");
+		}
+		// System.out.println(dcp.size());
 	}
 }

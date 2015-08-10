@@ -258,8 +258,7 @@ public class MainFrame extends JFrame {
 					JMenuItem logoutItem = new JMenuItem();
 					logoutItem.setText(Strings.getString("MainFrame.Logout")); //$NON-NLS-1$
 					logoutItem.setName("file-menu:logout"); //$NON-NLS-1$
-					logoutItem.setToolTipText(
-							Strings.getString("MainFrame.LogoutToolTip")); //$NON-NLS-1$
+					logoutItem.setToolTipText(Strings.getString("MainFrame.LogoutToolTip")); //$NON-NLS-1$
 					logoutItem.addActionListener(new ActionListener() {
 
 						@Override
@@ -340,7 +339,7 @@ public class MainFrame extends JFrame {
 			c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 			this.add(c);
 		}
-
+		doPostChecks();
 		Console.log(LogType.Information, this, "Edit state: " + Boolean.toString(Protocol.isEditEnabled())); //$NON-NLS-1$
 	}
 
@@ -359,7 +358,38 @@ public class MainFrame extends JFrame {
 		Protocol.collectInformation();
 		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 		c.setEditEnabled(Protocol.isEditEnabled());
+		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 		c.repaint();
+		doPostChecks();
+	}
+
+	private void doPostChecks() {
+		Thread t = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					Thread.interrupted();
+				}
+				if (Protocol.getCurrentUser().getPassword().equals("password")) {
+					JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
+							Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+
+			@Override
+			public String toString() {
+				return super.toString().substring(0, super.toString().length() - 11) + "@doPostChecks():t$r.run()";
+			}
+
+		});
+		t.setDaemon(true);
+		t.setName("Thread:MFPostChecks");
+		t.setPriority(2);
+		t.start();
 	}
 
 }

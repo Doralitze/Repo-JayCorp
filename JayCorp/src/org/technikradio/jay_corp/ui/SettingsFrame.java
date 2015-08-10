@@ -197,6 +197,9 @@ public class SettingsFrame extends JDialog {
 							boolean success = false;
 							if (newPSWD != null)
 								success = Protocol.changePassword(newPSWD, Protocol.getCurrentUser().getID());
+							if (success) {
+								Protocol.getCurrentUser().setPassword(newPSWD);
+							}
 							Console.log(LogType.StdOut, ownHandle,
 									"Successfull password change: " + Boolean.toString(success)); //$NON-NLS-1$
 						}
