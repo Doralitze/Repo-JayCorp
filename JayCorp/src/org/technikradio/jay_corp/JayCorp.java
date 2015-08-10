@@ -3,6 +3,10 @@ package org.technikradio.jay_corp;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.URISyntaxException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -22,6 +26,7 @@ import org.technikradio.universal_tools.Console.LogType;
 public class JayCorp extends JFrame {
 	private static final long serialVersionUID = 7315888172557781013L;
 	private static LoginPanel lp;
+	private static String[] argv;
 
 	public static void main(String[] args) {
 		JayCorp splashscreen = new JayCorp();
@@ -39,14 +44,14 @@ public class JayCorp extends JFrame {
 		}
 		splashscreen.setVisible(true);
 		splashscreen.setResizable(false);
+		argv = args;
 		{
 			JPanel jp = new JPanel();
 			jp.setBounds(0, 0, 500, 200);
 			jp.setBackground(Color.DARK_GRAY);
 			lp = new LoginPanel();
 			lp.setBackground(Color.DARK_GRAY);
-			lp.setBounds(0, 0, splashscreen.getWidth(),
-					splashscreen.getHeight());
+			lp.setBounds(0, 0, splashscreen.getWidth(), splashscreen.getHeight());
 			lp.setVisible(true);
 			lp.setParent(splashscreen);
 			jp.add(lp);
@@ -74,8 +79,8 @@ public class JayCorp extends JFrame {
 		System.setProperty("apple.laf.useScreenMenuBar", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
 			Console.log(LogType.Error, "ClassLoader", //$NON-NLS-1$
 					"Error while changing Look_and_feel:"); //$NON-NLS-1$
 			e.printStackTrace();
@@ -86,6 +91,57 @@ public class JayCorp extends JFrame {
 
 	public static void exit(int status) {
 		System.exit(status);
+	}
+
+	public static void exit(int status, boolean restart) {
+		if (!restart)
+			exit(status);
+		else
+			try {
+				restartApplication(status);
+			} catch (URISyntaxException e) {
+				Console.log(LogType.Error, "ShutdownService", "Unable to restart application:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			} catch (IOException e) {
+				Console.log(LogType.Error, "ShutdownService", "Unable to restart application:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
+	}
+
+	private static void restartApplication(int status) throws URISyntaxException, IOException {
+		/*
+		 * final String javaBin = System.getProperty("java.home") +
+		 * File.separator + "bin" + File.separator //$NON-NLS-1$ //$NON-NLS-2$ +
+		 * Settings.getString("JayCorp.JavaCommand"); //$NON-NLS-1$ final File
+		 * currentJar = new
+		 * File(JayCorp.class.getProtectionDomain().getCodeSource().getLocation(
+		 * ).toURI());
+		 * 
+		 * is it a jar file? if (!currentJar.getName().endsWith(".jar"))
+		 * //$NON-NLS-1$ { Console.log(LogType.Error, "ShutdownService",
+		 * "Could not restart app: " + currentJar.getName() +
+		 * "is not a jar file"); return; }
+		 * 
+		 * Build command: java -jar application.jar final ArrayList<String>
+		 * command = new ArrayList<String>(); command.add(javaBin);
+		 * command.add("-jar"); //$NON-NLS-1$ command.add(currentJar.getPath());
+		 * 
+		 * final ProcessBuilder builder = new ProcessBuilder(command);
+		 * builder.start(); Console.log(LogType.StdOut, "ShutdownService",
+		 * "Reloading application"); exit(status);
+		 */
+		StringBuilder cmd = new StringBuilder();
+		cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
+		for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+			cmd.append(jvmArg + " ");
+		}
+		cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
+		cmd.append(JayCorp.class.getName()).append(" ");
+		for (String arg : argv) {
+			cmd.append(arg).append(" ");
+		}
+		Runtime.getRuntime().exec(cmd.toString());
+		exit(status);
 	}
 
 }

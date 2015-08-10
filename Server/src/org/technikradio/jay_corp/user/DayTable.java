@@ -10,7 +10,7 @@ public class DayTable {
 	public static final Status defaultStatus = Status.normal;
 
 	public enum Status {
-		normal, allowed, selected,;
+		normal, allowed, selected, undefined;
 		public final ID ptr = new ID("StatePtr", false);
 
 		public static Status valueOf(int ordinal) throws Exception {
@@ -21,6 +21,8 @@ public class DayTable {
 				return Status.allowed;
 			case 2:
 				return Status.selected;
+			case 3:
+				return Status.undefined;
 			default:
 				throw new Exception("Invalid status");
 			}
@@ -28,6 +30,15 @@ public class DayTable {
 	}
 
 	private Hashtable<ParaDate, Status> days;
+	private int connectedUser = -1;
+
+	public void setConnectedUser(int connectedUser) {
+		this.connectedUser = connectedUser;
+	}
+
+	public int getConnectedUser() {
+		return connectedUser;
+	}
 
 	public Hashtable<ParaDate, Status> getDays() {
 		return days;

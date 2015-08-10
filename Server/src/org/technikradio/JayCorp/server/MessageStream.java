@@ -34,11 +34,9 @@ public class MessageStream implements Runnable, BroadcastListener {
 			public void run() {
 				ServerSocket s = null;
 				try {
-					s = new ServerSocket(Integer.parseInt(Settings
-							.getString("Settings.messagePort")));
+					s = new ServerSocket(Integer.parseInt(Settings.getString("Settings.messagePort")));
 				} catch (NumberFormatException | IOException e) {
-					Console.log(LogType.Error, "MessageStreamRegistry",
-							"Couldn´t bind message stram port:");
+					Console.log(LogType.Error, "MessageStreamRegistry", "Couldn´t bind message stram port:");
 					e.printStackTrace();
 					System.exit(1);
 				}
@@ -47,9 +45,7 @@ public class MessageStream implements Runnable, BroadcastListener {
 						Socket newConnection = s.accept();
 						new MessageStream(newConnection);
 					} catch (IOException e) {
-						Console.log(LogType.Information,
-								"MessageStreamRegistry",
-								"Closed message stream:");
+						Console.log(LogType.Information, "MessageStreamRegistry", "Closed message stream:");
 						e.printStackTrace();
 						break;
 					}
@@ -57,8 +53,7 @@ public class MessageStream implements Runnable, BroadcastListener {
 				try {
 					s.close();
 				} catch (IOException e) {
-					Console.log(LogType.Error, "MessageStreamRegistry",
-							"An unexpected Exception occured:");
+					Console.log(LogType.Error, "MessageStreamRegistry", "An unexpected Exception occured:");
 					e.printStackTrace();
 				}
 			}
@@ -162,8 +157,13 @@ public class MessageStream implements Runnable, BroadcastListener {
 	}
 
 	public void refocus() {
+		ArrayList<String> toRemove = new ArrayList<String>();
 		for (String s : outList) {
 			throwMessageImidiate(s);
+			// outList.remove(s);
+			toRemove.add(s);
+		}
+		for (String s : toRemove) {
 			outList.remove(s);
 		}
 	}

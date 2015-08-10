@@ -30,12 +30,10 @@ public class DataDownloadProcessor {
 	private File workFile;
 
 	static {
-		smartSearch = Boolean.parseBoolean(Settings
-				.getString("DataDownloader.SmartSearch")); //$NON-NLS-1$
+		smartSearch = Boolean.parseBoolean(Settings.getString("DataDownloader.SmartSearch")); //$NON-NLS-1$
 		Console.log(LogType.Information, "DataDownloadProcessor", //$NON-NLS-1$
 				"SmartSearchEngine enabled: " + Boolean.toString(smartSearch)); //$NON-NLS-1$
-		richOutput = Boolean.parseBoolean(Settings
-				.getString("DataDownloader.RichOutput")); //$NON-NLS-1$
+		richOutput = Boolean.parseBoolean(Settings.getString("DataDownloader.RichOutput")); //$NON-NLS-1$
 		Console.log(LogType.Information, "DataDownloadProcessor", //$NON-NLS-1$
 				"rich output enabled: " + Boolean.toString(richOutput)); //$NON-NLS-1$
 	}
@@ -44,8 +42,7 @@ public class DataDownloadProcessor {
 		progressIndicator = new ProgressIndicator();
 		fileChooser = new JFileChooser();
 		// fileChooser.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
-		fileChooser.setDialogTitle(Strings
-				.getString("DataDownloadProcessor.FileChooserDialog")); //$NON-NLS-1$
+		fileChooser.setDialogTitle(Strings.getString("DataDownloadProcessor.FileChooserDialog")); //$NON-NLS-1$
 		fileChooser.setMultiSelectionEnabled(false);
 		fileChooser.setFileHidingEnabled(false);
 		CSVFileFilter f = new CSVFileFilter();
@@ -68,17 +65,14 @@ public class DataDownloadProcessor {
 		if (exitMode == JFileChooser.CANCEL_OPTION)
 			return;
 		else if (exitMode == JFileChooser.ERROR_OPTION)
-			Console.log(LogType.Error, this,
-					"An unknown error occured doing file choosing operation"); //$NON-NLS-1$
+			Console.log(LogType.Error, this, "An unknown error occured doing file choosing operation"); //$NON-NLS-1$
 		workFile = fileChooser.getSelectedFile();
 		if (!workFile.canWrite() && workFile.exists()) {
 			Console.log(LogType.Error, this, "Unable to write File"); //$NON-NLS-1$
-			FixedOptionPane
-					.showFixedOptionDialog(
-							parent,
-							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage1"), //$NON-NLS-1$
-							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage2"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
-							FixedOptionPane.ERROR_MESSAGE, null, null, null);
+			FixedOptionPane.showFixedOptionDialog(parent,
+					Strings.getString("DataDownloadProcessor.FileOpenErrorMessage1"), //$NON-NLS-1$
+					Strings.getString("DataDownloadProcessor.FileOpenErrorMessage2"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
+					FixedOptionPane.ERROR_MESSAGE, null, null, null);
 			return;
 		}
 		FileWriter f = null;
@@ -87,12 +81,10 @@ public class DataDownloadProcessor {
 		} catch (IOException e) {
 			Console.log(LogType.Error, this, "Unable to write File:"); //$NON-NLS-1$
 			e.printStackTrace();
-			FixedOptionPane
-					.showFixedOptionDialog(
-							parent,
-							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage3"), //$NON-NLS-1$
-							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage4"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
-							FixedOptionPane.ERROR_MESSAGE, null, null, null);
+			FixedOptionPane.showFixedOptionDialog(parent,
+					Strings.getString("DataDownloadProcessor.FileOpenErrorMessage3"), //$NON-NLS-1$
+					Strings.getString("DataDownloadProcessor.FileOpenErrorMessage4"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
+					FixedOptionPane.ERROR_MESSAGE, null, null, null);
 			return;
 		}
 		try {
@@ -103,10 +95,8 @@ public class DataDownloadProcessor {
 				progressIndicator.setValv(0, maxUsers * 3, i * 3);
 				User selected = Protocol.getUser(i);
 				if (selected != null) {
-					progressIndicator
-							.setInfoLabelText(Strings
-									.getString("DataDownloadProcessor.InfoMessageInitial") //$NON-NLS-1$
-									+ selected.getName());
+					progressIndicator.setInfoLabelText(Strings.getString("DataDownloadProcessor.InfoMessageInitial") //$NON-NLS-1$
+							+ selected.getName());
 					DayTable ttt = Protocol.getProgress(selected.getID());
 					int year = ttt.getYear();
 					Status[][] t = listToSortedArray(ttt);
@@ -131,16 +121,15 @@ public class DataDownloadProcessor {
 						for (short d = 1; d <= 31; d++) {
 							if (t[m][d] != null)
 								switch (t[m][d]) {
+								case undefined:
 								case allowed:
 								case normal:
 									if (firstFound != null) {
 										StringBuilder sb = new StringBuilder();
 										sb.append(firstFound.getMinimalDate());
 										if (firstFound != lastValid) {
-											sb.append(Strings
-													.getString("DataDownloadProcessor.DateSeperator")); //$NON-NLS-1$
-											sb.append(lastValid
-													.getMinimalDate());
+											sb.append(Strings.getString("DataDownloadProcessor.DateSeperator")); //$NON-NLS-1$
+											sb.append(lastValid.getMinimalDate());
 										}
 										freeList.add(sb.toString());
 										firstFound = null;
@@ -158,11 +147,8 @@ public class DataDownloadProcessor {
 										}
 										lastValid = pd;
 										if (richOutput)
-											Console.log(
-													LogType.StdOut,
-													this,
-													"found: " //$NON-NLS-1$
-															+ pd.getMinimalDate());
+											Console.log(LogType.StdOut, this, "found: " //$NON-NLS-1$
+													+ pd.getMinimalDate());
 										break;
 									} else {
 										ParaDate pd = new ParaDate();
@@ -171,11 +157,8 @@ public class DataDownloadProcessor {
 										pd.setYear(year);
 										freeList.add(pd.getMinimalDate());
 										if (richOutput)
-											Console.log(
-													LogType.StdOut,
-													this,
-													"found: " //$NON-NLS-1$
-															+ pd.getMinimalDate());
+											Console.log(LogType.StdOut, this, "found: " //$NON-NLS-1$
+													+ pd.getMinimalDate());
 										break;
 									}
 								}
@@ -198,12 +181,10 @@ public class DataDownloadProcessor {
 		} catch (Exception e) {
 			Console.log(LogType.Error, this, "An unknown exception occured:"); //$NON-NLS-1$
 			e.printStackTrace();
-			FixedOptionPane
-					.showFixedOptionDialog(
-							parent,
-							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage5"), //$NON-NLS-1$
-							Strings.getString("DataDownloadProcessor.FileOpenErrorMessage6"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
-							FixedOptionPane.ERROR_MESSAGE, null, null, null);
+			FixedOptionPane.showFixedOptionDialog(parent,
+					Strings.getString("DataDownloadProcessor.FileOpenErrorMessage5"), //$NON-NLS-1$
+					Strings.getString("DataDownloadProcessor.FileOpenErrorMessage6"), FixedOptionPane.OK_OPTION, //$NON-NLS-1$
+					FixedOptionPane.ERROR_MESSAGE, null, null, null);
 			return;
 		} finally {
 			try {

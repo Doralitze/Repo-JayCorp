@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -17,6 +18,7 @@ import javax.swing.JOptionPane;
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.ProgressChangedNotifier;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.user.PermissionDeninedException;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -48,6 +50,7 @@ public class MainFrame extends JFrame {
 					JMenuItem saveItem = new JMenuItem();
 					saveItem.setText(Strings.getString("MainFrame.FileMenu.Save")); //$NON-NLS-1$
 					saveItem.setName("file-menu:save"); //$NON-NLS-1$
+					saveItem.setToolTipText(Strings.getString("MainFrame.SaveItemToolTip")); //$NON-NLS-1$
 					saveItem.addActionListener(new ActionListener() {
 
 						@Override
@@ -57,6 +60,12 @@ public class MainFrame extends JFrame {
 								@Override
 								public void run() {
 									c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+
+									boolean successfullBackup = Protocol
+											.moveToBackup(Protocol.getCurrentUser().getID());
+									if (successfullBackup)
+										Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
+
 									if (Protocol.transmitTable(c.buildFromCache(), Protocol.getCurrentUser().getID(),
 											new ProgressChangedNotifier() {
 
@@ -87,9 +96,43 @@ public class MainFrame extends JFrame {
 						}
 					});
 					fileMenu.add(saveItem);
+					JMenuItem restoreBackupItem = new JMenuItem();
+					restoreBackupItem.setText(Strings.getString("MainFrame.RestoreBackup")); //$NON-NLS-1$
+					restoreBackupItem.setToolTipText(Strings.getString("MainFrame.RestoreBackupToolTip")); //$NON-NLS-1$
+					restoreBackupItem.setName("file-menu:restore"); //$NON-NLS-1$
+					restoreBackupItem.addActionListener(new ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							try {
+								c.setInfoMessage(Strings.getString("MainFrame.LoadBckupMessage")); //$NON-NLS-1$
+								Protocol.transmitTable(Protocol.getProgress(Protocol.getCurrentUser().getID()),
+										Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
+
+									@Override
+									public void progressChanged(int min, int max, int current) {
+
+										c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
+												+ "/" + max); //$NON-NLS-1$
+
+									}
+								});
+							} catch (IOException e1) {
+								Console.log(LogType.Error, ownHandle, "An error occured doing the restore operation:"); //$NON-NLS-1$
+								e1.printStackTrace();
+							} catch (PermissionDeninedException e1) {
+								Console.log(LogType.Error, ownHandle, "An error occured doing the restore operation:"); //$NON-NLS-1$
+								e1.printStackTrace();
+							}
+						}
+
+					});
+					fileMenu.add(restoreBackupItem);
+					fileMenu.addSeparator();
 					JMenuItem disconnectItem = new JMenuItem();
 					disconnectItem.setText(Strings.getString("MainFrame.FileMenu.disconnect")); //$NON-NLS-1$
 					disconnectItem.setName("file-menu:disconnect"); //$NON-NLS-1$
+					disconnectItem.setToolTipText(Strings.getString("MainFrame.DisconnectToolTip")); //$NON-NLS-1$
 					disconnectItem.addActionListener(new ActionListener() {
 
 						@Override
@@ -212,10 +255,63 @@ public class MainFrame extends JFrame {
 						}
 					});
 					fileMenu.add(disconnectItem);
+					JMenuItem logoutItem = new JMenuItem();
+					logoutItem.setText(Strings.getString("MainFrame.Logout")); //$NON-NLS-1$
+					logoutItem.setName("file-menu:logout"); //$NON-NLS-1$
+					logoutItem.setToolTipText(
+							Strings.getString("MainFrame.LogoutToolTip")); //$NON-NLS-1$
+					logoutItem.addActionListener(new ActionListener() {
 
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							try {
+								if (c.isChanged()) {
+									Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
+									};
+									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
+											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
+											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
+											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+											elements, elements[2]);
+									if (n == 1) {
+										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+										if (Protocol.transmitTable(c.buildFromCache(),
+												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
+
+											@Override
+											public void progressChanged(int min, int max, int current) {
+												c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
+														+ current + "/" + max); //$NON-NLS-1$
+											}
+										}))
+											Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
+										else
+											Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
+										Protocol.save();
+										c.setChanged(false);
+										c.setInfoMessage(""); //$NON-NLS-1$
+									} else if (n == 2) {
+										return;
+									}
+								}
+								Protocol.disconnect();
+								JayCorp.exit(0, true);
+							} catch (Exception e) {
+								Console.log(LogType.Error, this, "Couldn�t disconnect the client."); //$NON-NLS-1$
+								e.printStackTrace();
+								JayCorp.exit(1, true);
+							}
+						}
+
+					});
+					fileMenu.add(logoutItem);
+					fileMenu.addSeparator();
 					JMenuItem settingsItem = new JMenuItem();
 					settingsItem.setText(Strings.getString("MainFrame.FileMenu.settings")); //$NON-NLS-1$
 					settingsItem.setName("file-menu:settings"); //$NON-NLS-1$
+					settingsItem.setToolTipText(Strings.getString("MainFrame.SettingsItemToolTip")); //$NON-NLS-1$
 					settingsItem.addActionListener(new ActionListener() {
 
 						@Override

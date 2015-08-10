@@ -89,17 +89,87 @@ public class ClientConnector extends Thread {
 					if (u.getSelectedDays().getDays().size() == 0) {
 						sb.append("NO_DATA");
 					} else
-						for (ParaDate pd : u.getSelectedDays().getDays().keySet()) {
-							Status s = u.getSelectedDays().getDays().get(pd);
-							sb.append(pd.toString());
-							// System.out.println(pd.toString());
-							sb.append("="); //$NON-NLS-1$
-							sb.append(s.toString()); // gegenstück:
-														// s.valueOf(String);
-							sb.append(";"); //$NON-NLS-1$
-						}
+						Console.log(LogType.StdOut, this,
+								"User '" + user.getUsername() + "' requested an DB read. There are currently "
+										+ u.getSelectedDays().getDays().size() + " elements in '" + u.getUsername()
+										+ "'´s database register, the CUID is "
+										+ u.getSelectedDays().getConnectedUser());
+					for (ParaDate pd : u.getSelectedDays().getDays().keySet()) {
+						Status s = u.getSelectedDays().getDays().get(pd);
+						sb.append(pd.toString());
+						// System.out.println(pd.toString());
+						sb.append("="); //$NON-NLS-1$
+						sb.append(s.toString()); // gegenstück:
+													// s.valueOf(String);
+						sb.append(";"); //$NON-NLS-1$
+					}
 					out.println(sb.toString());
 					out.flush();
+					if (u.getSelectedDays().getConnectedUser() != -1 && u.getSelectedDays().getConnectedUser() != ID)
+						Console.log(LogType.Warning, this, "Wrong user connection in daytable");
+					else if (u.getSelectedDays().getConnectedUser() == -1)
+						u.getSelectedDays().setConnectedUser(ID);
+				} else {
+					out.println("false"); //$NON-NLS-1$
+					out.flush();
+					break;
+				}
+				break;
+			case "getProgBackup":
+				ID = Integer.parseInt(request[1]);
+				if ((user.getID() != ID && user.getRights().isViewOtherSelectionsAllowed()) || user.getID() == ID) {
+					u = Data.getUser(ID);
+					StringBuilder sb = new StringBuilder();
+					sb.append("true;"); //$NON-NLS-1$
+					if (u.getBackup().getDays() == null) {
+						u.setBackup(Data.getDefaultConfiguration().clone());
+					}
+					if (u.getBackup().getDays().size() == 0) {
+						sb.append("NO_DATA");
+					} else
+						Console.log(LogType.StdOut, this,
+								"User '" + user.getUsername() + "' requested an DB read. There are currently "
+										+ u.getBackup().getDays().size() + " elements in '" + u.getUsername()
+										+ "'´s database register");
+					for (ParaDate pd : u.getBackup().getDays().keySet()) {
+						Status s = u.getBackup().getDays().get(pd);
+						sb.append(pd.toString());
+						// System.out.println(pd.toString());
+						sb.append("="); //$NON-NLS-1$
+						sb.append(s.toString()); // gegenstück:
+													// s.valueOf(String);
+						sb.append(";"); //$NON-NLS-1$
+					}
+					out.println(sb.toString());
+					out.flush();
+				} else {
+					out.println("false"); //$NON-NLS-1$
+					out.flush();
+					break;
+				}
+				break;
+			case "mvToBackup":
+				ID = Integer.parseInt(request[1]);
+				if ((user.getID() != ID && user.getRights().isEditUserInputAllowed()) || user.getID() == ID) {
+					user.setBackup(user.getSelectedDays());
+					out.println("true"); //$NON-NLS-1$
+					out.flush();
+				} else {
+					out.println("false"); //$NON-NLS-1$
+					out.flush();
+					break;
+				}
+				break;
+			case "rmDB":
+				ID = Integer.parseInt(request[1]);
+				if ((user.getID() != ID && user.getRights().isEditUserInputAllowed()) || user.getID() == ID) {
+					user.setSelectedDays(new DayTable());
+					out.println("true"); //$NON-NLS-1$
+					out.flush();
+					if (user.getID() == Data.getUser("root").getID()) {
+						Data.setDefaultConfiguration(new DayTable());
+						Console.log(LogType.StdOut, this, "root cleared DC");
+					}
 				} else {
 					out.println("false"); //$NON-NLS-1$
 					out.flush();
@@ -124,7 +194,11 @@ public class ClientConnector extends Thread {
 					break;
 				}
 				User um = Data.getUser(ID);
-				um.getSelectedDays().getDays().remove(getCompared(pd));
+				try {
+					um.getSelectedDays().getDays().remove(getCompared(pd));
+				} catch (NullPointerException e) {
+					// Should we do something is there is nothing to delete?
+				}
 				um.getSelectedDays().getDays().put(pd, s);
 
 				if (user.getID() == Data.getUser("root").getID()) {
@@ -133,13 +207,16 @@ public class ClientConnector extends Thread {
 					switch (s) {
 					case allowed:
 						ss = Status.normal;
+					case undefined:
 					case normal:
 						// Should never happen
+						Console.log(LogType.Error, this, "Root has normal state @setDay::updateDC");
 						break;
 					case selected:
 						ss = Status.allowed;
 						break;
 					}
+
 					Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
 					Data.getDefaultConfiguration().getDays().put(pd, ss);
 				}
@@ -294,6 +371,7 @@ public class ClientConnector extends Thread {
 			{
 				final User root = Data.getUser("root");
 				if (user == root) {
+					processDCWrite();
 					updateDatabase(root);
 				}
 			}
@@ -511,32 +589,40 @@ public class ClientConnector extends Thread {
 				 * updatedUsers++; } Console.log(LogType.StdOut, this,
 				 * "root did " + updatedUsers + " database updates...");
 				 */
+				int changed = 0;
+				int total = 0;
 				DayTable dc = Data.getDefaultConfiguration();
 				for (int id = 1; id <= Data.getLatestID(); id++) {
 					User user = Data.getUser(id);
 					if (user != null) {
-						DayTable days = user.getSelectedDays();
+						DayTable days = user.getSelectedDays().clone();
 						for (ParaDate p : days.getDays().keySet()) {
 							ParaDate fm = find(p, dc);
 							Status expected = dc.getDays().get(fm);
+							if (fm != null)
+								total++;
 							switch (expected) {
-							case allowed:
 							case selected:
 								if (days.getDays().get(p) == Status.normal) {
-									days.getDays().remove(p);
+									// days.getDays().remove(p);
 									days.getDays().put(p, Status.allowed);
 								}
 								break;
+							case undefined:
+							case allowed:
 							case normal:
 								if (days.getDays().get(p) != Status.normal) {
-									days.getDays().remove(p);
+									// days.getDays().remove(p);
 									days.getDays().put(p, Status.normal);
+									changed++;
 								}
 								break;
 							}
 						}
 					}
 				}
+				Console.log(LogType.Information, this,
+						"Removed " + changed + " selected entries and " + total + " total checks");
 			}
 		});
 		t.setName("DatabaseUpdateThread");
@@ -544,5 +630,9 @@ public class ClientConnector extends Thread {
 		t.start();
 		Data.setDefaultConfiguration(root.getSelectedDays());
 		Console.log(LogType.StdOut, this, "root saved allowed days");
+	}
+
+	private void processDCWrite() {
+
 	}
 }

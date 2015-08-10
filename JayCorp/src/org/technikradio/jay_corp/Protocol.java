@@ -29,11 +29,12 @@ public class Protocol {
 	private static String[] decodeAnswer(String answer) {
 		if (answer == "null") //$NON-NLS-1$
 			throw new NullPointerException();
+		if (answer == null)
+			return null;
 		return answer.split(";"); //$NON-NLS-1$
 	}
 
-	public static User getUser(int ID) throws PermissionDeninedException,
-			IOException {
+	public static User getUser(int ID) throws PermissionDeninedException, IOException {
 		User u = new User();
 		u.setID(ID);
 		c.transmit("getUser ".concat(Integer.toString(ID))); //$NON-NLS-1$
@@ -58,8 +59,7 @@ public class Protocol {
 		return u;
 	}
 
-	public static DayTable getProgress(int ID) throws IOException,
-			PermissionDeninedException {
+	public static DayTable getProgress(int ID) throws IOException, PermissionDeninedException {
 		DayTable d = new DayTable();
 		Hashtable<ParaDate, Status> ht = new Hashtable<ParaDate, Status>();
 		c.transmit("getProg ".concat(Integer.toString(ID))); //$NON-NLS-1$
@@ -77,6 +77,52 @@ public class Protocol {
 		}
 		d.setDays(ht);
 		return d;
+	}
+
+	public static DayTable getProgressFromBackup(int ID) throws IOException, PermissionDeninedException {
+		DayTable d = new DayTable();
+		Hashtable<ParaDate, Status> ht = new Hashtable<ParaDate, Status>();
+		c.transmit("getProgBackup ".concat(Integer.toString(ID))); //$NON-NLS-1$
+		String[] result = decodeAnswer(c.receive());
+		if (result[0] == "false") { //$NON-NLS-1$
+			throw new PermissionDeninedException();
+		} else if (result[0] == "NO_DATA" || result[0] == "NO") { //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
+		} else {
+			for (int i = 1; i < result.length; i++) {
+				String[] a = result[i].split("="); //$NON-NLS-1$
+				ParaDate pd = ParaDate.valueOf(a[0]);
+				ht.put(pd, Status.valueOf(a[1]));
+			}
+		}
+		d.setDays(ht);
+		return d;
+	}
+
+	public static boolean moveToBackup(int ID) {
+		c.transmit("mvToBackup " + Integer.toString(ID)); //$NON-NLS-1$
+		try {
+			String[] a = decodeAnswer(c.receive());
+			if (a[0] == "false") //$NON-NLS-1$
+				return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean rmDatabaseEntries(int ID) {
+		c.transmit("rmDB " + Integer.toString(ID)); //$NON-NLS-1$
+		try {
+			String[] a = decodeAnswer(c.receive());
+			if (a[0] == "false") //$NON-NLS-1$
+				return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	public static boolean login(String username, String password) {
@@ -130,15 +176,13 @@ public class Protocol {
 		}
 	}
 
-	public static boolean addUser(String name, String username,
-			String password, int ID, int workingAge) {
+	public static boolean addUser(String name, String username, String password, int ID, int workingAge) {
 		c.transmit("addUser " //$NON-NLS-1$
-				.concat(Base64Coding.encode(name))
-				.concat(" ") //$NON-NLS-1$
-				.concat(Base64Coding.encode(password))
-				.concat(" ") //$NON-NLS-1$
+				.concat(Base64Coding.encode(name)).concat(" ") //$NON-NLS-1$
+				.concat(Base64Coding.encode(password)).concat(" ") //$NON-NLS-1$
 				.concat(Integer.toString(ID).concat(" ") //$NON-NLS-1$
-						.concat(Integer.toString(workingAge))).concat(" ") //$NON-NLS-1$
+						.concat(Integer.toString(workingAge)))
+				.concat(" ") //$NON-NLS-1$
 				.concat(username));
 		try {
 			String a = decodeAnswer(c.receive())[0];
@@ -152,8 +196,7 @@ public class Protocol {
 	}
 
 	public static boolean addUser(User u) {
-		boolean success = addUser(u.getName(), u.getUsername(),
-				u.getPassword(), u.getID(), u.getWorkAge());
+		boolean success = addUser(u.getName(), u.getUsername(), u.getPassword(), u.getID(), u.getWorkAge());
 		if (!success)
 			return false;
 		success = changeExtraDays(u.getExtraDays(), u.getID());
@@ -320,8 +363,7 @@ public class Protocol {
 		return success;
 	}
 
-	public static boolean transmitTable(DayTable d, int ID,
-			ProgressChangedNotifier pcn) {
+	public static boolean transmitTable(DayTable d, int ID, ProgressChangedNotifier pcn) {
 		boolean success = true;
 		int max = d.getDays().size();
 		int current = 1;

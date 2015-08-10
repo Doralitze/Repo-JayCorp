@@ -9,6 +9,7 @@ public class User {
 	private String username;
 	private Righttable rights;
 	private DayTable selectedDays;
+	private DayTable backup;
 
 	public User() {
 		rights = new Righttable();
@@ -77,5 +78,13 @@ public class User {
 
 	public void setExtraDays(int extraDays) {
 		this.extraDays = extraDays;
+	}
+
+	public DayTable getBackup() {
+		return backup;
+	}
+
+	public void setBackup(DayTable backup) {
+		this.backup = backup;
 	}
 }

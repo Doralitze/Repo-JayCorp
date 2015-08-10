@@ -157,9 +157,13 @@ public class SettingsFrame extends JDialog {
 		pages[1] = new JPanel();
 		pages[0].setName(Strings.getString("SettingsFrame.panel_1")); //$NON-NLS-1$
 		pages[1].setName(Strings.getString("SettingsFrame.panel_2")); //$NON-NLS-1$
+		pages[0].setToolTipText(Strings.getString("SettingsFrame.HeaderGeneralToolTip")); //$NON-NLS-1$
+		pages[1].setToolTipText(Strings.getString("SettingsFrame.HeaderUserToolTip")); //$NON-NLS-1$
 		pages[0].setLayout(new BoxLayout(pages[0], BoxLayout.PAGE_AXIS));
 		cancleButton.setText(Strings.getString("SettingsFrame.CancleButton")); //$NON-NLS-1$
+		cancleButton.setToolTipText(Strings.getString("SettingsFrame.CancleButtonToolTip")); //$NON-NLS-1$
 		okButton.setText(Strings.getString("SettingsFrame.OKButton")); //$NON-NLS-1$
+		okButton.setToolTipText(Strings.getString("SettingsFrame.OKButtonToolTip")); //$NON-NLS-1$
 		addUserButton.setText(Strings.getString("SettingsFrame.AddUserButton")); //$NON-NLS-1$
 		addUserBySystem.setText(Strings.getString("SettingsFrame.LoadUserFileButton")); //$NON-NLS-1$
 		okButton.setSize(100, 25);
@@ -188,7 +192,8 @@ public class SettingsFrame extends JDialog {
 						@Override
 						public void run() {
 							Console.log(LogType.StdOut, ownHandle, "Change password button pressed"); //$NON-NLS-1$
-							String newPSWD = PasswordInputDialog.showDialog(null, "", Strings.getString("SettingsFrame.ChangePassword")); //$NON-NLS-1$ //$NON-NLS-2$
+							String newPSWD = PasswordInputDialog.showDialog(null, "", //$NON-NLS-1$
+									Strings.getString("SettingsFrame.ChangePassword")); //$NON-NLS-1$
 							boolean success = false;
 							if (newPSWD != null)
 								success = Protocol.changePassword(newPSWD, Protocol.getCurrentUser().getID());
@@ -253,6 +258,12 @@ public class SettingsFrame extends JDialog {
 			cp.add(p, BorderLayout.CENTER);
 			bp.add(addUserButton);
 			bp.add(addUserBySystem);
+			{
+				JLabel userLabel = new JLabel();
+				userLabel.setText(Strings.getString("SettingsFrame.UserLabel") + Protocol.getCurrentUser().getID()); //$NON-NLS-1$
+				userLabel.setToolTipText(Strings.getString("SettingsFrame.UserLabelToolTip")); //$NON-NLS-1$
+				bp.add(userLabel);
+			}
 			cp.add(bp, BorderLayout.PAGE_END);
 			pages[1].add(cp);
 		}
@@ -299,8 +310,7 @@ public class SettingsFrame extends JDialog {
 		{
 			allowedDaysSelector = new JSpinner();
 			allowedDaysSelector.setModel(new SpinnerNumberModel(Protocol.getCurrentUser().getExtraDays(), 0, 365, 1));
-			allowedDaysSelector
-					.setToolTipText(Strings.getString("SettingsFrame.AllowedDaysToolTip")); //$NON-NLS-1$
+			allowedDaysSelector.setToolTipText(Strings.getString("SettingsFrame.AllowedDaysToolTip")); //$NON-NLS-1$
 			JLabel hintLabel = new JLabel(Strings.getString("SettingsFrame.AllowedDaysText")); //$NON-NLS-1$
 			JPanel containerLabel = new JPanel();
 			containerLabel.setLayout(new FlowLayout());
