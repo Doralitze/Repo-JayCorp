@@ -217,8 +217,9 @@ public class SettingsFrame extends JDialog {
 						@Override
 						public void run() {
 							Console.log(LogType.Information, this, "Downloading userfile"); //$NON-NLS-1$
-							new DataDownloadProcessor(pages[0]).download();
-							;
+							ownHandle.setVisible(false);
+							new DataDownloadProcessor(owner).download();
+							ownHandle.setVisible(true);
 						}
 					});
 					t.setName("DownloadWaiterThread"); //$NON-NLS-1$
@@ -415,6 +416,9 @@ public class SettingsFrame extends JDialog {
 
 	public void setOwner(MainFrame mf) {
 		this.owner = mf;
+		int x = mf.getLocation().x + ((mf.getWidth() / 2) - this.getWidth() / 2);
+		int y = mf.getLocation().y + ((mf.getHeight() / 2) - this.getHeight() / 2);
+		this.setLocation(x, y);
 	}
 
 }

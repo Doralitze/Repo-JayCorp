@@ -5,8 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
@@ -26,7 +26,7 @@ public class DataDownloadProcessor {
 
 	private ProgressIndicator progressIndicator;
 	private JFileChooser fileChooser;
-	private JComponent parent;
+	private JFrame parent;
 	private File workFile;
 
 	static {
@@ -49,24 +49,27 @@ public class DataDownloadProcessor {
 		fileChooser.setFileFilter(f);
 	}
 
-	public DataDownloadProcessor(JComponent parent) {
+	public DataDownloadProcessor(JFrame parent) {
 		this();
 		setParent(parent);
 		// progressIndicator = new ProgressIndicator(parent);
 	}
 
-	public void setParent(JComponent parent) {
+	public void setParent(JFrame parent) {
 		this.parent = parent;
 		progressIndicator.setLocation(parent.getLocation());
 	}
 
 	public void download() {
+		Console.log(LogType.StdOut, this, "Showing file selection dialog");
 		int exitMode = fileChooser.showSaveDialog(parent);
+		// int exitMode = fileChooser.showSaveDialog(null);
 		if (exitMode == JFileChooser.CANCEL_OPTION)
 			return;
 		else if (exitMode == JFileChooser.ERROR_OPTION)
 			Console.log(LogType.Error, this, "An unknown error occured doing file choosing operation"); //$NON-NLS-1$
 		workFile = fileChooser.getSelectedFile();
+		Console.log(LogType.Error, this, "Loading file...");
 		if (!workFile.canWrite() && workFile.exists()) {
 			Console.log(LogType.Error, this, "Unable to write File"); //$NON-NLS-1$
 			FixedOptionPane.showFixedOptionDialog(parent,
