@@ -99,6 +99,19 @@ public class Protocol {
 		return d;
 	}
 
+	public static boolean isLoginFree(String name) {
+		c.transmit("isLoginFree " + name);
+		try {
+			String[] result = decodeAnswer(c.receive());
+			return Boolean.parseBoolean(result[0]);
+		} catch (IOException e) {
+			Console.log(LogType.Error, "Protocol", "Connection refused:");
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
 	public static boolean moveToBackup(int ID) {
 		c.transmit("mvToBackup " + Integer.toString(ID)); //$NON-NLS-1$
 		try {

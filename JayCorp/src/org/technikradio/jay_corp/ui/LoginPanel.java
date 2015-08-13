@@ -54,6 +54,7 @@ public class LoginPanel extends JPanel {
 
 	private void setup() {
 		this.setSize(500, 200);
+		this.setLayout(null);
 		this.setPreferredSize(getSize());
 		this.copyrightLabel = new JLabel("Copyright (c) Leon Dietrich 2014 - 2015"); //$NON-NLS-1$
 		this.copyrightLabel.setBounds(10, this.getHeight() - 25, this.getWidth() - 20, 20);
@@ -81,18 +82,21 @@ public class LoginPanel extends JPanel {
 				disableInputs();
 				if (username.getText() != "" //$NON-NLS-1$
 						|| new String(password.getPassword()) != "") //$NON-NLS-1$
-					if (Protocol.login(username.getText(), new String(password.getPassword())))
-						loadWorkspace();
-					else {
-						JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
-						Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
-								"Entered wrong info: User: " //$NON-NLS-1$
-										+ username.getText() + " Password: " //$NON-NLS-1$
-										+ new String(password.getPassword()));
-						didEntered = false;
-						reenable();
-						return;
-					}
+					if (Protocol.isLoginFree(username.getText()))
+						if (Protocol.login(username.getText(), new String(password.getPassword())))
+							loadWorkspace();
+						else {
+							JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
+							Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
+									"Entered wrong info: User: " //$NON-NLS-1$
+											+ username.getText() + " Password: " //$NON-NLS-1$
+											+ new String(password.getPassword()));
+							didEntered = false;
+							reenable();
+							return;
+						}
+					else
+						JOptionPane.showMessageDialog(parent, "Benutzer bereits angemeldet"); //$NON-NLS-1$
 				else {
 					JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
 				}
@@ -123,6 +127,7 @@ public class LoginPanel extends JPanel {
 		this.password.setEnabled(false);
 		this.abortButton.setEnabled(false);
 		this.submitButton.setEnabled(false);
+		this.copyrightLabel.setText(Strings.getString("LoginPanel.LoadDataInfo")); //$NON-NLS-1$
 	}
 
 	public void reenable() {
@@ -130,6 +135,7 @@ public class LoginPanel extends JPanel {
 		this.password.setEnabled(true);
 		this.abortButton.setEnabled(true);
 		this.submitButton.setEnabled(true);
+		this.copyrightLabel.setText("Copyright (c) Leon Dietrich 2014 - 2015"); //$NON-NLS-1$
 	}
 
 	public Hashtable<String, String> getValues(boolean reenable) {

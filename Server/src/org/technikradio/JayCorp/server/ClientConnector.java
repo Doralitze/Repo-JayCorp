@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.technikradio.jay_corp.user.DayTable;
@@ -21,6 +22,7 @@ import de.bennyden.coding.Base64Coding;
 public class ClientConnector extends Thread {
 
 	private static final int maxLoginAttemps = Integer.parseInt(Settings.getString("ClientConnector.maxLoginAttemps")); //$NON-NLS-1$
+	private static final ArrayList<User> loggedInUsers = new ArrayList<User>();
 	private int loginAttemps = 0;
 
 	private Socket client;
@@ -68,6 +70,7 @@ public class ClientConnector extends Thread {
 						user = u;
 						out.println("true;".concat(Integer.toString(u.getID()))); //$NON-NLS-1$
 						out.flush();
+						loggedInUsers.add(u);
 						Console.log(LogType.StdOut, this, "User '" + u.getName() + "' successfully logged in...");
 					} else {
 						out.println("false"); //$NON-NLS-1$
@@ -78,6 +81,15 @@ public class ClientConnector extends Thread {
 					}
 				}
 				break;
+			case "isLoginFree": {
+				String name = request[1];
+				if (loggedInUsers.contains(Data.getUser(name)))
+					out.println("false"); //$NON-NLS-1$
+				else
+					out.println("true"); //$NON-NLS-1$
+				out.flush();
+				break;
+			}
 			case "getProg": //$NON-NLS-1$
 				ID = Integer.parseInt(request[1]);
 				if ((user.getID() != ID && user.getRights().isViewOtherSelectionsAllowed()) || user.getID() == ID) {
@@ -476,6 +488,7 @@ public class ClientConnector extends Thread {
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
 					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
+					loggedInUsers.remove(user);
 					break;
 				}
 			}
@@ -496,6 +509,7 @@ public class ClientConnector extends Thread {
 	}
 
 	public void disconnect() {
+		loggedInUsers.remove(user);
 		this.interrupt();
 	}
 

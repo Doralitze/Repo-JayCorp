@@ -27,6 +27,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.ui.helpers.AddUserDialog;
 import org.technikradio.jay_corp.ui.helpers.CSVImporter;
 import org.technikradio.jay_corp.ui.helpers.DataDownloadProcessor;
 import org.technikradio.jay_corp.ui.helpers.PasswordInputDialog;
@@ -192,7 +193,7 @@ public class SettingsFrame extends JDialog {
 						@Override
 						public void run() {
 							Console.log(LogType.StdOut, ownHandle, "Change password button pressed"); //$NON-NLS-1$
-							String newPSWD = PasswordInputDialog.showDialog(null, "", //$NON-NLS-1$
+							String newPSWD = PasswordInputDialog.showDialog(ownHandle, "", //$NON-NLS-1$
 									Strings.getString("SettingsFrame.ChangePassword")); //$NON-NLS-1$
 							boolean success = false;
 							if (newPSWD != null)
@@ -260,6 +261,21 @@ public class SettingsFrame extends JDialog {
 			p.setMinimumSize(d);
 			cp.add(userTable.getTableHeader(), BorderLayout.PAGE_START);
 			cp.add(p, BorderLayout.CENTER);
+			addUserButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// ownHandle.setVisible(false);
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						Console.log(LogType.Error, ownHandle, "Waiting for UI sync interrupted:");
+						e1.printStackTrace();
+					}
+					AddUserDialog a = new AddUserDialog(ownHandle);
+					a.setVisible(true);
+				}
+			});
 			bp.add(addUserButton);
 			bp.add(addUserBySystem);
 			{
@@ -313,7 +329,7 @@ public class SettingsFrame extends JDialog {
 		}
 		{
 			allowedDaysSelector = new JSpinner();
-			allowedDaysSelector.setModel(new SpinnerNumberModel(Protocol.getCurrentUser().getExtraDays(), 0, 365, 1));
+			allowedDaysSelector.setModel(new SpinnerNumberModel(Protocol.getCurrentUser().getExtraDays(), 0, 366, 1));
 			allowedDaysSelector.setToolTipText(Strings.getString("SettingsFrame.AllowedDaysToolTip")); //$NON-NLS-1$
 			JLabel hintLabel = new JLabel(Strings.getString("SettingsFrame.AllowedDaysText")); //$NON-NLS-1$
 			JPanel containerLabel = new JPanel();
@@ -338,6 +354,10 @@ public class SettingsFrame extends JDialog {
 					enableAccessCheckBox.setSelected(Protocol.isEditEnabled());
 					addUserButton.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
 					addUserBySystem.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
+					downloadFileButton.setEnabled(Protocol.getCurrentUser().getRights().isViewOtherSelectionsAllowed()
+							&& Protocol.getCurrentUser().getRights().isGetIDCountAllowed()
+							&& Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
+							&& Protocol.getCurrentUser().getRights().isAccessUserInputAllowed());
 				}
 				try {
 					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()

@@ -2,6 +2,7 @@ package org.technikradio.jay_corp.ui.helpers;
 
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.awt.Window;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -33,12 +34,17 @@ public class ProgressIndicator extends JDialog {
 		pb.setMinimum(0);
 		pb.setSize(340, 25);
 		infoLabel = new JLabel();
-		infoLabel.setText(Strings
-				.getString("ProgressIndicator.DefaultLabelText")); //$NON-NLS-1$
+		infoLabel.setText(Strings.getString("ProgressIndicator.DefaultLabelText")); //$NON-NLS-1$
 		this.setTitle(Strings.getString("ProgressIndicator.Title")); //$NON-NLS-1$
 		this.add(pb);
 		this.add(infoLabel);
 		this.setSize(350, 100);
+		if (this.getOwner() != null) {
+			Window mf = this.getOwner();
+			int x = mf.getLocation().x + ((mf.getWidth() / 2) - this.getWidth() / 2);
+			int y = mf.getLocation().y + ((mf.getHeight() / 2) - this.getHeight() / 2);
+			this.setLocation(x, y);
+		}
 		this.setResizable(false);
 	}
 

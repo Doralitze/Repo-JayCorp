@@ -94,20 +94,17 @@ public class TextInputDialog extends JDialog {
 		setup();
 	}
 
-	public TextInputDialog(Frame owner, String title, boolean modal,
-			GraphicsConfiguration gc) {
+	public TextInputDialog(Frame owner, String title, boolean modal, GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		setup();
 	}
 
-	public TextInputDialog(Dialog owner, String title, boolean modal,
-			GraphicsConfiguration gc) {
+	public TextInputDialog(Dialog owner, String title, boolean modal, GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		setup();
 	}
 
-	public TextInputDialog(Window owner, String title,
-			ModalityType modalityType, GraphicsConfiguration gc) {
+	public TextInputDialog(Window owner, String title, ModalityType modalityType, GraphicsConfiguration gc) {
 		super(owner, title, modalityType, gc);
 		setup();
 	}
@@ -121,21 +118,16 @@ public class TextInputDialog extends JDialog {
 		this.setResizable(false);
 		this.setSize(800, 125);
 
-		okButton = new JButton(
-				Strings.getString("AdvancedFileInputDialog.OKText")); //$NON-NLS-1$
-		okButton.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.OKToolTip")); //$NON-NLS-1$
+		okButton = new JButton(Strings.getString("AdvancedFileInputDialog.OKText")); //$NON-NLS-1$
+		okButton.setToolTipText(Strings.getString("AdvancedFileInputDialog.OKToolTip")); //$NON-NLS-1$
 		okButton.setLocation(630, 70);
 		okButton.setSize(150, 30);
-		abortButton = new JButton(
-				Strings.getString("AdvancedFileInputDialog.AbortText")); //$NON-NLS-1$
-		abortButton.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.AbortToolTip")); //$NON-NLS-1$
+		abortButton = new JButton(Strings.getString("AdvancedFileInputDialog.AbortText")); //$NON-NLS-1$
+		abortButton.setToolTipText(Strings.getString("AdvancedFileInputDialog.AbortToolTip")); //$NON-NLS-1$
 		abortButton.setSize(150, 30);
 		abortButton.setLocation(470, 70);
 		pathText = new JTextField();
-		pathText.setToolTipText(Strings
-				.getString("AdvancedFileInputDialog.TextFieldToolTip")); //$NON-NLS-1$
+		pathText.setToolTipText(Strings.getString("AdvancedFileInputDialog.TextFieldToolTip")); //$NON-NLS-1$
 		pathText.setSize(610, 30);
 		pathText.setLocation(10, 30);
 		okButton.addActionListener(new ActionListener() {
@@ -168,6 +160,14 @@ public class TextInputDialog extends JDialog {
 				owner.setVisible(true);
 			}
 		});
+
+		if (this.getOwner() != null) {
+			Window mf = this.getOwner();
+			int x = mf.getLocation().x + ((mf.getWidth() / 2) - this.getWidth() / 2);
+			int y = mf.getLocation().y + ((mf.getHeight() / 2) - this.getHeight() / 2);
+			this.setLocation(x, y);
+		}
+
 		this.invalidate();
 	}
 

@@ -1,8 +1,8 @@
 package org.technikradio.jay_corp.ui.helpers;
 
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,6 +20,7 @@ public class PasswordInputDialog extends JFrame {
 
 	private static final long serialVersionUID = 8975995288510019150L;
 
+	private Window owner;
 	private JLabel infoLabelMain;
 	private JLabel infoLabelProof;
 	private JButton okButton;
@@ -32,7 +33,9 @@ public class PasswordInputDialog extends JFrame {
 		notSelected, found, aborted
 	}
 
-	public PasswordInputDialog() {
+	public PasswordInputDialog(Window owner) {
+		super();
+		this.owner = owner;
 		setup();
 	}
 
@@ -117,7 +120,14 @@ public class PasswordInputDialog extends JFrame {
 			e1.printStackTrace();
 		}
 		this.invalidate();
-		// this.setVisible(true);
+
+		if (this.owner != null) {
+			Window mf = this.owner;
+			int x = mf.getLocation().x + ((mf.getWidth() / 2) - this.getWidth() / 2);
+			int y = mf.getLocation().y + ((mf.getHeight() / 2) - this.getHeight() / 2);
+			this.setLocation(x, y);
+		}
+
 	}
 
 	public void setTitle(String title) {
@@ -152,8 +162,8 @@ public class PasswordInputDialog extends JFrame {
 		pathText.paint(g);
 	}
 
-	public static String showDialog(Frame owner, String startFile, String title) {
-		final PasswordInputDialog afid = new PasswordInputDialog();
+	public static String showDialog(Window owner, String startFile, String title) {
+		final PasswordInputDialog afid = new PasswordInputDialog(owner);
 		if (startFile != null)
 			afid.setFile(startFile);
 
@@ -177,6 +187,7 @@ public class PasswordInputDialog extends JFrame {
 		t.setDaemon(true);
 		t.setName("UIVisualizerThread"); //$NON-NLS-1$
 		t.start();
+		afid.repaint();
 		while (afid.found == WorkState.notSelected) {
 			try {
 				Thread.sleep(1);

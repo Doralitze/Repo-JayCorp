@@ -59,6 +59,7 @@ public class MainFrame extends JFrame {
 
 								@Override
 								public void run() {
+									ownHandle.setEnabled(false);
 									c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
 
 									boolean successfullBackup = Protocol
@@ -88,6 +89,7 @@ public class MainFrame extends JFrame {
 										c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
 									}
 									Protocol.save();
+									ownHandle.setEnabled(true);
 								}
 							});
 							t.setName("TransmitDataThread"); //$NON-NLS-1$
@@ -315,7 +317,7 @@ public class MainFrame extends JFrame {
 
 						@Override
 						public void actionPerformed(ActionEvent arg0) {
-							SettingsFrame sf = new SettingsFrame();
+							SettingsFrame sf = new SettingsFrame(ownHandle);
 							sf.setOwner(ownHandle);
 							sf.setVisible(true);
 						}
@@ -373,7 +375,8 @@ public class MainFrame extends JFrame {
 				} catch (InterruptedException e) {
 					Thread.interrupted();
 				}
-				if (Protocol.getCurrentUser().getPassword().equals("password")) {
+				if (Protocol.getCurrentUser().getPassword()
+						.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) {
 					JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
 							Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
 							JOptionPane.ERROR_MESSAGE);

@@ -395,8 +395,14 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						g.drawString(Strings.getString("Calendar.Messages.InfoNormal"), x, height - 7);//$NON-NLS-1$
-						x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoNormal")) + 10; //$NON-NLS-1$
+						if (Protocol.getCurrentUser().getID() != 0) {
+							g.drawString(Strings.getString("Calendar.Messages.InfoNormal"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoNormal")) + 10; //$NON-NLS-1$
+						} else {
+							g.drawString(Strings.getString("Calendar.Messages.InfoNormalRoot"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoNormalRoot")) //$NON-NLS-1$
+									+ 10;
+						}
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
 						g.setColor(getColor(Status.allowed));
@@ -404,8 +410,15 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						g.drawString(Strings.getString("Calendar.Messages.InfoAllowed"), x, height - 7);//$NON-NLS-1$
-						x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoAllowed")) + 10; //$NON-NLS-1$
+						if (Protocol.getCurrentUser().getID() != 0) {
+							g.drawString(Strings.getString("Calendar.Messages.InfoAllowed"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoAllowed")) //$NON-NLS-1$
+									+ 10;
+						} else {
+							g.drawString(Strings.getString("Calendar.Messages.InfoAllowedRoot"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoAllowedRoot")) //$NON-NLS-1$
+									+ 10;
+						}
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
 						g.setColor(getColor(Status.selected));
@@ -413,8 +426,15 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						g.drawString(Strings.getString("Calendar.Messages.InfoSelected"), x, height - 7);//$NON-NLS-1$
-						x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoSelected")) + 10; //$NON-NLS-1$
+						if (Protocol.getCurrentUser().getID() != 0) {
+							g.drawString(Strings.getString("Calendar.Messages.InfoSelected"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoSelected")) //$NON-NLS-1$
+									+ 10;
+						} else {
+							g.drawString(Strings.getString("Calendar.Messages.InfoSelectedRoot"), x, height - 7);//$NON-NLS-1$
+							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoSelectedRoot")) //$NON-NLS-1$
+									+ 10;
+						}
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
 						if (isChanged()) {

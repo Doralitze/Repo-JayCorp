@@ -62,6 +62,11 @@ public class DataDownloadProcessor {
 
 	public void download() {
 		Console.log(LogType.StdOut, this, "Showing file selection dialog");
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		int exitMode = fileChooser.showSaveDialog(parent);
 		// int exitMode = fileChooser.showSaveDialog(null);
 		if (exitMode == JFileChooser.CANCEL_OPTION)
@@ -102,6 +107,7 @@ public class DataDownloadProcessor {
 							+ selected.getName());
 					DayTable ttt = Protocol.getProgress(selected.getID());
 					int year = ttt.getYear();
+					int selectedDays = 0;
 					Status[][] t = listToSortedArray(ttt);
 					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 1);
 					ArrayList<String> freeList = new ArrayList<String>();
@@ -140,6 +146,7 @@ public class DataDownloadProcessor {
 									}
 									break;
 								case selected:
+									selectedDays++;
 									if (smartSearch) {
 										ParaDate pd = new ParaDate();
 										pd.setDay(d);
@@ -171,6 +178,8 @@ public class DataDownloadProcessor {
 					sb.append(selected.getUsername());
 					sb.append(';');
 					sb.append(selected.getName());
+					sb.append(';');
+					sb.append(Integer.toString(selectedDays));
 					sb.append(';');
 					for (String s : freeList) {
 						sb.append(s);
@@ -215,6 +224,9 @@ public class DataDownloadProcessor {
 
 	private Status[][] listToSortedArray(DayTable t) {
 		Status[][] sar = new Status[13][32];
+		for (short m = 1; m <= 12; m++)
+			for (short d = 1; d <= 31; d++)
+				sar[m][d] = Status.undefined;
 		for (ParaDate p : t.getDays().keySet()) {
 			Status s = t.getDays().get(p);
 			sar[p.getMonth()][p.getDay()] = s;
