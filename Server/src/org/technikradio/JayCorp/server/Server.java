@@ -76,6 +76,8 @@ public class Server {
 									"getDBDump <ID>                        This will dump the section of user ID");
 							System.out.println(
 									"getBackupDump <ID>                    This will dump the backup of user ID");
+							System.out.println(
+									"invalidate <ID>                       This will invalide the selections of ID... Danger!");
 							System.out.println();
 							break;
 						case "stop":
@@ -172,11 +174,21 @@ public class Server {
 								System.out.println(line.split(" ")[1] + " is not a number");
 							}
 							break;
+						case "invalidate":
+							try {
+								System.out.println("Are you shure? <y/n>");
+								if (Menues.getBoolInput(s))
+									Data.getUser(Integer.parseInt(line.split(" ")[1])).setSelectedDays(new DayTable());
+							} catch (NumberFormatException e) {
+								System.out.println(line.split(" ")[1] + " is not a number");
+							}
+							break;
 						default:
 							Console.log(LogType.Error, this, "Unknown command: " + command);
 						}
 					}
 					Console.log(LogType.Information, this, "stopping command deamon");
+
 				}
 
 				@Override

@@ -39,6 +39,8 @@ public class SettingsFrame extends JDialog {
 
 	private static final long serialVersionUID = 2879636623484398543L;
 
+	private int initialVValue = 0;
+
 	private JButton addUserButton;
 	private JButton addUserBySystem;
 	private JButton cancleButton;
@@ -330,6 +332,7 @@ public class SettingsFrame extends JDialog {
 		{
 			allowedDaysSelector = new JSpinner();
 			allowedDaysSelector.setModel(new SpinnerNumberModel(Protocol.getCurrentUser().getExtraDays(), 0, 366, 1));
+			initialVValue = Protocol.getCurrentUser().getExtraDays();
 			allowedDaysSelector.setToolTipText(Strings.getString("SettingsFrame.AllowedDaysToolTip")); //$NON-NLS-1$
 			JLabel hintLabel = new JLabel(Strings.getString("SettingsFrame.AllowedDaysText")); //$NON-NLS-1$
 			JPanel containerLabel = new JPanel();
@@ -426,7 +429,7 @@ public class SettingsFrame extends JDialog {
 		}
 		if (Protocol.getCurrentUser().getID() != 0) {
 			SpinnerNumberModel model = (SpinnerNumberModel) allowedDaysSelector.getModel();
-			if (model.getNumber().intValue() != 0) {
+			if (model.getNumber().intValue() != 0 && model.getNumber().intValue() != initialVValue) {
 				Protocol.changeExtraDays(model.getNumber().intValue(), Protocol.getCurrentUser().getID());
 			}
 		}
