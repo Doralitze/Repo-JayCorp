@@ -1,5 +1,7 @@
 package org.technikradio.jay_corp.ui;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -27,6 +29,7 @@ public class MainFrame extends JFrame {
 
 	private JMenuBar menuStrip;
 	private Calendar c;
+
 	private final MainFrame ownHandle = this;
 
 	public void setup() {
@@ -39,6 +42,7 @@ public class MainFrame extends JFrame {
 			height = Toolkit.getDefaultToolkit().getScreenSize().height - s.bottom;
 			super.setBounds(new Rectangle(posx, posy, width, height));
 		}
+		this.setMinimumSize(new Dimension(830, 500));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		{
 			menuStrip = new JMenuBar();
@@ -59,7 +63,9 @@ public class MainFrame extends JFrame {
 
 								@Override
 								public void run() {
+									c.setMessage("Speichere... Bitte warten...");
 									ownHandle.setEnabled(false);
+									// ownHandle.repaint();
 									c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
 
 									boolean successfullBackup = Protocol
@@ -75,12 +81,11 @@ public class MainFrame extends JFrame {
 
 											c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
 													+ "/" + max); //$NON-NLS-1$
-
 										}
 									})) {
 										Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
 										c.setChanged(false);
-										c.setInfoMessage(""); //$NON-NLS-1$
+										c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
 									}
 
 									else {
@@ -89,7 +94,10 @@ public class MainFrame extends JFrame {
 										c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
 									}
 									Protocol.save();
+									c.setInfoMessage("");
+									c.setMessage(null);
 									ownHandle.setEnabled(true);
+									// ownHandle.repaint();
 								}
 							});
 							t.setName("TransmitDataThread"); //$NON-NLS-1$
@@ -343,6 +351,12 @@ public class MainFrame extends JFrame {
 		}
 		doPostChecks();
 		Console.log(LogType.Information, this, "Edit state: " + Boolean.toString(Protocol.isEditEnabled())); //$NON-NLS-1$
+	}
+
+	@Override
+	public void paintComponents(Graphics g) {
+		super.paintComponents(g);
+
 	}
 
 	@Override
