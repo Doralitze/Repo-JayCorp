@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.ProgressChangedNotifier;
@@ -42,6 +44,7 @@ public class MainFrame extends JFrame {
 			height = Toolkit.getDefaultToolkit().getScreenSize().height - s.bottom;
 			super.setBounds(new Rectangle(posx, posy, width, height));
 		}
+		this.setTitle(Strings.getString("MainFrame.FrameTitle")); //$NON-NLS-1$
 		this.setMinimumSize(new Dimension(830, 500));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		{
@@ -55,6 +58,10 @@ public class MainFrame extends JFrame {
 					saveItem.setText(Strings.getString("MainFrame.FileMenu.Save")); //$NON-NLS-1$
 					saveItem.setName("file-menu:save"); //$NON-NLS-1$
 					saveItem.setToolTipText(Strings.getString("MainFrame.SaveItemToolTip")); //$NON-NLS-1$
+					if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) //$NON-NLS-1$ //$NON-NLS-2$
+						saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.META_MASK));
+					else
+						saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
 					saveItem.addActionListener(new ActionListener() {
 
 						@Override
@@ -63,7 +70,7 @@ public class MainFrame extends JFrame {
 
 								@Override
 								public void run() {
-									c.setMessage("Speichere... Bitte warten...");
+									c.setMessage(Strings.getString("MainFrame.SaveNotifierPopUp")); //$NON-NLS-1$
 									ownHandle.setEnabled(false);
 									// ownHandle.repaint();
 									c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
@@ -94,7 +101,7 @@ public class MainFrame extends JFrame {
 										c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
 									}
 									Protocol.save();
-									c.setInfoMessage("");
+									c.setInfoMessage(""); //$NON-NLS-1$
 									c.setMessage(null);
 									ownHandle.setEnabled(true);
 									// ownHandle.repaint();
@@ -110,6 +117,12 @@ public class MainFrame extends JFrame {
 					restoreBackupItem.setText(Strings.getString("MainFrame.RestoreBackup")); //$NON-NLS-1$
 					restoreBackupItem.setToolTipText(Strings.getString("MainFrame.RestoreBackupToolTip")); //$NON-NLS-1$
 					restoreBackupItem.setName("file-menu:restore"); //$NON-NLS-1$
+					if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) //$NON-NLS-1$ //$NON-NLS-2$
+						restoreBackupItem.setAccelerator(
+								KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.SHIFT_MASK + KeyEvent.META_MASK));
+					else
+						restoreBackupItem.setAccelerator(
+								KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.SHIFT_MASK + KeyEvent.CTRL_MASK));
 					restoreBackupItem.addActionListener(new ActionListener() {
 
 						@Override
@@ -321,6 +334,10 @@ public class MainFrame extends JFrame {
 					settingsItem.setText(Strings.getString("MainFrame.FileMenu.settings")); //$NON-NLS-1$
 					settingsItem.setName("file-menu:settings"); //$NON-NLS-1$
 					settingsItem.setToolTipText(Strings.getString("MainFrame.SettingsItemToolTip")); //$NON-NLS-1$
+					if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) //$NON-NLS-1$ //$NON-NLS-2$
+						settingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, KeyEvent.META_MASK));
+					else
+						settingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, KeyEvent.CTRL_MASK));
 					settingsItem.addActionListener(new ActionListener() {
 
 						@Override
@@ -390,7 +407,7 @@ public class MainFrame extends JFrame {
 					Thread.interrupted();
 				}
 				if (Protocol.getCurrentUser().getPassword()
-						.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) {
+						.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) { //$NON-NLS-1$
 					JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
 							Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
 							JOptionPane.ERROR_MESSAGE);
@@ -399,12 +416,12 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public String toString() {
-				return super.toString().substring(0, super.toString().length() - 11) + "@doPostChecks():t$r.run()";
+				return super.toString().substring(0, super.toString().length() - 11) + "@doPostChecks():t$r.run()"; //$NON-NLS-1$
 			}
 
 		});
 		t.setDaemon(true);
-		t.setName("Thread:MFPostChecks");
+		t.setName("Thread:MFPostChecks"); //$NON-NLS-1$
 		t.setPriority(2);
 		t.start();
 	}

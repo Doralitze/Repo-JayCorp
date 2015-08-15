@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
@@ -569,6 +570,12 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 								if (getMaxNumDay() - selectedDays > 0) {
 									selectedDays++;
 									cachedData[currentSelected.ordinal() + 1][i] = Status.selected.ordinal();
+								} else {
+									// No days left
+									JOptionPane.showMessageDialog(this.getParent(),
+											Strings.getString("Calendar.NoDaysLeft"),
+											Strings.getString("Calendar.NoDaysLeftHeader"),
+											JOptionPane.INFORMATION_MESSAGE);
 								}
 								if (isAdvancedOutputFlag())
 									System.out.print("allowed found"); //$NON-NLS-1$

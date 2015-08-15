@@ -271,7 +271,7 @@ public class SettingsFrame extends JDialog {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e1) {
-						Console.log(LogType.Error, ownHandle, "Waiting for UI sync interrupted:");
+						Console.log(LogType.Error, ownHandle, "Waiting for UI sync interrupted:"); //$NON-NLS-1$
 						e1.printStackTrace();
 					}
 					AddUserDialog a = new AddUserDialog(ownHandle);

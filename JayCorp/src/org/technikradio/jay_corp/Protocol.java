@@ -100,12 +100,12 @@ public class Protocol {
 	}
 
 	public static boolean isLoginFree(String name) {
-		c.transmit("isLoginFree " + name);
+		c.transmit("isLoginFree " + name); //$NON-NLS-1$
 		try {
 			String[] result = decodeAnswer(c.receive());
 			return Boolean.parseBoolean(result[0]);
 		} catch (IOException e) {
-			Console.log(LogType.Error, "Protocol", "Connection refused:");
+			Console.log(LogType.Error, "Protocol", "Connection refused:"); //$NON-NLS-1$ //$NON-NLS-2$
 			e.printStackTrace();
 			return false;
 		}

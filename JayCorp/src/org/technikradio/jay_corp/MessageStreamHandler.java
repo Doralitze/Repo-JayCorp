@@ -76,15 +76,15 @@ public class MessageStreamHandler {
 	public void run() {
 		if (!VALID)
 			try {
-				boolean useInternalPSWDManager = Boolean.parseBoolean(Settings.getString("UseInternalPSDWM"));
+				boolean useInternalPSWDManager = Boolean.parseBoolean(Settings.getString("UseInternalPSDWM")); //$NON-NLS-1$
 				while (running) {
 					String line = in.nextLine();
 					switch (line) {
 					case "disconnect": //$NON-NLS-1$
 						Console.log(LogType.Information, this, "Remote host requests disconnect"); //$NON-NLS-1$
 						Protocol.disconnect();
-						JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnExitMessage"), //$NON-NLS-1$
-								Strings.getString("MessageStreamHandler.MessageHeaderExit") + toString(), //$NON-NLS-1$
+						JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnExitMessage"),
+								Strings.getString("MessageStreamHandler.MessageHeaderExit") + toString(),
 								JOptionPane.ERROR_MESSAGE);
 						JayCorp.exit(2);
 						break;
@@ -95,8 +95,8 @@ public class MessageStreamHandler {
 					case "setDays": //$NON-NLS-1$
 						// Change default free days:
 						Console.log(LogType.StdOut, this, "Asked client to set extra days"); //$NON-NLS-1$
-						JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnDaysMessage"), //$NON-NLS-1$
-								Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+						JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnDaysMessage"),
+								Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(),
 								JOptionPane.ERROR_MESSAGE);
 						break;
 					case "changePassword": //$NON-NLS-1$
@@ -104,8 +104,8 @@ public class MessageStreamHandler {
 						if (!useInternalPSWDManager)
 							Console.log(LogType.StdOut, this, "Asked client to change it's password"); //$NON-NLS-1$
 						if (!useInternalPSWDManager)
-							JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"), //$NON-NLS-1$
-									Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(), //$NON-NLS-1$
+							JOptionPane.showMessageDialog(null, Strings.getString("MessageStreamHandler.OnPSWDMessage"),
+									Strings.getString("MessageStreamHandler.MessageHeaderDays") + toString(),
 									JOptionPane.ERROR_MESSAGE);
 						break;
 					default:
@@ -121,7 +121,7 @@ public class MessageStreamHandler {
 					e.printStackTrace();
 				}
 			} catch (NoSuchElementException e) {
-				Console.log(LogType.Error, this, "Scanner interrupted");
+				Console.log(LogType.Error, this, "Scanner interrupted"); //$NON-NLS-1$
 			}
 	}
 

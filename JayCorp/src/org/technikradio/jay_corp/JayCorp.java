@@ -131,14 +131,14 @@ public class JayCorp extends JFrame {
 		 * "Reloading application"); exit(status);
 		 */
 		StringBuilder cmd = new StringBuilder();
-		cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
+		cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
-			cmd.append(jvmArg + " ");
+			cmd.append(jvmArg + " "); //$NON-NLS-1$
 		}
-		cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
-		cmd.append(JayCorp.class.getName()).append(" ");
+		cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" "); //$NON-NLS-1$ //$NON-NLS-2$
+		cmd.append(JayCorp.class.getName()).append(" "); //$NON-NLS-1$
 		for (String arg : argv) {
-			cmd.append(arg).append(" ");
+			cmd.append(arg).append(" "); //$NON-NLS-1$
 		}
 		Runtime.getRuntime().exec(cmd.toString());
 		exit(status);
