@@ -215,7 +215,6 @@ public class Protocol {
 		success = changeExtraDays(u.getExtraDays(), u.getID());
 		if (!success)
 			return false;
-		// TODO fix not responding bug
 		success = Protocol.changeRights(u.getID(), u.getRights());
 		return success;
 	}

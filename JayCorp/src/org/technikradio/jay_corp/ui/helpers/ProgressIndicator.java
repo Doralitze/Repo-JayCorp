@@ -25,7 +25,6 @@ public class ProgressIndicator extends JDialog {
 	public ProgressIndicator(Frame parent) throws HeadlessException {
 		super(parent);
 		setup();
-		// TODO implement parent behavior
 	}
 
 	private void setup() {

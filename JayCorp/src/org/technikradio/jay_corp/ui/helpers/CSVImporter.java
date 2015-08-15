@@ -35,7 +35,7 @@ public class CSVImporter {
 
 	public void setParent(JComponent parent) {
 		this.parent = parent;
-		progressIndicator.setLocation(parent.getLocation());
+		progressIndicator.setLocation(this.parent.getLocation());
 	}
 
 	public CSVImporter(JComponent parent) {
@@ -44,8 +44,7 @@ public class CSVImporter {
 	}
 
 	public void upload() {
-		workFile = AdvancedFileInputDialog.showDialog(null, null, f,
-				Strings.getString("CSVImporter.DialogTitle")); //$NON-NLS-1$
+		workFile = AdvancedFileInputDialog.showDialog(null, null, f, Strings.getString("CSVImporter.DialogTitle")); //$NON-NLS-1$
 		if (workFile == null)
 			return;
 		Righttable defaultRT = RightEditFrame.showDialog(new Righttable());
@@ -69,16 +68,14 @@ public class CSVImporter {
 					User u = new User();
 					u.setName(s[2] + " " + s[1]); //$NON-NLS-1$
 					u.setExtraDays(1);
-					u.setPassword(Strings
-							.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
+					u.setPassword(Strings.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
 					u.setSelectedDays(new DayTable());
 					u.setUsername(s[3]);
 					u.setWorkAge(1);
 					u.setID(Protocol.getIDCount() + 1);
 					u.setRights(defaultRT);
 					Protocol.addUser(u);
-					Console.log(LogType.StdOut, this,
-							"Adding user: " + u.getName()); //$NON-NLS-1$
+					Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
 				}
 				i++;
 			}

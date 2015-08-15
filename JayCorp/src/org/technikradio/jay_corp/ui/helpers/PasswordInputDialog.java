@@ -57,7 +57,6 @@ public class PasswordInputDialog extends JFrame {
 		abortButton.setToolTipText(Strings.getString("PasswordInputDialog.CancleToolTip")); //$NON-NLS-1$
 		abortButton.setSize(150, 30);
 		abortButton.setLocation(470, 95);
-		// TODO fix labels and tool tips
 		pathText = new JPasswordField();
 		pathText.setToolTipText(Strings.getString("PasswordInputDialog.FirstInputToolTip")); //$NON-NLS-1$
 		pathText.setSize(610, 30);
@@ -88,11 +87,11 @@ public class PasswordInputDialog extends JFrame {
 		});
 
 		infoLabelMain = new JLabel(Strings.getString("PasswordInputDialog.FirstHelperLabel")); //$NON-NLS-1$
-		infoLabelMain.setLocation(30 + pathText.size().width, 15);
+		infoLabelMain.setLocation(30 + pathText.getWidth(), 15);
 		infoLabelMain.setVisible(true);
 		infoLabelMain.setSize(150, 25);
 		infoLabelProof = new JLabel(Strings.getString("PasswordInputDialog.SecondHelperLabel")); //$NON-NLS-1$
-		infoLabelProof.setLocation(30 + pathText.size().width, 50);
+		infoLabelProof.setLocation(30 + pathText.getWidth(), 50);
 		infoLabelProof.setVisible(true);
 		infoLabelProof.setSize(150, 25);
 
