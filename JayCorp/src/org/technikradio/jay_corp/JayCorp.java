@@ -15,6 +15,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.technikradio.jay_corp.ui.LoginPanel;
 import org.technikradio.jay_corp.ui.MainFrame;
+import org.technikradio.jay_corp.ui.SetupFrame;
+import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -63,6 +65,14 @@ public class JayCorp extends JFrame {
 					"Successfully loaded Look_and_feel"); //$NON-NLS-1$
 		lp.getValues(true);
 		{
+			if (Boolean.parseBoolean(Settings.getString("runSetup")))
+				if (Protocol.getCurrentUser().getPassword()
+						.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) {
+					SetupFrame stf = new SetupFrame("Setup");
+					splashscreen.setVisible(false);
+					stf.showDialog();
+					splashscreen.setVisible(true);
+				}
 			MainFrame mf = new MainFrame();
 			mf.setup();
 			mf.setVisible(true);
