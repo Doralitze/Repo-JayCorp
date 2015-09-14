@@ -261,6 +261,7 @@ public class Protocol {
 	}
 
 	public static void disconnect() {
+		Console.log(LogType.StdOut, "Protocol", "Disconnecting from server");
 		c.transmit("disconnect"); //$NON-NLS-1$
 		try {
 			c.stop();

@@ -68,7 +68,7 @@ public class JayCorp extends JFrame {
 			if (Boolean.parseBoolean(Settings.getString("runSetup")))
 				if (Protocol.getCurrentUser().getPassword()
 						.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) {
-					SetupFrame stf = new SetupFrame("Setup");
+					SetupFrame stf = new SetupFrame();
 					splashscreen.setVisible(false);
 					stf.showDialog();
 					splashscreen.setVisible(true);
@@ -100,6 +100,8 @@ public class JayCorp extends JFrame {
 	}
 
 	public static void exit(int status) {
+		if (status != 0)
+			Protocol.disconnect();
 		System.exit(status);
 	}
 
@@ -108,6 +110,8 @@ public class JayCorp extends JFrame {
 			exit(status);
 		else
 			try {
+				if (status != 0)
+					Protocol.disconnect();
 				restartApplication(status);
 			} catch (URISyntaxException e) {
 				Console.log(LogType.Error, "ShutdownService", "Unable to restart application:"); //$NON-NLS-1$ //$NON-NLS-2$

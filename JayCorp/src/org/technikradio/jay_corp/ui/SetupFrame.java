@@ -1,48 +1,39 @@
 package org.technikradio.jay_corp.ui;
 
 import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
 
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.ui.setup_pages.IntroPage;
+import org.technikradio.jay_corp.ui.setup_pages.PasswordPage;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
-public class SetupFrame extends JFrame {
+public class SetupFrame extends JDialog {
 
 	private static final long serialVersionUID = 42424380352170331L;
 	private final SetupFrame ownHandle = this;
 	private SlideMenuContainer smc;
 	private boolean done = false;
+	private ArrayList<ProcessStartNotifier> psns;
 
 	public SetupFrame() throws HeadlessException {
 		setup();
 	}
 
-	public SetupFrame(GraphicsConfiguration gc) {
-		super(gc);
-		setup();
-	}
-
-	public SetupFrame(String title) throws HeadlessException {
-		super(title);
-		setup();
-	}
-
-	public SetupFrame(String title, GraphicsConfiguration gc) {
-		super(title, gc);
-		setup();
-	}
-
 	public void setup() {
 		Console.log(LogType.StdOut, this, "Loading setup");
+		this.setResizable(false);
 		this.setDefaultCloseOperation(SetupFrame.DISPOSE_ON_CLOSE);
 		this.setSize(500, 500);
+		this.setTitle("Setup");
+		psns = new ArrayList<ProcessStartNotifier>();
 		smc = new SlideMenuContainer(new SetupMovingListener() {
 			@Override
 			public void goBack() {
@@ -62,11 +53,10 @@ public class SetupFrame extends JFrame {
 			@Override
 			public void abort() {
 				ownHandle.setVisible(false);
-				Protocol.disconnect();
 				JayCorp.exit(12);
 			}
 		});
-		smc.setSize(new Dimension(500, 500));
+		smc.setSize(new Dimension(500, 480));
 		this.add(smc);
 		this.addWindowListener(new WindowListener() {
 			@Override
@@ -80,8 +70,8 @@ public class SetupFrame extends JFrame {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				Protocol.disconnect();
-				JayCorp.exit(12);
+				if (!done)
+					JayCorp.exit(12);
 			}
 
 			@Override
@@ -100,7 +90,33 @@ public class SetupFrame extends JFrame {
 			public void windowDeactivated(WindowEvent e) {
 			}
 		});
-		repaint();
+		// Add pages
+		{
+			// Add intro page
+			{
+				IntroPage i = new IntroPage();
+				psns.add(i);
+				smc.addPanel(i);
+			}
+			// Add change password page
+			{
+				PasswordPage p = new PasswordPage();
+				psns.add(p);
+				smc.addPanel(p);
+			}
+			if (Protocol.getCurrentUser().getID() == 0) {
+
+			}
+		}
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				repaint();
+			}
+		});
+		t.setName("UIUpdateThread_SetupFrame");
+		t.setDaemon(true);
+		t.start();
 	}
 
 	/*

@@ -1,5 +1,6 @@
 package org.technikradio.jay_corp.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class SlideMenuContainer extends JComponent {
@@ -55,15 +57,29 @@ public class SlideMenuContainer extends JComponent {
 		nextButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sml.goForeward();
+				if (panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)) {
+					SetupNotifier s = (SetupNotifier) panels.get(index);
+					if (s.canGoForward())
+						sml.goForeward();
+					else
+						JOptionPane.showMessageDialog(null, "Die aktuelle Seite ist noch nicht ausgefüllt.",
+								"Sie sind noch nicht fertig..." + toString(), JOptionPane.INFORMATION_MESSAGE);
+				} else
+					sml.goForeward();
 			}
 		});
+		container.setBackground(Color.GRAY);
+		this.goTo(0);
 	}
 
 	public void goTo(int index) {
 		if (index + 1 > panels.size() || index < 0)
 			return;
 		panels.get(this.index).setVisible(false);
+		if (panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)) {
+			SetupNotifier s = (SetupNotifier) panels.get(index);
+			s.leaveFocus();
+		}
 		this.index = index;
 		panels.get(this.index).setVisible(true);
 		if (index - 1 == panels.size()) {
@@ -77,12 +93,25 @@ public class SlideMenuContainer extends JComponent {
 			backButton.setEnabled(false);
 		} else
 			backButton.setEnabled(true);
+		if (panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)) {
+			SetupNotifier s = (SetupNotifier) panels.get(index);
+			s.activateCurrentPage();
+		}
 	}
 
 	public void addPanel(JPanel p) {
 		panels.add(p);
+		p.setBounds(container.getBounds());
+		p.setMinimumSize(container.getMinimumSize());
 		p.setVisible(false);
 		container.add(p);
+		// p.setSize(container.getSize());
+		if (p.getClass().isAnnotationPresent(AdvancedPage.class)) {
+			SetupNotifier s = (SetupNotifier) panels.get(index);
+			s.addedToSlider();
+		}
+		if (panels.size() == 1)
+			goTo(0);
 	}
 
 	public int getCardSize() {
@@ -95,10 +124,10 @@ public class SlideMenuContainer extends JComponent {
 		this.container.setBounds(new Rectangle(0, 0, this.getWidth(), this.getHeight() - 30));
 		this.nextButton.setBounds(this.getWidth() - 55, this.getHeight() - 25, 50, 20);
 		this.backButton.setBounds(this.getWidth() - 110, this.getHeight() - 25, 50, 20);
-		this.abortButton.setBounds(this.getWidth() - 165, this.getHeight() - 25, 50, 20);
-		System.out.println(new Rectangle(this.getWidth() - 165, this.getHeight() - 25, 50, 20));
+		this.abortButton.setBounds(this.getWidth() - 195, this.getHeight() - 25, 80, 20);
 		for (JPanel p : panels) {
-			p.setBounds(0, 0, container.getWidth(), container.getHeight());
+			p.setBounds(container.getBounds());
+			p.setMinimumSize(container.getMinimumSize());
 		}
 		this.setVisible(true);
 		this.repaint();
