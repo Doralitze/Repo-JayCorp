@@ -197,7 +197,7 @@ public class PasswordPage extends JPanel implements SetupNotifier, ProcessStartN
 	}
 
 	@Override
-	public int getWorkLeft() {
+	public int getWorkDone() {
 		if (!isDone)
 			return 0;
 		return 1;

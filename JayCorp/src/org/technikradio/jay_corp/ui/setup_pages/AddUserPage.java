@@ -6,20 +6,25 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
+import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.AdvancedPage;
 import org.technikradio.jay_corp.ui.ProcessStartNotifier;
 import org.technikradio.jay_corp.ui.SetupNotifier;
+import org.technikradio.jay_corp.ui.helpers.AlternateCSVImporter;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
 @AdvancedPage
-public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNotifier {
+public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNotifier {
 
 	private static final long serialVersionUID = 7891918860984860252L;
 
-	private JTextArea f;
+	private final AddUserPage ownHandle = this;
 
-	public IntroPage() {
+	private JTextArea f;
+	private boolean done;
+
+	public AddUserPage() {
 		super();
 		setup();
 	}
@@ -35,22 +40,24 @@ public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 		f.setLineWrap(true);
 		f.setBounds(0, 0, this.getWidth(), this.getHeight());
 		// f.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
-		f.setText(
-				"Willkommen zu JayCorp!\nIm folgendem Setup werden Sie einige zum Betrieb\ndieser Software notwendige Fragen beantworten.\n\nWenn Sie bereit sind, klicken sie auf \"Weiter\" und geben als\nerstes ein neues Passwort ein.");
+		f.setText("Sie werden am Ende dieses Setup dazu aufgefordert werden,\n"
+				+ "die Benutzerdatei zu laden. Desweiteren werden alle Änderungen,\n"
+				+ "welche Sie hier vorgenommen haben wirksam.\n\n"
+				+ "Wenn Sie bereit sind, clicken Sie auf \"Fertigstellen\".");
 		this.add(f);
 	}
 
-	public IntroPage(LayoutManager layout) {
+	public AddUserPage(LayoutManager layout) {
 		super(layout);
 		setup();
 	}
 
-	public IntroPage(boolean isDoubleBuffered) {
+	public AddUserPage(boolean isDoubleBuffered) {
 		super(isDoubleBuffered);
 		setup();
 	}
 
-	public IntroPage(LayoutManager layout, boolean isDoubleBuffered) {
+	public AddUserPage(LayoutManager layout, boolean isDoubleBuffered) {
 		super(layout, isDoubleBuffered);
 		setup();
 	}
@@ -77,21 +84,37 @@ public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 
 	@Override
 	public void startTransmission() {
+		new AlternateCSVImporter(ownHandle).upload();
+		/*
+		 * Thread t = new Thread(new Runnable() {
+		 * 
+		 * @Override public void run() { // new CSVImporter(ownHandle).upload();
+		 * } }); t.setName("UITaskSyncThread"); t.start(); while (t.isAlive()) {
+		 * try { Thread.sleep(50); } catch (InterruptedException e) {
+		 * e.printStackTrace(); Thread.currentThread().interrupt(); } }
+		 */
+		Console.log(LogType.StdOut, this, "resuming process of transmitting data");
+		Protocol.setEditEnableOnServer(false);
+		Protocol.setEditEnabled(false);
+		Protocol.save();
 	}
 
 	@Override
 	public String toString() {
-		return "Setup:IntroPage";
+		return "Setup:AddUserPage";
 	}
 
 	@Override
 	public int getStrenght() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public int getWorkDone() {
-		return 0;
+		if (!done)
+			return 0;
+		else
+			return 1;
 	}
 
 }

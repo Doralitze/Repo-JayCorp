@@ -15,9 +15,9 @@ public interface ProcessStartNotifier {
 	public int getStrenght();
 
 	/**
-	 * Get the amount of work left to do
+	 * Get the amount of work left already done
 	 * 
-	 * @return the amount of work left
+	 * @return the amount of work done
 	 */
-	public int getWorkLeft();
+	public int getWorkDone();
 }

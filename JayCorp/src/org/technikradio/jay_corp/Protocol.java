@@ -183,7 +183,7 @@ public class Protocol {
 			return Boolean.valueOf(c.receive());
 		} catch (IOException e) {
 			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
-					"An unexpected exception occured: " + e.getMessage()); //$NON-NLS-1$
+					"An unexpected exception occurred: " + e.getMessage()); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
 		}
@@ -387,6 +387,52 @@ public class Protocol {
 			current++;
 		}
 		return success;
+	}
+
+	public static boolean transmitTable(DayTable d, int ID, ProgressChangedNotifier pcn, boolean fast) {
+		if (!fast)
+			return transmitTable(d, ID, pcn);
+		else {
+			boolean success = true;
+			int max = d.getDays().size();
+			int current = 0;
+			StringBuilder sb = new StringBuilder();
+
+			for (ParaDate pd : d.getDays().keySet()) {
+				sb.append("setDay ");
+				sb.append(pd.toString());
+				sb.append(' ');
+				Status s = d.getDays().get(pd);
+				sb.append(' ');
+				sb.append(Integer.toString(ID));
+				sb.append("\n");
+				pcn.progressChanged(1, max * 2 + 1, current + 1);
+				current++;
+			}
+			for (int i = 0; i <= current; i++) {
+				try {
+					if (!Boolean.valueOf(c.receive()))
+						success = false;
+					pcn.progressChanged(1, max + i + 1, current + 1);
+				} catch (IOException e) {
+					Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+							"An unexpected exception occurred: " + e.getMessage()); //$NON-NLS-1$
+					e.printStackTrace();
+				}
+			}
+			return success;
+		}
+		/*
+		 * public static boolean setDay(ParaDate d, Status s, int ID) {
+		 * StringBuilder sb = new StringBuilder(); sb.append("setDay ");
+		 * //$NON-NLS-1$ sb.append(d.toString()); sb.append(' ');
+		 * sb.append(s.toString()); sb.append(' ');
+		 * sb.append(Integer.toString(ID)); c.transmit(sb.toString()); try {
+		 * return Boolean.valueOf(c.receive()); } catch (IOException e) {
+		 * Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+		 * "An unexpected exception occurred: " + e.getMessage()); //$NON-NLS-1$
+		 * e.printStackTrace(); return false; } }
+		 */
 	}
 
 	public static String getMessageHash() {

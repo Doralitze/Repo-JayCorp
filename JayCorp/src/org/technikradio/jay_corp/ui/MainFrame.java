@@ -381,7 +381,7 @@ public class MainFrame extends JFrame {
 		return "MainFrame"; //$NON-NLS-1$
 	}
 
-	private int getScale(int workAge) {
+	public static int getScale(int workAge) {
 		if (workAge < 0)
 			return 365;
 		return 0;

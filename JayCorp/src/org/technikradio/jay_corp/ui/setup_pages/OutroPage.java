@@ -13,13 +13,13 @@ import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
 @AdvancedPage
-public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNotifier {
+public class OutroPage extends JPanel implements SetupNotifier, ProcessStartNotifier {
 
 	private static final long serialVersionUID = 7891918860984860252L;
 
 	private JTextArea f;
 
-	public IntroPage() {
+	public OutroPage() {
 		super();
 		setup();
 	}
@@ -36,21 +36,21 @@ public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 		f.setBounds(0, 0, this.getWidth(), this.getHeight());
 		// f.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
 		f.setText(
-				"Willkommen zu JayCorp!\nIm folgendem Setup werden Sie einige zum Betrieb\ndieser Software notwendige Fragen beantworten.\n\nWenn Sie bereit sind, klicken sie auf \"Weiter\" und geben als\nerstes ein neues Passwort ein.");
+				"Willkommen zu JayCorp!\nIm folgendem Setup werden Sie einige zum Betrieb\ndieser Software notwendige Fragen beantworten.\n\nWenn Sie bereit sind, klicken sie auf \"Weiter\".");
 		this.add(f);
 	}
 
-	public IntroPage(LayoutManager layout) {
+	public OutroPage(LayoutManager layout) {
 		super(layout);
 		setup();
 	}
 
-	public IntroPage(boolean isDoubleBuffered) {
+	public OutroPage(boolean isDoubleBuffered) {
 		super(isDoubleBuffered);
 		setup();
 	}
 
-	public IntroPage(LayoutManager layout, boolean isDoubleBuffered) {
+	public OutroPage(LayoutManager layout, boolean isDoubleBuffered) {
 		super(layout, isDoubleBuffered);
 		setup();
 	}

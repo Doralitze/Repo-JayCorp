@@ -12,6 +12,9 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.technikradio.universal_tools.Console;
+import org.technikradio.universal_tools.Console.LogType;
+
 public class SlideMenuContainer extends JComponent {
 
 	private static final long serialVersionUID = 3907952867719102783L;
@@ -57,15 +60,21 @@ public class SlideMenuContainer extends JComponent {
 		nextButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)) {
+				// if
+				// (!(panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)))
+				// {
+				if (panels.get(index) instanceof SetupNotifier) {
 					SetupNotifier s = (SetupNotifier) panels.get(index);
 					if (s.canGoForward())
 						sml.goForeward();
 					else
 						JOptionPane.showMessageDialog(null, "Die aktuelle Seite ist noch nicht ausgefüllt.",
 								"Sie sind noch nicht fertig..." + toString(), JOptionPane.INFORMATION_MESSAGE);
-				} else
+				} else {
+					Console.log(LogType.Warning, this,
+							"Current panel [" + index + "] is not annotated with the @AdvancedPage annotation!");
 					sml.goForeward();
+				}
 			}
 		});
 		container.setBackground(Color.GRAY);
@@ -76,13 +85,16 @@ public class SlideMenuContainer extends JComponent {
 		if (index + 1 > panels.size() || index < 0)
 			return;
 		panels.get(this.index).setVisible(false);
-		if (panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)) {
+		if (panels.get(index) instanceof SetupNotifier) {
+			// if
+			// (panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class))
+			// {
 			SetupNotifier s = (SetupNotifier) panels.get(index);
 			s.leaveFocus();
 		}
 		this.index = index;
 		panels.get(this.index).setVisible(true);
-		if (index - 1 == panels.size()) {
+		if (index + 1 == panels.size() && panels.size() > 1) {
 			nextButton.setText("Fertigstellen");
 			abortButton.setEnabled(false);
 		} else {
@@ -106,10 +118,12 @@ public class SlideMenuContainer extends JComponent {
 		p.setVisible(false);
 		container.add(p);
 		// p.setSize(container.getSize());
-		if (p.getClass().isAnnotationPresent(AdvancedPage.class)) {
-			SetupNotifier s = (SetupNotifier) panels.get(index);
+		if (p instanceof SetupNotifier) {
+			SetupNotifier s = (SetupNotifier) panels.get(panels.size() - 1);
 			s.addedToSlider();
-		}
+			Console.log(LogType.Information, this, "Panel " + (panels.size() - 1) + " is not dumm!");
+		} else
+			Console.log(LogType.Warning, this, "Panel " + (panels.size() - 1) + " is dumm!");
 		if (panels.size() == 1)
 			goTo(0);
 	}
@@ -122,9 +136,9 @@ public class SlideMenuContainer extends JComponent {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 		this.container.setBounds(new Rectangle(0, 0, this.getWidth(), this.getHeight() - 30));
-		this.nextButton.setBounds(this.getWidth() - 55, this.getHeight() - 25, 50, 20);
-		this.backButton.setBounds(this.getWidth() - 110, this.getHeight() - 25, 50, 20);
-		this.abortButton.setBounds(this.getWidth() - 195, this.getHeight() - 25, 80, 20);
+		this.nextButton.setBounds(this.getWidth() - 105, this.getHeight() - 25, 100, 20);
+		this.backButton.setBounds(this.getWidth() - 210, this.getHeight() - 25, 100, 20);
+		this.abortButton.setBounds(this.getWidth() - 315, this.getHeight() - 25, 100, 20);
 		for (JPanel p : panels) {
 			p.setBounds(container.getBounds());
 			p.setMinimumSize(container.getMinimumSize());
@@ -135,6 +149,11 @@ public class SlideMenuContainer extends JComponent {
 
 	public int getIndex() {
 		return index;
+	}
+
+	@Override
+	public String toString() {
+		return "SlideMenuContainer";
 	}
 
 }
