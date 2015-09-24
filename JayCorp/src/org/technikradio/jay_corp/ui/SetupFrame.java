@@ -174,15 +174,14 @@ public class SetupFrame extends JDialog {
 				}
 				// Add selected days dialog
 				{
-					SelectedDaysDialog sdd = new SelectedDaysDialog();
-					psns.add(sdd);
-					smc.addPanel(sdd);
-				}
-				// Add add user dialog (with rights)
-				{
+					// Add add user dialog (with rights)
 					AddUserPage aud = new AddUserPage();
 					psns.add(aud);
 					smc.addPanel(aud);
+					// Add days page
+					SelectedDaysDialog sdd = new SelectedDaysDialog();
+					smc.addPanel(sdd);
+					psns.add(sdd);
 				}
 			} else {
 				Console.log(LogType.StdOut, this, "Loading normal user setup...");

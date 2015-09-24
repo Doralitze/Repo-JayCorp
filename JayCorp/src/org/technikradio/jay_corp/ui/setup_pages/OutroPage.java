@@ -36,7 +36,7 @@ public class OutroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 		f.setBounds(0, 0, this.getWidth(), this.getHeight());
 		// f.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
 		f.setText(
-				"Willkommen zu JayCorp!\nIm folgendem Setup werden Sie einige zum Betrieb\ndieser Software notwendige Fragen beantworten.\n\nWenn Sie bereit sind, klicken sie auf \"Weiter\".");
+				"Sie haben nun alle wichtigen Informationen eigegeben.\nWenn Sie auf \"Fertigstellen\" klicken wird das Programm neu starten und Sie\nkönnen (sobald es der Administrator freigibt) Ihre Urlaubstage eintragen.");
 		this.add(f);
 	}
 

@@ -72,6 +72,7 @@ public class JayCorp extends JFrame {
 					splashscreen.setVisible(false);
 					stf.showDialog();
 					splashscreen.setVisible(true);
+					exit(0, true);
 				}
 			MainFrame mf = new MainFrame();
 			mf.setup();
