@@ -9,6 +9,7 @@ import javax.swing.UIManager;
 import org.technikradio.jay_corp.ui.AdvancedPage;
 import org.technikradio.jay_corp.ui.ProcessStartNotifier;
 import org.technikradio.jay_corp.ui.SetupNotifier;
+import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -30,13 +31,13 @@ public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 		f.setCursor(null);
 		f.setOpaque(false);
 		f.setFocusable(false);
-		setFont(UIManager.getFont("Label.font"));
+		setFont(UIManager.getFont("Label.font")); //$NON-NLS-1$
 		f.setWrapStyleWord(true);
 		f.setLineWrap(true);
 		f.setBounds(0, 0, this.getWidth(), this.getHeight());
 		// f.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
 		f.setText(
-				"Willkommen zu JayCorp!\nIm folgendem Setup werden Sie einige zum Betrieb\ndieser Software notwendige Fragen beantworten.\n\nWenn Sie bereit sind, klicken sie auf \"Weiter\" und geben als\nerstes ein neues Passwort ein.");
+				Strings.getString("IntroPage.1")); //$NON-NLS-1$
 		this.add(f);
 	}
 
@@ -57,7 +58,7 @@ public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 
 	@Override
 	public void activateCurrentPage() {
-		Console.log(LogType.StdOut, this, "Set focus on this");
+		Console.log(LogType.StdOut, this, "Set focus on this"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class IntroPage extends JPanel implements SetupNotifier, ProcessStartNoti
 
 	@Override
 	public String toString() {
-		return "Setup:IntroPage";
+		return "Setup:IntroPage"; //$NON-NLS-1$
 	}
 
 	@Override

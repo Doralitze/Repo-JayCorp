@@ -37,7 +37,7 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 		c.setEditEnabled(true);
 		c.setMaxNumDay(
 				MainFrame.getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
-		Console.log(LogType.StdOut, this, "Calendar size: " + this.getBounds());
+		Console.log(LogType.StdOut, this, "Calendar size: " + this.getBounds()); //$NON-NLS-1$
 		// c.setBounds(0, 0, this.getWidth(), this.getHeight());
 		this.add(c);
 	}
@@ -64,7 +64,7 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 
 	@Override
 	public void activateCurrentPage() {
-		Console.log(LogType.StdOut, this, "Set focus on this");
+		Console.log(LogType.StdOut, this, "Set focus on this"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 
 	@Override
 	public void addedToSlider() {
-		Console.log(LogType.Warning, this, "Temporary enabled editing on server...");
+		Console.log(LogType.Warning, this, "Temporary enabled editing on server..."); //$NON-NLS-1$
 		Protocol.setEditEnableOnServer(true);
 		Protocol.setEditEnabled(true);
 	}
@@ -102,7 +102,7 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 
 	@Override
 	public String toString() {
-		return "Setup:SelectedDaysPage";
+		return "Setup:SelectedDaysPage"; //$NON-NLS-1$
 	}
 
 	@Override

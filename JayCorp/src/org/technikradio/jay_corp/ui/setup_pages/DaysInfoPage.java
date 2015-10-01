@@ -9,6 +9,7 @@ import javax.swing.UIManager;
 import org.technikradio.jay_corp.ui.AdvancedPage;
 import org.technikradio.jay_corp.ui.ProcessStartNotifier;
 import org.technikradio.jay_corp.ui.SetupNotifier;
+import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -30,13 +31,13 @@ public class DaysInfoPage extends JPanel implements SetupNotifier, ProcessStartN
 		f.setCursor(null);
 		f.setOpaque(false);
 		f.setFocusable(false);
-		setFont(UIManager.getFont("Label.font"));
+		setFont(UIManager.getFont("Label.font")); //$NON-NLS-1$
 		f.setWrapStyleWord(true);
 		f.setLineWrap(true);
 		f.setBounds(0, 0, this.getWidth(), this.getHeight());
 		// f.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
 		f.setText(
-				"Geben Sie als nächstes die Tage ein, an denen\ndas frei nehemen erlaubt sein soll.\n\nZum Navigieren durch die Monate müssen Sie nichts weiter tun, als die\nPfeile in der Ecke rechts oben zu verwenden.");
+				Strings.getString("DaysInfoPage.1")); //$NON-NLS-1$
 		this.add(f);
 	}
 
@@ -57,7 +58,7 @@ public class DaysInfoPage extends JPanel implements SetupNotifier, ProcessStartN
 
 	@Override
 	public void activateCurrentPage() {
-		Console.log(LogType.StdOut, this, "Set focus on this");
+		Console.log(LogType.StdOut, this, "Set focus on this"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class DaysInfoPage extends JPanel implements SetupNotifier, ProcessStartN
 
 	@Override
 	public String toString() {
-		return "Setup:IntroPage";
+		return "Setup:IntroPage"; //$NON-NLS-1$
 	}
 
 	@Override

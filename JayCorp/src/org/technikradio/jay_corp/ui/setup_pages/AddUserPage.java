@@ -10,6 +10,7 @@ import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.AdvancedPage;
 import org.technikradio.jay_corp.ui.ProcessStartNotifier;
 import org.technikradio.jay_corp.ui.SetupNotifier;
+import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.jay_corp.ui.helpers.AlternateCSVImporter;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -35,15 +36,15 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 		f.setCursor(null);
 		f.setOpaque(false);
 		f.setFocusable(false);
-		setFont(UIManager.getFont("Label.font"));
+		setFont(UIManager.getFont("Label.font")); //$NON-NLS-1$
 		f.setWrapStyleWord(true);
 		f.setLineWrap(true);
 		f.setBounds(0, 0, this.getWidth(), this.getHeight());
 		// f.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
-		f.setText("Sie werden am Ende dieses Setup dazu aufgefordert werden,\n"
-				+ "die Benutzerdatei zu laden. Desweiteren werden alle Änderungen,\n"
-				+ "welche Sie hier vorgenommen haben wirksam.\n\n"
-				+ "Wenn Sie bereit sind, clicken Sie auf \"Fertigstellen\".");
+		f.setText(Strings.getString("AddUserPage.LabelPart1") //$NON-NLS-1$
+				+ Strings.getString("AddUserPage.LabelPart2") //$NON-NLS-1$
+				+ Strings.getString("AddUserPage.LabelPart3") //$NON-NLS-1$
+				+ Strings.getString("AddUserPage.LabelPart4")); //$NON-NLS-1$
 		this.add(f);
 	}
 
@@ -64,7 +65,7 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 
 	@Override
 	public void activateCurrentPage() {
-		Console.log(LogType.StdOut, this, "Set focus on this");
+		Console.log(LogType.StdOut, this, "Set focus on this"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 		 * try { Thread.sleep(50); } catch (InterruptedException e) {
 		 * e.printStackTrace(); Thread.currentThread().interrupt(); } }
 		 */
-		Console.log(LogType.StdOut, this, "resuming process of transmitting data");
+		Console.log(LogType.StdOut, this, "resuming process of transmitting data"); //$NON-NLS-1$
 		Protocol.setEditEnableOnServer(false);
 		Protocol.setEditEnabled(false);
 		Protocol.save();
@@ -101,7 +102,7 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 
 	@Override
 	public String toString() {
-		return "Setup:AddUserPage";
+		return "Setup:AddUserPage"; //$NON-NLS-1$
 	}
 
 	@Override

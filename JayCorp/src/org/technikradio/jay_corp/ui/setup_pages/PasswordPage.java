@@ -105,7 +105,7 @@ public class PasswordPage extends JPanel implements SetupNotifier, ProcessStartN
 		infoLabelProof.setVisible(true);
 		infoLabelProof.setSize(150, 25);
 
-		statusLabel = new JLabel("Passwortfeld leer");
+		statusLabel = new JLabel(Strings.getString("PasswordPage.EmptyPasswordMessage")); //$NON-NLS-1$
 		statusLabel.setForeground(Color.RED);
 
 		this.add(infoLabelMain);
@@ -118,21 +118,21 @@ public class PasswordPage extends JPanel implements SetupNotifier, ProcessStartN
 	private boolean checkValidity() {
 		if (pathText.getPassword().length == 0 || pass2.getPassword().length == 0) {
 			statusLabel.setForeground(Color.RED);
-			statusLabel.setText("Bitte beide Felder ausfüllen");
+			statusLabel.setText(Strings.getString("PasswordPage.SecondEmptyPasswordHint")); //$NON-NLS-1$
 			return false;
 		}
 		if (compare(pathText.getPassword(), Protocol.getCurrentUser().getPassword().toCharArray())) {
 			statusLabel.setForeground(Color.RED);
-			statusLabel.setText("Bitte ein anderes Passwort wählen");
+			statusLabel.setText(Strings.getString("PasswordPage.ChoseNewPasswordHint")); //$NON-NLS-1$
 			return false;
 		}
 		if (!compare(pathText.getPassword(), pass2.getPassword())) {
 			statusLabel.setForeground(Color.RED);
-			statusLabel.setText("Die Passwörter stimmen nicht überein");
+			statusLabel.setText(Strings.getString("PasswordPage.MismatchHint")); //$NON-NLS-1$
 			return false;
 		}
 		statusLabel.setForeground(Color.GREEN);
-		statusLabel.setText("Passwort OK");
+		statusLabel.setText(Strings.getString("PasswordPage.OKHint")); //$NON-NLS-1$
 		return true;
 	}
 
@@ -162,7 +162,7 @@ public class PasswordPage extends JPanel implements SetupNotifier, ProcessStartN
 
 	@Override
 	public void activateCurrentPage() {
-		Console.log(LogType.StdOut, this, "Set focus on this");
+		Console.log(LogType.StdOut, this, "Set focus on this"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -188,7 +188,7 @@ public class PasswordPage extends JPanel implements SetupNotifier, ProcessStartN
 
 	@Override
 	public String toString() {
-		return "Setup:IntroPage";
+		return "Setup:IntroPage"; //$NON-NLS-1$
 	}
 
 	@Override

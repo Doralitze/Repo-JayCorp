@@ -33,7 +33,7 @@ public class AllowedDaysPage extends JPanel implements SetupNotifier, ProcessSta
 
 	private void setup() {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		infoLabel = new JLabel("Bitte geben Sie hier die Anzahl der Ihnen zustehenden freien Tage an:");
+		infoLabel = new JLabel(Strings.getString("AllowedDaysPage.InfoText")); //$NON-NLS-1$
 		this.add(infoLabel);
 		allowedDaysSelector = new JSpinner();
 		allowedDaysSelector.setModel(new SpinnerNumberModel(Protocol.getCurrentUser().getExtraDays(), 0, 366, 1));
@@ -59,7 +59,7 @@ public class AllowedDaysPage extends JPanel implements SetupNotifier, ProcessSta
 
 	@Override
 	public void activateCurrentPage() {
-		Console.log(LogType.StdOut, this, "Set focus on this");
+		Console.log(LogType.StdOut, this, "Set focus on this"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class AllowedDaysPage extends JPanel implements SetupNotifier, ProcessSta
 
 	@Override
 	public String toString() {
-		return "Setup:IntroPage";
+		return "Setup:IntroPage"; //$NON-NLS-1$
 	}
 
 	@Override
