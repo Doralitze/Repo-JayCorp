@@ -246,4 +246,15 @@ public class Server {
 		return clients.remove(c);
 	}
 
+	public static void kick(User u) {
+		for (ClientConnector c : clients) {
+			if (c.getConnectedUser() != null)
+				if (c.getConnectedUser().getID() == u.getID()) {
+					c.disconnect();
+					c.interrupt();
+					clients.remove(u);
+				}
+		}
+	}
+
 }

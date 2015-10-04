@@ -136,6 +136,22 @@ public class Data {
 		return true;
 	}
 
+	private static boolean save(String file) {
+		try {
+			Loader pl = new Loader();
+			pl.setUsers(users);
+			pl.setEditEnabled(editEnabled);
+			pl.setDefaultConfiguration(defaultConfiguration);
+			pl.setLastVersion(Server.VERSION);
+			pl.setMeta(meta);
+			JAXB.marshal(pl, file);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
 	public static User getUser(String userName) {
 		User user = null;
 		for (User u : users) {
@@ -243,6 +259,29 @@ public class Data {
 			editEnabled = pl.isEditEnabled();
 			defaultConfiguration = pl.getDefaultConfiguration();
 		}
+	}
+
+	public static final void destroyDatabase() {
+		save(file.getAbsolutePath() + Long.toString(System.currentTimeMillis() / 1000) + ".backup");
+		users = new ArrayList<User>();
+		defaultConfiguration = new DayTable();
+		meta = null;
+		editEnabled = false;
+		Console.log(LogType.Warning, "Database", "Destroying database on request of root. Creating new one.");
+		defaultConfiguration = Initiator.getDefaultDayTable();
+		User ru = Initiator.getRootUser();
+		users.add(ru);
+		ru.setSelectedDays(defaultConfiguration.clone());
+
+		ParaDate[] s = ru.getSelectedDays().getDays().keySet()
+				.toArray(new ParaDate[ru.getSelectedDays().getDays().keySet().size()]);
+		for (ParaDate pd : s) {
+			ru.getSelectedDays().getDays().remove(pd);
+			ru.getSelectedDays().getDays().put(pd, Status.allowed);
+		}
+		checkDatabase();
+		save();
+		Console.log(LogType.Information, "Database", "Successfully created new Database");
 	}
 
 	public static int getUserCount() {

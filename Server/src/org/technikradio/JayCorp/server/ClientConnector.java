@@ -23,6 +23,7 @@ public class ClientConnector extends Thread {
 
 	private static final int maxLoginAttemps = Integer.parseInt(Settings.getString("ClientConnector.maxLoginAttemps")); //$NON-NLS-1$
 	private static final ArrayList<User> loggedInUsers = new ArrayList<User>();
+	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
 	private int loginAttemps = 0;
 
 	private Socket client;
@@ -448,6 +449,23 @@ public class ClientConnector extends Thread {
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
 				break;
+			case "destroyAll": {
+				if (user.getID() == Data.getUser("root").getID()) {
+					Data.destroyDatabase();
+					for (User us : loggedInUsers) {
+						if (!(us.getID() == Data.getUser("root").getID())) {
+							// Kick user
+							Server.kick(us);
+						}
+					}
+					out.println("true");
+					out.flush();
+				} else {
+					out.println("false");
+					out.flush();
+				}
+				break;
+			}
 			case "disconnect": //$NON-NLS-1$
 				Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
 				disconnect();
@@ -464,6 +482,10 @@ public class ClientConnector extends Thread {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public User getConnectedUser() {
+		return user;
 	}
 
 	private ParaDate getCompared(ParaDate pd) {
@@ -622,12 +644,14 @@ public class ClientConnector extends Thread {
 							case undefined:
 							case normal:
 								if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
-									Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+									if (crt)
+										Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
 								break;
 							case selected:
 								if ((got == Status.normal) || (got == Status.undefined)) {
 									if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
-										Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+										if (crt)
+											Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
 								} else
 									dtUserNew.getDays().put(pdUser, got);
 								break;

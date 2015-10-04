@@ -47,6 +47,7 @@ public class SettingsFrame extends JDialog {
 	private JButton okButton;
 	private JButton changePSWButton;
 	private JButton downloadFileButton;
+	private JButton destroyDBButton;
 	private JTabbedPane tabBox;
 	private JPanel[] pages;
 	private JCheckBox enableAccessCheckBox;
@@ -154,6 +155,7 @@ public class SettingsFrame extends JDialog {
 		addUserBySystem = new JButton();
 		changePSWButton = new JButton();
 		downloadFileButton = new JButton();
+		destroyDBButton = new JButton();
 		userTable = new JTable();
 		pages = new JPanel[2];
 		pages[0] = new JPanel();
@@ -186,6 +188,9 @@ public class SettingsFrame extends JDialog {
 			changePSWButton.setToolTipText(Strings.getString("SettingsFrame.ChangePasswordToolTip")); //$NON-NLS-1$
 			downloadFileButton.setText(Strings.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
 			downloadFileButton.setToolTipText(Strings.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
+			destroyDBButton.setText("Datenbank zurücksetzen");
+			destroyDBButton
+					.setToolTipText("Hiermit setzen Sie die Datenbank zurück, um einen neuen Kalender zu erstellen.");
 			changePSWButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -230,8 +235,16 @@ public class SettingsFrame extends JDialog {
 
 				}
 			});
+			destroyDBButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO implement warnings
+				}
+			});
 			pages[0].add(changePSWButton);
 			pages[0].add(downloadFileButton);
+			pages[0].add(destroyDBButton);
 		}
 		addUserBySystem.addActionListener(new ActionListener() {
 
@@ -361,6 +374,8 @@ public class SettingsFrame extends JDialog {
 							&& Protocol.getCurrentUser().getRights().isGetIDCountAllowed()
 							&& Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
 							&& Protocol.getCurrentUser().getRights().isAccessUserInputAllowed());
+					destroyDBButton.setEnabled(Protocol.getCurrentUser().getID() == 0);
+
 				}
 				try {
 					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()

@@ -521,4 +521,19 @@ public class Protocol {
 		return true;
 	}
 
+	public boolean destroyDatabase() {
+		c.transmit("destroyAll");
+		try {
+			String[] a = decodeAnswer(c.receive());
+			if (a[0] == "false") //$NON-NLS-1$
+				return false;
+		} catch (IOException e) {
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"Failed to recieve critical request answer:"); //$NON-NLS-1$
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
 }
