@@ -70,41 +70,7 @@ public class MainFrame extends JFrame {
 
 								@Override
 								public void run() {
-									c.setMessage(Strings.getString("MainFrame.SaveNotifierPopUp")); //$NON-NLS-1$
-									ownHandle.setEnabled(false);
-									// ownHandle.repaint();
-									c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
-
-									boolean successfullBackup = Protocol
-											.moveToBackup(Protocol.getCurrentUser().getID());
-									if (successfullBackup)
-										Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
-
-									if (Protocol.transmitTable(c.buildFromCache(), Protocol.getCurrentUser().getID(),
-											new ProgressChangedNotifier() {
-
-										@Override
-										public void progressChanged(int min, int max, int current) {
-
-											c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
-													+ "/" + max); //$NON-NLS-1$
-										}
-									})) {
-										Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
-										c.setChanged(false);
-										c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
-									}
-
-									else {
-										Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
-										c.setChanged(true);
-										c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
-									}
-									Protocol.save();
-									c.setInfoMessage(""); //$NON-NLS-1$
-									c.setMessage(null);
-									ownHandle.setEnabled(true);
-									// ownHandle.repaint();
+									save();
 								}
 							});
 							t.setName("TransmitDataThread"); //$NON-NLS-1$
@@ -387,13 +353,52 @@ public class MainFrame extends JFrame {
 		return 0;
 	}
 
-	public void updateState() {
+	public void updateState(boolean savereq) {
 		Protocol.collectInformation();
 		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 		c.setEditEnabled(Protocol.isEditEnabled());
 		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 		c.repaint();
 		doPostChecks();
+		if (savereq)
+			save();
+	}
+
+	private void save() {
+		c.setMessage(Strings.getString("MainFrame.SaveNotifierPopUp")); //$NON-NLS-1$
+		ownHandle.setEnabled(false);
+		// ownHandle.repaint();
+		c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+
+		boolean successfullBackup = Protocol.moveToBackup(Protocol.getCurrentUser().getID());
+		if (successfullBackup)
+			Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
+
+		if (Protocol.transmitTable(c.buildFromCache(), Protocol.getCurrentUser().getID(),
+				new ProgressChangedNotifier() {
+
+					@Override
+					public void progressChanged(int min, int max, int current) {
+
+						c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
+								+ "/" + max); //$NON-NLS-1$
+					}
+				})) {
+			Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
+			c.setChanged(false);
+			c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
+		}
+
+		else {
+			Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
+			c.setChanged(true);
+			c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
+		}
+		Protocol.save();
+		c.setInfoMessage(""); //$NON-NLS-1$
+		c.setMessage(null);
+		ownHandle.setEnabled(true);
+		// ownHandle.repaint();
 	}
 
 	private void doPostChecks() {

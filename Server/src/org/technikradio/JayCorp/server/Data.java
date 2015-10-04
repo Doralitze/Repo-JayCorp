@@ -15,6 +15,9 @@ import org.technikradio.universal_tools.Console.LogType;
 import org.technikradio.universal_tools.ParaDate;
 
 public class Data {
+
+	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
+
 	private static ArrayList<User> users;
 	private static Hashtable<User, MetaSheet> meta;
 	private static DayTable defaultConfiguration;
@@ -289,7 +292,8 @@ public class Data {
 	}
 
 	public static void checkDatabase() {
-		Console.log(LogType.StdOut, "Database", "Checking database for corrupted data");
+		if (crt)
+			Console.log(LogType.StdOut, "Database", "Checking database for corrupted data");
 		boolean ok = true;
 		if (meta == null) {
 			meta = new Hashtable<User, MetaSheet>();
@@ -309,8 +313,9 @@ public class Data {
 	}
 
 	private static void repairDatabase() {
-		Console.log(LogType.Warning, "Database", "Some corrupted data was found. The system now trys to correct it.");
-		boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
+		if (crt)
+			Console.log(LogType.Warning, "Database",
+					"Some corrupted data was found. The system now trys to correct it.");
 		for (User u : users) {
 			if (!meta.containsKey(u)) {
 				if (crt)

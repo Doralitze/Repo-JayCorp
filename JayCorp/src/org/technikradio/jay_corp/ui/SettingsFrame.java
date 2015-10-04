@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -26,6 +27,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.helpers.AddUserDialog;
 import org.technikradio.jay_corp.ui.helpers.CSVImporter;
@@ -188,9 +190,8 @@ public class SettingsFrame extends JDialog {
 			changePSWButton.setToolTipText(Strings.getString("SettingsFrame.ChangePasswordToolTip")); //$NON-NLS-1$
 			downloadFileButton.setText(Strings.getString("SettingsFrame.DownloadSelectionFile")); //$NON-NLS-1$
 			downloadFileButton.setToolTipText(Strings.getString("SettingsFrame.DownloadSelectionFileToolTip")); //$NON-NLS-1$
-			destroyDBButton.setText("Datenbank zurücksetzen");
-			destroyDBButton
-					.setToolTipText("Hiermit setzen Sie die Datenbank zurück, um einen neuen Kalender zu erstellen.");
+			destroyDBButton.setText(Strings.getString("SettingsFrame.ResetDatabaseButton")); //$NON-NLS-1$
+			destroyDBButton.setToolTipText(Strings.getString("SettingsFrame.ResetDatabaseToolTip")); //$NON-NLS-1$
 			changePSWButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -239,7 +240,31 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO implement warnings
+					// delete database...
+					int result = JOptionPane.showConfirmDialog(null,
+							Strings.getString("SettingsFrame.ResetDatabaseQuestion"), //$NON-NLS-1$
+							Strings.getString("SettingsFrame.ResetDatabaseQuestionHeader"), //$NON-NLS-1$
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if (result == JOptionPane.YES_OPTION)
+						if (Protocol.getCurrentUser().getID() == 0)
+							if (Protocol.destroyDatabase()) {
+								JOptionPane.showMessageDialog(null,
+										Strings.getString("SettingsFrame.DatabaseSuccessfulDelete"), //$NON-NLS-1$
+										Strings.getString("SettingsFrame.DatabaseSuccessfulDeleteHeader"), //$NON-NLS-1$
+										JOptionPane.INFORMATION_MESSAGE);
+								Protocol.disconnect();
+								JayCorp.exit(0, true);
+							} else
+								JOptionPane.showMessageDialog(null,
+										Strings.getString("SettingsFrame.DatabaseResetFail"), //$NON-NLS-1$
+										Strings.getString("SettingsFrame.DatabaseResetFailHeader"), //$NON-NLS-1$
+										JOptionPane.ERROR_MESSAGE);
+						else
+							JOptionPane.showMessageDialog(null,
+									Strings.getString("SettingsFrame.DatabaseResetPermissionDenined"), //$NON-NLS-1$
+									Strings.getString("SettingsFrame.DatabaseResetPermissionDeninedHeader"), //$NON-NLS-1$
+									JOptionPane.ERROR_MESSAGE);
+
 				}
 			});
 			pages[0].add(changePSWButton);
@@ -438,9 +463,13 @@ public class SettingsFrame extends JDialog {
 	}
 
 	private void pushSettings() {
+		this.setEnabled(false);
+		this.setTitle("Aktualisiere Einstellungen... Bitte warten...");
+		boolean savereq = false;
 		if (enableAccessCheckBox.isSelected() != Protocol.isEditEnabled() && enableAccessCheckBox.isEnabled()) {
 			// set EDIT_ENABLED_FLAG
 			Protocol.setEditEnableOnServer(enableAccessCheckBox.isSelected());
+			savereq = true;
 		}
 		if (Protocol.getCurrentUser().getID() != 0) {
 			SpinnerNumberModel model = (SpinnerNumberModel) allowedDaysSelector.getModel();
@@ -449,7 +478,7 @@ public class SettingsFrame extends JDialog {
 			}
 		}
 		Console.log(LogType.StdOut, this, "Successfully transmitted settings"); //$NON-NLS-1$
-		owner.updateState();
+		owner.updateState(savereq);
 	}
 
 	public void setOwner(MainFrame mf) {

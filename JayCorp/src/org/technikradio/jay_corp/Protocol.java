@@ -521,7 +521,7 @@ public class Protocol {
 		return true;
 	}
 
-	public boolean destroyDatabase() {
+	public static boolean destroyDatabase() {
 		c.transmit("destroyAll");
 		try {
 			String[] a = decodeAnswer(c.receive());

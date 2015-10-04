@@ -98,6 +98,7 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 				progress = 1 + current;
 			}
 		}, false);
+		Protocol.save();
 	}
 
 	@Override
