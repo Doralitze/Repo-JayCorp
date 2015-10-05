@@ -42,6 +42,7 @@ public class SettingsFrame extends JDialog {
 	private static final long serialVersionUID = 2879636623484398543L;
 
 	private int initialVValue = 0;
+	private boolean mustSave = false;
 
 	private JButton addUserButton;
 	private JButton addUserBySystem;
@@ -284,7 +285,7 @@ public class SettingsFrame extends JDialog {
 				});
 				t.setName("UploadWaiterThread"); //$NON-NLS-1$
 				t.start();
-
+				mustSave = true;
 			}
 		});
 		{
@@ -314,6 +315,7 @@ public class SettingsFrame extends JDialog {
 					}
 					AddUserDialog a = new AddUserDialog(ownHandle);
 					a.setVisible(true);
+					mustSave = true;
 				}
 			});
 			bp.add(addUserButton);
@@ -471,6 +473,8 @@ public class SettingsFrame extends JDialog {
 			Protocol.setEditEnableOnServer(enableAccessCheckBox.isSelected());
 			savereq = true;
 		}
+		if (mustSave)
+			savereq = true;
 		if (Protocol.getCurrentUser().getID() != 0) {
 			SpinnerNumberModel model = (SpinnerNumberModel) allowedDaysSelector.getModel();
 			if (model.getNumber().intValue() != 0 && model.getNumber().intValue() != initialVValue) {
