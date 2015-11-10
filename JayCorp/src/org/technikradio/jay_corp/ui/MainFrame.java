@@ -22,6 +22,7 @@ import javax.swing.KeyStroke;
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.ProgressChangedNotifier;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.user.PermissionDeninedException;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -294,7 +295,8 @@ public class MainFrame extends JFrame {
 						}
 
 					});
-					fileMenu.add(logoutItem);
+					if (Boolean.parseBoolean(Settings.getString("SupportLogout")))
+						fileMenu.add(logoutItem);
 					fileMenu.addSeparator();
 					JMenuItem settingsItem = new JMenuItem();
 					settingsItem.setText(Strings.getString("MainFrame.FileMenu.settings")); //$NON-NLS-1$
@@ -315,6 +317,18 @@ public class MainFrame extends JFrame {
 
 					});
 					fileMenu.add(settingsItem);
+					JMenuItem aboutItem = new JMenuItem();
+					aboutItem.setText("Über");
+					aboutItem.setName("file-menu:about");
+					aboutItem.setToolTipText("Hier wird langweiliges Copyrightzeugs und so angezeigt.");
+					aboutItem.addActionListener(new ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							new AboutDialog().show();
+						}
+					});
+					fileMenu.add(aboutItem);
 				}
 				menuStrip.add(fileMenu);
 			}

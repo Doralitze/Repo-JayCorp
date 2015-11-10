@@ -38,7 +38,6 @@ AdvancedFileInputDialog.OKText=Bestätigen
 AdvancedFileInputDialog.OKToolTip=Hiermit bestätigen Sie ihre Eingaben.
 AdvancedFileInputDialog.TextFieldToolTip=Hier geben Sie den Pfad zur Datei an, oder verwenden den 'Durchsuchen'-Knopf, um eine Datei aus zu wählen.
 AllowedDaysPage.InfoText=Bitte geben Sie hier die Anzahl der Ihnen zustehenden freien Tage an:
-AlternateCSVImporter.PleaseChooseFileMessage=Bitte wählen Sie eine Datei aus.
 Calendar.Days.Friday=Freitag
 Calendar.Days.Monday=Montag
 Calendar.Days.Saturday=Samstag

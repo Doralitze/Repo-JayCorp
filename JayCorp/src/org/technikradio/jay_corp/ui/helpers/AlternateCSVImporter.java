@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
@@ -46,17 +47,26 @@ public class AlternateCSVImporter {
 	}
 
 	public void upload() {
-		workFile = AdvancedFileInputDialog.showDialog(null, null, f, Strings.getString("CSVImporter.DialogTitle")); //$NON-NLS-1$
-		if (workFile == null)
-			return;
+		boolean con = false;
+		while (!con) {
+			workFile = AdvancedFileInputDialog.showDialog(null, null, f, Strings.getString("CSVImporter.DialogTitle")); //$NON-NLS-1$
+			if (workFile == null && Boolean
+					.parseBoolean(System.getProperty("org.technikradio.JayCorp.abortFileChoosingAllowed", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
+				return;
+			else if (workFile != null)
+				con = true;
+			else
+				// Ask to abort
+				JOptionPane.showMessageDialog(parent, Strings.getString("AlternateCSVImporter.PleaseChooseFileMessage")); //$NON-NLS-1$
+		}
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				defaultRT = RightEditFrame.showDialog(new Righttable());
 			}
 		});
-		t.setName("SwingUIThreadSyncer");
-		if (Boolean.parseBoolean(Settings.getString("forceSpecificRT")))
+		t.setName("SwingUIThreadSyncer"); //$NON-NLS-1$
+		if (Boolean.parseBoolean(Settings.getString("forceSpecificRT"))) //$NON-NLS-1$
 			t.start();
 		// defaultRT = RightEditFrame.showDialog(new Righttable());
 		// Righttable defaultRT = new Righttable();
@@ -73,7 +83,7 @@ public class AlternateCSVImporter {
 			br = new BufferedReader(new InputStreamReader(in));
 			String currentLine = br.readLine();
 			int i = 0;
-			if (Boolean.parseBoolean(Settings.getString("forceSpecificRT")))
+			if (Boolean.parseBoolean(Settings.getString("forceSpecificRT"))) //$NON-NLS-1$
 				while (defaultRT == null) {
 					try {
 						Thread.sleep(50);

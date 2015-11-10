@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import javax.swing.JDialog;
 
+import org.technikradio.jay_corp.Application;
+import org.technikradio.jay_corp.Application.OperatingSystem;
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.helpers.ProgressIndicator;
@@ -116,6 +118,8 @@ public class SetupFrame extends JDialog {
 		});
 		smc.setSize(new Dimension(500, 480));
 		this.add(smc);
+		if (Application.OS != OperatingSystem.OSX)
+			this.setSize(510, 575);
 		this.addWindowListener(new WindowListener() {
 			@Override
 			public void windowOpened(WindowEvent e) {

@@ -156,7 +156,7 @@ public class JayCorp extends JFrame {
 			cmd.append(arg).append(" "); //$NON-NLS-1$
 		}
 		Runtime.getRuntime().exec(cmd.toString());
-		exit(status);
+		exit(status + 1000);
 	}
 
 }
