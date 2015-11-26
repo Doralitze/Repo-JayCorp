@@ -2,6 +2,7 @@ package org.technikradio.jay_corp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -24,8 +25,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
@@ -56,6 +57,8 @@ public class SettingsFrame extends JDialog {
 	private JCheckBox enableAccessCheckBox;
 	private JTable userTable;
 	private JSpinner allowedDaysSelector;
+	private JScrollPane tablePane;
+	private JPanel headerPanel;
 	private MainFrame owner;
 	private final SettingsFrame ownHandle = this;
 
@@ -291,17 +294,20 @@ public class SettingsFrame extends JDialog {
 		{
 			JPanel cp = new JPanel();
 			JPanel bp = new JPanel();
+			headerPanel = new JPanel();
 			bp.setLayout(new BoxLayout(bp, BoxLayout.X_AXIS));
 			cp.setLayout(new BorderLayout());
-			JScrollPane p = new JScrollPane();
-			p.add(userTable);
+			headerPanel.setLayout(new FlowLayout());
+			tablePane = new JScrollPane();
+			tablePane.add(userTable);
 			Dimension d = new Dimension();
 			d.setSize(630, 370);
-			p.setPreferredSize(d);
-			p.setMaximumSize(d);
-			p.setMinimumSize(d);
-			cp.add(userTable.getTableHeader(), BorderLayout.PAGE_START);
-			cp.add(p, BorderLayout.CENTER);
+			tablePane.setPreferredSize(d);
+			tablePane.setMaximumSize(d);
+			tablePane.setMinimumSize(d);
+			headerPanel.add(userTable.getTableHeader());
+			cp.add(headerPanel, BorderLayout.PAGE_START);
+			cp.add(tablePane, BorderLayout.CENTER);
 			addUserButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -407,45 +413,66 @@ public class SettingsFrame extends JDialog {
 				try {
 					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
 							&& Protocol.getCurrentUser().getRights().isEditUserAllowed()) {
-						String[] tableNames = { Strings.getString("SettingsFrame.UserNameHeader"), //$NON-NLS-1$
-								Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$
-								Strings.getString("SettingsFrame.RightsHeader"), //$NON-NLS-1$
-								Strings.getString("SettingsFrame.AgeHeader"), //$NON-NLS-1$
-								Strings.getString("SettingsFrame.IDHeader") }; //$NON-NLS-1$
-						ArrayList<User> users = new ArrayList<User>();
-						int ids[] = Protocol.getUsers();
-						for (int id : ids) {
-							try {
-								User u = Protocol.getUser(id);
-								u.setRights(Protocol.getRights(id));
-								users.add(u);
-							} catch (Exception e) {
-								Console.log(LogType.Error, this, "An unknown error occured"); //$NON-NLS-1$
-								e.printStackTrace();
-							}
-						}
-						for (int i = 0; i < tableNames.length; i++) {
-							TableColumn c = new TableColumn();
-							c.setHeaderValue(tableNames[i]);
-							c.setMinWidth(125);
-							c.setResizable(true);
-							userTable.getColumnModel().addColumn(c);
-						}
-						DefaultTableModel dtm = (DefaultTableModel) userTable.getModel();
-						for (User u : users) {
-							String[] data = new String[5];
-							data[0] = u.getUsername();
-							data[1] = u.getName();
-							data[2] = Byte.toString(RightEditFrame.getRight(u.getRights()));
-							data[3] = Integer.toString(u.getWorkAge());
-							data[4] = Integer.toString(u.getID());
-							Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
-							dtm.addRow(data);
-						}
-						userTable.setModel(dtm);
-						userTable.setSize(50, 50);
-						userTable.setBackground(Color.black);
-						userTable.repaint();
+						buildTable();
+
+						// String[] tableNames = {
+						// Strings.getString("SettingsFrame.UserNameHeader"),
+						// //$NON-NLS-1$
+						//
+						// Strings.getString("SettingsFrame.FullNameHeader"),
+						// //$NON-NLS-1$
+						//
+						// Strings.getString("SettingsFrame.RightsHeader"),
+						// //$NON-NLS-1$
+						//
+						// Strings.getString("SettingsFrame.AgeHeader"),
+						// //$NON-NLS-1$
+						//
+						// Strings.getString("SettingsFrame.IDHeader")
+						// };//$NON-NLS-1$
+						//
+						// ArrayList<User> users = new ArrayList<User>();
+						// int ids[] = Protocol.getUsers();
+						// for (int id : ids) {
+						// try {
+						// User u = Protocol.getUser(id);
+						// u.setRights(Protocol.getRights(id));
+						// users.add(u);
+						// } catch (Exception e) {
+						// Console.log(LogType.Error, this, "An unknown error
+						// occured"); //$NON-NLS-1$
+						// e.printStackTrace();
+						// }
+						// }
+						// DefaultTableModel dtm = (DefaultTableModel)
+						// userTable.getModel();
+						// for (int i = 0; i < tableNames.length; i++) {
+						// TableColumn c = new TableColumn();
+						// c.setHeaderValue(tableNames[i]);
+						// c.setMinWidth(125);
+						// c.setResizable(true);
+						// userTable.getColumnModel().addColumn(c);
+						// // dtm.addColumn(tableNames[i]);
+						// }
+						// for (User u : users) {
+						// String[] data = new String[5];
+						// data[0] = u.getUsername();
+						// data[1] = u.getName();
+						// data[2] =
+						// Byte.toString(RightEditFrame.getRight(u.getRights()));
+						// data[3] = Integer.toString(u.getWorkAge());
+						// data[4] = Integer.toString(u.getID());
+						// Console.log(LogType.StdOut, this, "Add user '" + //
+						// $NON-NLS-2$
+						// u.getName() + "' to table"); //$NON-NLS-1$
+						// dtm.addRow(data);
+						// }
+						//
+						// userTable.setModel(dtm);
+						// userTable.setSize(50, 50);
+						// userTable.setBackground(Color.black);
+						// userTable.repaint();
+
 					}
 					Console.log(LogType.StdOut, Strings.getString("ErrorMessages.SettingsFrame.name"), //$NON-NLS-1$
 							"Successfully loaded the data"); //$NON-NLS-1$
@@ -462,6 +489,74 @@ public class SettingsFrame extends JDialog {
 		userTable.setVisible(false);
 
 		repaint();
+	}
+
+	private void buildTable() {
+		String[] tableNames = { Strings.getString("SettingsFrame.UserNameHeader"), //$NON-NLS-1$
+				Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$
+				Strings.getString("SettingsFrame.RightsHeader"), //$NON-NLS-1$
+				Strings.getString("SettingsFrame.AgeHeader"), //$NON-NLS-1$
+				Strings.getString("SettingsFrame.IDHeader") }; //$NON-NLS-1$
+		// Alle Benutzer laden
+		ArrayList<User> users = new ArrayList<User>();
+		int ids[] = Protocol.getUsers();
+		for (int id : ids) {
+			try {
+				User u = Protocol.getUser(id);
+				u.setRights(Protocol.getRights(id));
+				users.add(u);
+			} catch (Exception e) {
+				Console.log(LogType.Error, this, "An unknown error occured"); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+		}
+		// Daten eintragen
+		String[][] data = new String[users.size()][tableNames.length];
+		for (int i = 0; i < users.size(); i++) {
+			User u = users.get(i);
+			String[] mdata = new String[tableNames.length];
+			mdata[0] = u.getUsername();
+			mdata[1] = u.getName();
+			mdata[2] = Byte.toString(RightEditFrame.getRight(u.getRights()));
+			mdata[3] = Integer.toString(u.getWorkAge());
+			mdata[4] = Integer.toString(u.getID());
+			Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
+			data[i] = mdata;
+		}
+		// Remove old table
+		tablePane.remove(userTable);
+		headerPanel.remove(userTable.getTableHeader());
+		userTable = null;
+		// Create new one
+		JTable jt = new JTable(data, tableNames){
+			private static final long serialVersionUID = -3710849820523217205L;
+
+			public boolean isCellEditable(int x, int y){
+				return false;
+			}
+			
+			public Component prepareRenderer(TableCellRenderer r, int x, int y){
+				Component c = super.prepareRenderer(r, x, y);
+				if(y % 2 == 0)
+					c.setBackground(Color.LIGHT_GRAY);
+				else c.setBackground(Color.WHITE);
+				if(isCellSelected(x,y))
+					c.setBackground(Color.BLUE);
+				return c;
+			}
+		};
+		JTableHeader jth = jt.getTableHeader();
+		jt.setPreferredScrollableViewportSize(new Dimension(tableNames.length * 50, data.length * 20));
+		jt.setPreferredSize(new Dimension(tableNames.length * 50, data.length * 20));
+		jt.setMinimumSize(new Dimension(tableNames.length * 50, data.length * 20));
+		jt.setFillsViewportHeight(true);
+		jt.setColumnSelectionAllowed(true);
+		jt.setCellSelectionEnabled(false);
+		jt.setVisible(true);
+		jth.setMinimumSize(new Dimension(tableNames.length * 50, 35));
+		userTable = jt;
+		tablePane.add(jt);
+		headerPanel.add(jth);
 	}
 
 	private void pushSettings() {

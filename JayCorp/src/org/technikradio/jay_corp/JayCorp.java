@@ -66,14 +66,17 @@ public class JayCorp extends JFrame {
 		lp.getValues(true);
 		{
 			if (Boolean.parseBoolean(Settings.getString("runSetup")))
-				if (Protocol.getCurrentUser().getPassword()
-						.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) {
-					SetupFrame stf = new SetupFrame();
-					splashscreen.setVisible(false);
-					stf.showDialog();
-					splashscreen.setVisible(true);
-					exit(0, true);
-				}
+				if (Protocol.getCurrentUser() != null) {
+					if (Protocol.getCurrentUser().getPassword()
+							.equals(Strings.getString("CSVImporter.DefaultNewPassword"))) {
+						SetupFrame stf = new SetupFrame();
+						splashscreen.setVisible(false);
+						stf.showDialog();
+						splashscreen.setVisible(true);
+						exit(0, true);
+					}
+				} else
+					exit(15);
 			MainFrame mf = new MainFrame();
 			mf.setup();
 			mf.setVisible(true);
@@ -81,6 +84,7 @@ public class JayCorp extends JFrame {
 		Console.log(LogType.StdOut, "ClassLoader", //$NON-NLS-1$
 				"Successfully loaded MainFrame"); //$NON-NLS-1$
 		splashscreen.dispose();
+
 	}
 
 	private static boolean setSystemLookAndFeel() {

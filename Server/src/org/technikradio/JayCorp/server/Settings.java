@@ -18,7 +18,9 @@ public class Settings {
 
 	static {
 		String altPath = Application.getAppInstallPath();
-		if (altPath != null)
+		if (altPath != null) {
+			if (altPath.endsWith(File.separator + "Server.jar"))
+				altPath = altPath.replace(File.separator + "Server.jar", "");
 			try {
 				altPath += File.separator + "settings.properties";
 				FIRST_VALUES.load(new FileInputStream(altPath));
@@ -27,6 +29,7 @@ public class Settings {
 				System.out.println(altPath);
 				e.printStackTrace();
 			}
+		}
 	}
 
 	public static String getString(String key) {

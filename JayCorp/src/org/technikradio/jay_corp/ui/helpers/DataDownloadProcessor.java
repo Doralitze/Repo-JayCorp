@@ -183,7 +183,7 @@ public class DataDownloadProcessor {
 					sb.append(';');
 					for (String s : freeList) {
 						sb.append(s);
-						sb.append(';');
+						sb.append(Settings.getString("DaysCutter"));
 					}
 					sb.append("\n"); //$NON-NLS-1$
 					f.append(sb.toString());

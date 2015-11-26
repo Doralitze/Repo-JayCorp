@@ -81,7 +81,7 @@ public class LoginPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				disableInputs();
 				if (username.getText() != "" //$NON-NLS-1$
-						|| new String(password.getPassword()) != "") //$NON-NLS-1$
+						&& new String(password.getPassword()) != "") //$NON-NLS-1$
 					if (Protocol.isLoginFree(username.getText()))
 						if (Protocol.login(username.getText(), new String(password.getPassword())))
 							loadWorkspace();
@@ -95,10 +95,17 @@ public class LoginPanel extends JPanel {
 							reenable();
 							return;
 						}
-					else
-						JOptionPane.showMessageDialog(parent, "Benutzer bereits angemeldet"); //$NON-NLS-1$
+					else{
+							didEntered = false;
+							reenable();
+							JOptionPane.showMessageDialog(parent, "Benutzer bereits angemeldet"); //$NON-NLS-1$
+							return;
+						}
 				else {
+					didEntered = false;
+					reenable();
 					JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
+					return;
 				}
 				didEntered = true;
 			}

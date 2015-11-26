@@ -20,7 +20,10 @@ public class Strings {
 
 	static {
 		String altPath = Application.getAppInstallPath();
-		if (altPath != null)
+		if (altPath != null) {
+			if (altPath.endsWith(File.separator + "JayCorp.jar")) {
+				altPath = altPath.replace(File.separator + "JayCorp.jar", "");
+			}
 			try {
 				altPath += File.separator + "LANG" + File.separator + Settings.getString("StringFile");
 				FIRST_VALUES.load(new FileInputStream(altPath));
@@ -29,6 +32,7 @@ public class Strings {
 				System.out.println(altPath);
 				e.printStackTrace();
 			}
+		}
 	}
 
 	public static String getString(String key) {

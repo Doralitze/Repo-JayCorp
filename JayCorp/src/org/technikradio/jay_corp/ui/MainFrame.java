@@ -320,7 +320,7 @@ public class MainFrame extends JFrame {
 					JMenuItem aboutItem = new JMenuItem();
 					aboutItem.setText("Über");
 					aboutItem.setName("file-menu:about");
-					aboutItem.setToolTipText("Hier wird langweiliges Copyrightzeugs und so angezeigt.");
+					aboutItem.setToolTipText("Hier werden die Copyrighthinweise und die Lizenz angezeigt.");
 					aboutItem.addActionListener(new ActionListener() {
 
 						@Override
