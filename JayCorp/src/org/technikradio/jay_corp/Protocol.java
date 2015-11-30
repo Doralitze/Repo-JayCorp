@@ -17,13 +17,33 @@ import de.bennyden.coding.Base64Coding;
 public class Protocol {
 
 	private static Connection c;
+	private static Thread keepAliveThread;
 	private static boolean validLogin = false;
 	private static boolean editEnabled = false;
+	private static boolean busy = false;
 	private static User currentUser;
 
 	static {
 		c = new Connection();
 		validLogin = false;
+		keepAliveThread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				while(!keepAliveThread.isInterrupted() && c != null){
+					block();
+					c.transmit("keepAlive");
+					release();
+					try {
+						Thread.sleep(30000);
+					} catch (InterruptedException e) {
+						keepAliveThread.interrupt();
+						e.printStackTrace();
+					}
+				}
+			}});
+		keepAliveThread.setName("KeepAliveThread");
+		keepAliveThread.setPriority(2);
+		keepAliveThread.start();
 	}
 
 	private static String[] decodeAnswer(String answer) {
@@ -33,12 +53,34 @@ public class Protocol {
 			return null;
 		return answer.split(";"); //$NON-NLS-1$
 	}
+	
+	private static void block(){
+		int wait = 0;
+		while(busy){
+			wait++;
+			if(wait == 2000)
+				throw new RuntimeException("Waiting too long. Assuming network crash");
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				Console.log(LogType.Error, "ProtocolHandler", "System transmit interferred");
+				e.printStackTrace();
+			}
+		}
+		busy = true;
+	}
+	
+	private static void release(){
+		busy = false;
+	}
 
 	public static User getUser(int ID) throws PermissionDeninedException, IOException {
 		User u = new User();
 		u.setID(ID);
+		block();
 		c.transmit("getUser ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
+		release();
 		if (result[0].equals("$NOUSER§")) //$NON-NLS-1$
 			return null;
 		if (result[0] == "false") { //$NON-NLS-1$
@@ -62,8 +104,10 @@ public class Protocol {
 	public static DayTable getProgress(int ID) throws IOException, PermissionDeninedException {
 		DayTable d = new DayTable();
 		Hashtable<ParaDate, Status> ht = new Hashtable<ParaDate, Status>();
+		block();
 		c.transmit("getProg ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
+		release();
 		if (result[0] == "false") { //$NON-NLS-1$
 			throw new PermissionDeninedException();
 		} else if (result[0] == "NO_DATA" || result[0] == "NO") { //$NON-NLS-1$ //$NON-NLS-2$
@@ -82,8 +126,10 @@ public class Protocol {
 	public static DayTable getProgressFromBackup(int ID) throws IOException, PermissionDeninedException {
 		DayTable d = new DayTable();
 		Hashtable<ParaDate, Status> ht = new Hashtable<ParaDate, Status>();
+		block();
 		c.transmit("getProgBackup ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
+		release();
 		if (result[0] == "false") { //$NON-NLS-1$
 			throw new PermissionDeninedException();
 		} else if (result[0] == "NO_DATA" || result[0] == "NO") { //$NON-NLS-1$ //$NON-NLS-2$
@@ -100,6 +146,7 @@ public class Protocol {
 	}
 
 	public static boolean isLoginFree(String name) {
+		block();
 		c.transmit("isLoginFree " + name); //$NON-NLS-1$
 		try {
 			String[] result = decodeAnswer(c.receive());
@@ -108,11 +155,12 @@ public class Protocol {
 			Console.log(LogType.Error, "Protocol", "Connection refused:"); //$NON-NLS-1$ //$NON-NLS-2$
 			e.printStackTrace();
 			return false;
-		}
-
+		}finally{
+		release();}
 	}
 
 	public static boolean moveToBackup(int ID) {
+		block();
 		c.transmit("mvToBackup " + Integer.toString(ID)); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
@@ -122,27 +170,33 @@ public class Protocol {
 			e.printStackTrace();
 			return false;
 		}
+		release();
 		return true;
 	}
 
 	public static boolean rmDatabaseEntries(int ID) {
+		block();
 		c.transmit("rmDB " + Integer.toString(ID)); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
+			release();
 			return false;
 		}
 		return true;
 	}
 
 	public static boolean login(String username, String password) {
+		block();
 		c.transmit("login ".concat(username).concat(" ") //$NON-NLS-1$ //$NON-NLS-2$
 				.concat(Base64Coding.encode(password)));
 		try {
 			String result = c.receive();
+			release();
 			String[] a = decodeAnswer(result);
 			validLogin = Boolean.parseBoolean(a[0]);
 			if (validLogin) {
@@ -165,7 +219,7 @@ public class Protocol {
 			e.printStackTrace();
 			return false;
 		} finally {
-
+			release();
 		}
 		return validLogin;
 	}
@@ -178,6 +232,7 @@ public class Protocol {
 		sb.append(s.toString());
 		sb.append(' ');
 		sb.append(Integer.toString(ID));
+		block();
 		c.transmit(sb.toString());
 		try {
 			return Boolean.valueOf(c.receive());
@@ -186,10 +241,13 @@ public class Protocol {
 					"An unexpected exception occurred: " + e.getMessage()); //$NON-NLS-1$
 			e.printStackTrace();
 			return false;
+		} finally {
+			release();
 		}
 	}
 
 	public static boolean addUser(String name, String username, String password, int ID, int workingAge) {
+		block();
 		c.transmit("addUser " //$NON-NLS-1$
 				.concat(Base64Coding.encode(name)).concat(" ") //$NON-NLS-1$
 				.concat(Base64Coding.encode(password)).concat(" ") //$NON-NLS-1$
@@ -199,9 +257,11 @@ public class Protocol {
 				.concat(username));
 		try {
 			String a = decodeAnswer(c.receive())[0];
+			release();
 			if (a == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			e.printStackTrace();
 			return false;
 		}
@@ -220,21 +280,25 @@ public class Protocol {
 	}
 
 	public static int[] getUsers() {
+		block();
 		c.transmit("getUsers"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			int[] rtv = new int[a.length];
 			for (int i = 0; i < a.length; i++) {
 				rtv[i] = Integer.parseInt(a[i]);
 			}
 			return rtv;
 		} catch (IOException e) {
+			release();
 			e.printStackTrace();
 			return null;
 		}
 	}
 
 	public static int getIDCount() {
+		block();
 		c.transmit("getIDCount"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
@@ -243,17 +307,22 @@ public class Protocol {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			release();
 		}
 		return -1;
 	}
 
 	public static boolean save() {
+		block();
 		c.transmit("save"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			e.printStackTrace();
 			return false;
 		}
@@ -262,12 +331,14 @@ public class Protocol {
 
 	public static void disconnect() {
 		Console.log(LogType.StdOut, "Protocol", "Disconnecting from server");
+		block();
 		c.transmit("disconnect"); //$NON-NLS-1$
 		try {
 			c.stop();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
+			release();
 			c = null;
 			validLogin = false;
 			currentUser = null;
@@ -275,12 +346,15 @@ public class Protocol {
 	}
 
 	public static boolean assoziateID(int ID, String username) {
+		block();
 		c.transmit("assoziate " + Integer.toString(ID) + " " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			e.printStackTrace();
 			return false;
 		}
@@ -288,12 +362,15 @@ public class Protocol {
 	}
 
 	public static boolean setEditEnableOnServer(boolean flag) {
+		block();
 		c.transmit("setEditEnable " + Boolean.toString(flag)); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			e.printStackTrace();
 			return false;
 		}
@@ -303,9 +380,11 @@ public class Protocol {
 
 	public static Righttable getRights(int ID) {
 		Righttable rt = new Righttable();
+		block();
 		c.transmit("getRights ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return null;
 			rt.setAccessUserInputAllowed(Boolean.valueOf(a[1]));
@@ -317,6 +396,7 @@ public class Protocol {
 			rt.setOpenCloseEditAllowed(Boolean.valueOf(a[7]));
 			rt.setViewOtherSelectionsAllowed(Boolean.valueOf(a[8]));
 		} catch (IOException e) {
+			release();
 			e.printStackTrace();
 			return null;
 		}
@@ -324,13 +404,16 @@ public class Protocol {
 	}
 
 	public static boolean loadEditEnabled() {
+		block();
 		c.transmit("getEditEnabled"); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			// System.out.println(a[0]);
 			if (a[0].toLowerCase().equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
 					"An unexpected error occured (perhaps networking?):"); //$NON-NLS-1$
 			e.printStackTrace();
@@ -436,6 +519,7 @@ public class Protocol {
 	}
 
 	public static String getMessageHash() {
+		block();
 		c.transmit("getMessageHash"); //$NON-NLS-1$
 		try {
 			return c.receive();
@@ -444,6 +528,8 @@ public class Protocol {
 					"Failed to recieve message hash"); //$NON-NLS-1$
 			e.printStackTrace();
 			return null;
+		} finally {
+			release();
 		}
 	}
 
@@ -453,12 +539,15 @@ public class Protocol {
 		sb.append(id);
 		sb.append(' ');
 		sb.append(Base64Coding.encode(newPassword));
+		block();
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
 					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();
@@ -473,12 +562,15 @@ public class Protocol {
 		sb.append(id);
 		sb.append(' ');
 		sb.append(days);
+		block();
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
 					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();
@@ -507,12 +599,15 @@ public class Protocol {
 		sb.append(Boolean.toString(rt.isOpenCloseEditAllowed()));
 		sb.append(' ');
 		sb.append(Boolean.toString(rt.isViewOtherSelectionsAllowed()));
+		block();
 		c.transmit(sb.toString());
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
 					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();
@@ -522,12 +617,15 @@ public class Protocol {
 	}
 
 	public static boolean destroyDatabase() {
+		block();
 		c.transmit("destroyAll");
 		try {
 			String[] a = decodeAnswer(c.receive());
+			release();
 			if (a[0] == "false") //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
+			release();
 			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
 					"Failed to recieve critical request answer:"); //$NON-NLS-1$
 			e.printStackTrace();

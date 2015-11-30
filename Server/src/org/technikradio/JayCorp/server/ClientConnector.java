@@ -25,8 +25,10 @@ public class ClientConnector extends Thread {
 	private static final ArrayList<User> loggedInUsers = new ArrayList<User>();
 	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
 	private int loginAttemps = 0;
+	private long lastCall = System.currentTimeMillis() / 1000;
 
 	private Socket client;
+	private Thread kickThread;
 	private MessageStream messageStream;
 	private BufferedReader in;
 	private PrintStream out;
@@ -40,6 +42,27 @@ public class ClientConnector extends Thread {
 		this.start();
 		mh = new ID("MessageStreamHash", true).toString();
 		MessageStream.addConnectionWaiter(mh, this);
+		kickThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				while (!Thread.interrupted()) {
+					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						return;
+					}
+					if(lastCall + 240 < (System.currentTimeMillis() / 1000)){
+						Console.log(LogType.Warning, kickThread.getName(), "This client didn´t responded sice more than 3 minutes. Let´s assume it crashed and kick him.");
+						disconnect();
+						if (messageStream != null)
+							messageStream.destroy();
+					}
+				}
+			}
+		});
+		kickThread.setName("CrashKicker:[" + client.getInetAddress() + ":" + Integer.toString(client.getPort()) + "]");
+		kickThread.start();
 	}
 
 	private boolean processRequest(String input) {
@@ -51,6 +74,7 @@ public class ClientConnector extends Thread {
 			User u = null;
 			int ID = 0;
 			// Console.log(LogType.StdOut, this, "Getting command: " + request);
+			lastCall = System.currentTimeMillis() / 1000;
 			switch (request[0]) {
 			case "login": //$NON-NLS-1$
 				loginAttemps++;
@@ -81,6 +105,9 @@ public class ClientConnector extends Thread {
 						break;
 					}
 				}
+				break;
+			case "keepAlive":
+				lastCall = System.currentTimeMillis() / 1000;
 				break;
 			case "isLoginFree": {
 				String name = request[1];
@@ -509,8 +536,8 @@ public class ClientConnector extends Thread {
 			out = new PrintStream(client.getOutputStream());
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
-					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
-					loggedInUsers.remove(user);
+					try{Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
+					loggedInUsers.remove(user);}catch(NullPointerException e){}
 					break;
 				}
 			}
@@ -533,6 +560,7 @@ public class ClientConnector extends Thread {
 	public void disconnect() {
 		loggedInUsers.remove(user);
 		this.interrupt();
+		kickThread.interrupt();
 	}
 
 	public String getRemoteAdress() {

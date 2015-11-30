@@ -556,6 +556,8 @@ public class SettingsFrame extends JDialog {
 		jth.setMinimumSize(new Dimension(tableNames.length * 50, 35));
 		userTable = jt;
 		tablePane.add(jt);
+		//DEBUG ONLY
+		headerPanel.setBackground(Color.RED);
 		headerPanel.add(jth);
 	}
 

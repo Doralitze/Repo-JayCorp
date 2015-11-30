@@ -98,7 +98,7 @@ public class LoginPanel extends JPanel {
 					else{
 							didEntered = false;
 							reenable();
-							JOptionPane.showMessageDialog(parent, "Benutzer bereits angemeldet"); //$NON-NLS-1$
+							JOptionPane.showMessageDialog(parent, "Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
 							return;
 						}
 				else {

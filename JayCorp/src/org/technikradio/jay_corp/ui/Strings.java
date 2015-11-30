@@ -30,7 +30,8 @@ public class Strings {
 			} catch (IOException e) {
 				Console.log(LogType.Error, "StringManager", "Couldn´t load external strings:");
 				System.out.println(altPath);
-				e.printStackTrace();
+				if (Boolean.parseBoolean(Settings.getString("AdvancedOutputMode")))
+					e.printStackTrace();
 			}
 		}
 	}
