@@ -47,10 +47,10 @@ public class Protocol {
 	}
 
 	private static String[] decodeAnswer(String answer) {
-		if (answer == "null") //$NON-NLS-1$
-			throw new NullPointerException();
 		if (answer == null)
 			return null;
+		if (answer.equals("null")) //$NON-NLS-1$
+			throw new NullPointerException();
 		return answer.split(";"); //$NON-NLS-1$
 	}
 	
@@ -83,7 +83,7 @@ public class Protocol {
 		release();
 		if (result[0].equals("$NOUSER§")) //$NON-NLS-1$
 			return null;
-		if (result[0] == "false") { //$NON-NLS-1$
+		if (result[0].equals("false")) { //$NON-NLS-1$
 			throw new PermissionDeninedException();
 		} else {
 			u.setName(result[1]);
@@ -108,9 +108,9 @@ public class Protocol {
 		c.transmit("getProg ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
 		release();
-		if (result[0] == "false") { //$NON-NLS-1$
+		if (result[0].equals("false")) { //$NON-NLS-1$
 			throw new PermissionDeninedException();
-		} else if (result[0] == "NO_DATA" || result[0] == "NO") { //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (result[0].equals("NO_DATA") || result[0].equals("NO")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		} else {
 			for (int i = 1; i < result.length; i++) {
@@ -130,9 +130,9 @@ public class Protocol {
 		c.transmit("getProgBackup ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
 		release();
-		if (result[0] == "false") { //$NON-NLS-1$
+		if (result[0].equals("false")) { //$NON-NLS-1$
 			throw new PermissionDeninedException();
-		} else if (result[0] == "NO_DATA" || result[0] == "NO") { //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (result[0].equals("NO_DATA") || result[0].equals("NO")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		} else {
 			for (int i = 1; i < result.length; i++) {
@@ -164,7 +164,7 @@ public class Protocol {
 		c.transmit("mvToBackup " + Integer.toString(ID)); //$NON-NLS-1$
 		try {
 			String[] a = decodeAnswer(c.receive());
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -180,7 +180,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -258,7 +258,7 @@ public class Protocol {
 		try {
 			String a = decodeAnswer(c.receive())[0];
 			release();
-			if (a == "false") //$NON-NLS-1$
+			if (a.equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -319,7 +319,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -351,7 +351,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -367,7 +367,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -385,7 +385,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return null;
 			rt.setAccessUserInputAllowed(Boolean.valueOf(a[1]));
 			rt.setAddUserAllowed(Boolean.valueOf(a[2]));
@@ -544,7 +544,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -567,7 +567,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -604,7 +604,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -622,7 +622,7 @@ public class Protocol {
 		try {
 			String[] a = decodeAnswer(c.receive());
 			release();
-			if (a[0] == "false") //$NON-NLS-1$
+			if (a[0].equals("false")) //$NON-NLS-1$
 				return false;
 		} catch (IOException e) {
 			release();
@@ -632,6 +632,10 @@ public class Protocol {
 			return false;
 		}
 		return true;
+	}
+	
+	public static boolean isConnectionAviable(){
+		return c.isValidConnection();
 	}
 
 }

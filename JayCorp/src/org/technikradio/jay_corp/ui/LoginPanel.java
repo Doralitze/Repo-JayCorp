@@ -22,6 +22,7 @@ import org.technikradio.universal_tools.Console.LogType;
 public class LoginPanel extends JPanel {
 
 	private static final long serialVersionUID = -5270618477711942318L;
+	private Thread lookyLookyThread;
 	private JTextField username;
 	private JPasswordField password;
 	private JButton submitButton;
@@ -53,6 +54,24 @@ public class LoginPanel extends JPanel {
 	}
 
 	private void setup() {
+		lookyLookyThread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				String old = copyrightLabel.getText();
+				while(!Protocol.isConnectionAviable()){
+					copyrightLabel.setText("Es ist keine Verbindung zum\nServer möglich.");
+					submitButton.setEnabled(false);
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				submitButton.setEnabled(true);
+				copyrightLabel.setText(old);
+			}});
+		lookyLookyThread.setName("ServerConWacher");
 		this.setSize(500, 200);
 		this.setLayout(null);
 		this.setPreferredSize(getSize());
@@ -126,6 +145,7 @@ public class LoginPanel extends JPanel {
 			}
 		});
 		this.add(abortButton);
+		lookyLookyThread.start();
 		this.repaint();
 	}
 

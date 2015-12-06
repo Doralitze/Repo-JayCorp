@@ -184,12 +184,14 @@ public class MainFrame extends JFrame {
 											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
 											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
 									};
+									
 									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
 											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
 											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
 											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 											elements, elements[2]);
 									if (n == 1) {
+										ownHandle.setVisible(false);
 										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
 										if (Protocol.transmitTable(c.buildFromCache(),
 												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
@@ -266,6 +268,7 @@ public class MainFrame extends JFrame {
 											elements, elements[2]);
 									if (n == 1) {
 										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+										//ownHandle.setVisible(false);
 										if (Protocol.transmitTable(c.buildFromCache(),
 												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
