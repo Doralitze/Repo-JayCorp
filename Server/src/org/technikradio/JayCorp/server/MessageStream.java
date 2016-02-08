@@ -32,6 +32,9 @@ public class MessageStream implements Runnable, BroadcastListener {
 
 			@Override
 			public void run() {
+				/*
+				 * This Thread is used to recognize incoming applications for the messaging system
+				 */
 				ServerSocket s = null;
 				try {
 					s = new ServerSocket(Integer.parseInt(Settings.getString("Settings.messagePort")));
@@ -123,6 +126,8 @@ public class MessageStream implements Runnable, BroadcastListener {
 	}
 
 	public static void stop() {
+		if(Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
+			Console.log(LogType.Error, "Static:MessageStream", "Kicking entry Thread");
 		entryThread.interrupt();
 	}
 

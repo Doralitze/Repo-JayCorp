@@ -50,10 +50,12 @@ public class ClientConnector extends Thread {
 					try {
 						Thread.sleep(60000);
 					} catch (InterruptedException e) {
+						kickThread.interrupt();
 						return;
 					}
-					if(lastCall + 240 < (System.currentTimeMillis() / 1000)){
-						Console.log(LogType.Warning, kickThread.getName(), "This client didn´t responded sice more than 3 minutes. Let´s assume it crashed and kick him.");
+					if (lastCall + 240 < (System.currentTimeMillis() / 1000)) {
+						Console.log(LogType.Warning, kickThread.getName(),
+								"This client didn´t responded sice more than 3 minutes. Let´s assume it crashed and kick him.");
 						disconnect();
 						if (messageStream != null)
 							messageStream.destroy();
@@ -62,6 +64,7 @@ public class ClientConnector extends Thread {
 			}
 		});
 		kickThread.setName("CrashKicker:[" + client.getInetAddress() + ":" + Integer.toString(client.getPort()) + "]");
+		kickThread.setDaemon(true);
 		kickThread.start();
 	}
 
@@ -494,7 +497,12 @@ public class ClientConnector extends Thread {
 				break;
 			}
 			case "disconnect": //$NON-NLS-1$
-				Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
+				try {
+					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
+				} catch (NullPointerException e) {
+					if (Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
+						e.printStackTrace();
+				}
 				disconnect();
 				if (messageStream != null)
 					messageStream.destroy();
@@ -536,8 +544,11 @@ public class ClientConnector extends Thread {
 			out = new PrintStream(client.getOutputStream());
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
-					try{Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
-					loggedInUsers.remove(user);}catch(NullPointerException e){}
+					try {
+						Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
+						loggedInUsers.remove(user);
+					} catch (NullPointerException e) {
+					}
 					break;
 				}
 			}

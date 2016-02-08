@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 
 import org.technikradio.jay_corp.MessageStreamHandler;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -136,6 +137,13 @@ public class LoginPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Console.log(LogType.Information, this, "Abortbutton clicket: going to stop"); //$NON-NLS-1$
+				try{
+					Protocol.disconnect();
+				}catch(Exception ex){
+					Console.log(LogType.Error, abortButton, "Failed to log off protocol. Is the server connected?");
+					if(Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
+						ex.printStackTrace();
+				}
 				System.exit(0);
 			}
 
