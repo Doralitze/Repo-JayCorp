@@ -48,10 +48,14 @@ public class Server {
 
 		clients = new ArrayList<ClientConnector>();
 		if (args.length == 0) {
-			Console.log(LogType.Error, "UpstartAgend", "No data path provided");
-			System.exit(1);
-		}
-		Data.loadDataFile(args[0]);
+			String defaultFile = Settings.getString("Default.UserFile");
+			if (defaultFile == "") {
+				Console.log(LogType.Error, "UpstartAgend", "No data path provided");
+				System.exit(1);
+			} else
+				Data.loadDataFile(defaultFile);
+		} else
+			Data.loadDataFile(args[0]);
 		try {
 			server = new ServerSocket(port);
 			{
