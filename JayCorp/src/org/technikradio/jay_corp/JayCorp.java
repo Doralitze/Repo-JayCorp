@@ -19,6 +19,7 @@ package org.technikradio.jay_corp;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
@@ -53,16 +54,13 @@ public class JayCorp extends JFrame {
 		splashscreen.setAlwaysOnTop(true);
 		splashscreen.setAutoRequestFocus(true);
 		splashscreen.setUndecorated(true);
-		{
-			int posy, posx, width, height;
-			posx = (Toolkit.getDefaultToolkit().getScreenSize().width / 2) - 250;
-			posy = (Toolkit.getDefaultToolkit().getScreenSize().height / 2) - 100;
-			width = 500;
-			height = 200;
-			splashscreen.setBounds(new Rectangle(posx, posy, width, height));
-		}
+		setSCFrameBounds(splashscreen);
 		splashscreen.setVisible(true);
 		splashscreen.setResizable(false);
+		if(splashscreen.getWidth() > 500 || splashscreen.getHeight() > 200)
+			setSCFrameBounds(splashscreen);
+		if(SplashScreen.getSplashScreen() != null)
+			SplashScreen.getSplashScreen().close();
 		argv = args;
 		{
 			JPanel jp = new JPanel();
@@ -178,6 +176,15 @@ public class JayCorp extends JFrame {
 		}
 		Runtime.getRuntime().exec(cmd.toString());
 		exit(status + 1000);
+	}
+	
+	private static void setSCFrameBounds(JFrame sc){
+		int posy, posx, width, height;
+		posx = (Toolkit.getDefaultToolkit().getScreenSize().width / 2) - 250;
+		posy = (Toolkit.getDefaultToolkit().getScreenSize().height / 2) - 100;
+		width = 500;
+		height = 200;
+		sc.setBounds(new Rectangle(posx, posy, width, height));
 	}
 
 }

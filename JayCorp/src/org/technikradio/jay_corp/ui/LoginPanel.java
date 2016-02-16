@@ -93,7 +93,7 @@ public class LoginPanel extends JPanel {
 		this.setSize(500, 200);
 		this.setLayout(null);
 		this.setPreferredSize(getSize());
-		this.copyrightLabel = new JLabel("Copyright (c) Leon Dietrich 2014 - 2015"); //$NON-NLS-1$
+		this.copyrightLabel = new JLabel("Copyright (c) Leon Dietrich 2014 - 2016"); //$NON-NLS-1$
 		this.copyrightLabel.setBounds(10, this.getHeight() - 25, this.getWidth() - 20, 20);
 		this.copyrightLabel.setForeground(Color.WHITE);
 		this.add(this.copyrightLabel);

@@ -43,7 +43,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		Console.log(LogType.Information, "UpstartAgend", "Opening Server @" + port);
-		Console.log(LogType.Information, "UpstartAgend", "©2014 - 2015 Leon Dietrich");
+		Console.log(LogType.Information, "UpstartAgend", "©2014 - 2016 Leon Dietrich");
 		Console.log(LogType.Information, "UpstartAgend", "Software version: " + VERSION);
 
 		clients = new ArrayList<ClientConnector>();
