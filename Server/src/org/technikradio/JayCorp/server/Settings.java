@@ -2,6 +2,7 @@ package org.technikradio.JayCorp.server;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.Properties;
@@ -27,7 +28,8 @@ public class Settings {
 			} catch (IOException e) {
 				Console.log(LogType.Error, "StringManager", "Couldn´t load external strings:");
 				System.out.println(altPath);
-				e.printStackTrace();
+				if(!(e instanceof FileNotFoundException))
+					e.printStackTrace();
 			}
 		}
 	}

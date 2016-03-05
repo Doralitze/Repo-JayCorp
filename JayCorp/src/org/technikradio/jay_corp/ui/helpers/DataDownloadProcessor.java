@@ -75,6 +75,12 @@ public class DataDownloadProcessor {
 			Console.log(LogType.Error, this, "An unknown error occured doing file choosing operation"); //$NON-NLS-1$
 		workFile = fileChooser.getSelectedFile();
 		Console.log(LogType.Error, this, "Loading file...");
+		if(!workFile.getAbsoluteFile().getPath().endsWith(".csv")){
+			String m = workFile.getAbsoluteFile().getPath();
+			m = m.concat(".csv");
+			workFile = new File(m);
+			Console.log(LogType.Information, this, "Fixed path to: " + m);
+		}
 		if (!workFile.canWrite() && workFile.exists()) {
 			Console.log(LogType.Error, this, "Unable to write File"); //$NON-NLS-1$
 			FixedOptionPane.showFixedOptionDialog(parent,
@@ -218,7 +224,7 @@ public class DataDownloadProcessor {
 		if (parent != null)
 			sb.append(":" + parent.toString()); //$NON-NLS-1$
 		if (workFile != null)
-			sb.append(';' + workFile.getAbsolutePath());
+			sb.append("; " + workFile.getAbsolutePath());
 		return sb.toString();
 	}
 

@@ -2,6 +2,7 @@ package org.technikradio.jay_corp;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.Properties;
@@ -28,6 +29,7 @@ public class Settings {
 				Console.log(LogType.Error, "StringManager", "Couldn´t load external strings:");
 				if (Boolean.parseBoolean(Settings.getString("AdvancedOutputMode")))
 					System.out.println(altPath);
+				if(!(e instanceof FileNotFoundException))
 				e.printStackTrace();
 			}
 		}
