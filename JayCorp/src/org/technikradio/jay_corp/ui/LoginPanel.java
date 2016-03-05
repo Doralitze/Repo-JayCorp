@@ -1,3 +1,20 @@
+/*
+JayCorp-Client/LoginPanel.java
+Copyright (C) 2015-2016  Leon C. Dietrich (Doralitze)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package org.technikradio.jay_corp.ui;
 
 import java.awt.Color;
@@ -16,6 +33,7 @@ import javax.swing.JTextField;
 
 import org.technikradio.jay_corp.MessageStreamHandler;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -75,7 +93,7 @@ public class LoginPanel extends JPanel {
 		this.setSize(500, 200);
 		this.setLayout(null);
 		this.setPreferredSize(getSize());
-		this.copyrightLabel = new JLabel("Copyright (c) Leon Dietrich 2014 - 2015"); //$NON-NLS-1$
+		this.copyrightLabel = new JLabel("Copyright (c) Leon Dietrich 2014 - 2016"); //$NON-NLS-1$
 		this.copyrightLabel.setBounds(10, this.getHeight() - 25, this.getWidth() - 20, 20);
 		this.copyrightLabel.setForeground(Color.WHITE);
 		this.add(this.copyrightLabel);
@@ -136,6 +154,13 @@ public class LoginPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Console.log(LogType.Information, this, "Abortbutton clicket: going to stop"); //$NON-NLS-1$
+				try{
+					Protocol.disconnect();
+				}catch(Exception ex){
+					Console.log(LogType.Error, abortButton, "Failed to log off protocol. Is the server connected?");
+					if(Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
+						ex.printStackTrace();
+				}
 				System.exit(0);
 			}
 

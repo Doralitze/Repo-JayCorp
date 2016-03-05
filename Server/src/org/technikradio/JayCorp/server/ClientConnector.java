@@ -1,3 +1,20 @@
+/*
+JayCorp-Server/ClientConnector.java
+Copyright (C) 2015-2016  Leon C. Dietrich (Doralitze)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package org.technikradio.JayCorp.server;
 
 import java.io.BufferedReader;
@@ -50,10 +67,12 @@ public class ClientConnector extends Thread {
 					try {
 						Thread.sleep(60000);
 					} catch (InterruptedException e) {
+						kickThread.interrupt();
 						return;
 					}
-					if(lastCall + 240 < (System.currentTimeMillis() / 1000)){
-						Console.log(LogType.Warning, kickThread.getName(), "This client didn´t responded sice more than 3 minutes. Let´s assume it crashed and kick him.");
+					if (lastCall + 240 < (System.currentTimeMillis() / 1000)) {
+						Console.log(LogType.Warning, kickThread.getName(),
+								"This client didn´t responded sice more than 3 minutes. Let´s assume it crashed and kick him.");
 						disconnect();
 						if (messageStream != null)
 							messageStream.destroy();
@@ -62,6 +81,7 @@ public class ClientConnector extends Thread {
 			}
 		});
 		kickThread.setName("CrashKicker:[" + client.getInetAddress() + ":" + Integer.toString(client.getPort()) + "]");
+		kickThread.setDaemon(true);
 		kickThread.start();
 	}
 
@@ -494,7 +514,12 @@ public class ClientConnector extends Thread {
 				break;
 			}
 			case "disconnect": //$NON-NLS-1$
-				Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
+				try {
+					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
+				} catch (NullPointerException e) {
+					if (Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
+						e.printStackTrace();
+				}
 				disconnect();
 				if (messageStream != null)
 					messageStream.destroy();
@@ -536,8 +561,11 @@ public class ClientConnector extends Thread {
 			out = new PrintStream(client.getOutputStream());
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
-					try{Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
-					loggedInUsers.remove(user);}catch(NullPointerException e){}
+					try {
+						Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
+						loggedInUsers.remove(user);
+					} catch (NullPointerException e) {
+					}
 					break;
 				}
 			}

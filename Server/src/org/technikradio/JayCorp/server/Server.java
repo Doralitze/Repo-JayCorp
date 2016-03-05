@@ -1,3 +1,20 @@
+/*
+JayCorp-Server/Server.java
+Copyright (C) 2015-2016  Leon C. Dietrich (Doralitze)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package org.technikradio.JayCorp.server;
 
 import java.io.IOException;
@@ -26,15 +43,19 @@ public class Server {
 
 	public static void main(String[] args) {
 		Console.log(LogType.Information, "UpstartAgend", "Opening Server @" + port);
-		Console.log(LogType.Information, "UpstartAgend", "©2014 - 2015 Leon Dietrich");
+		Console.log(LogType.Information, "UpstartAgend", "©2014 - 2016 Leon Dietrich");
 		Console.log(LogType.Information, "UpstartAgend", "Software version: " + VERSION);
 
 		clients = new ArrayList<ClientConnector>();
 		if (args.length == 0) {
-			Console.log(LogType.Error, "UpstartAgend", "No data path provided");
-			System.exit(1);
-		}
-		Data.loadDataFile(args[0]);
+			String defaultFile = Settings.getString("Default.UserFile");
+			if (defaultFile == "") {
+				Console.log(LogType.Error, "UpstartAgend", "No data path provided");
+				System.exit(1);
+			} else
+				Data.loadDataFile(defaultFile);
+		} else
+			Data.loadDataFile(args[0]);
 		try {
 			server = new ServerSocket(port);
 			{
