@@ -1,0 +1,2 @@
+Fix Coursor position detection
+Improve performance

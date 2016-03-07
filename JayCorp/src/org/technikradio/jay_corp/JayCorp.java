@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -43,7 +44,7 @@ import org.technikradio.universal_tools.Console.LogType;
  * 
  * @author Doralitze
  */
-public class JayCorp extends JFrame {
+public class JayCorp extends JDialog {
 	private static final long serialVersionUID = 7315888172557781013L;
 	private static LoginPanel lp;
 	private static String[] argv;
@@ -70,7 +71,7 @@ public class JayCorp extends JFrame {
 			lp.setBackground(Color.DARK_GRAY);
 			lp.setBounds(0, 0, splashscreen.getWidth(), splashscreen.getHeight());
 			lp.setVisible(true);
-			lp.setParent(splashscreen);
+			//lp.setParent(splashscreen);
 			jp.add(lp);
 			splashscreen.add(jp);
 			splashscreen.repaint();
@@ -178,7 +179,7 @@ public class JayCorp extends JFrame {
 		exit(status + 1000);
 	}
 	
-	private static void setSCFrameBounds(JFrame sc){
+	private static void setSCFrameBounds(JDialog sc){
 		int posy, posx, width, height;
 		posx = (Toolkit.getDefaultToolkit().getScreenSize().width / 2) - 250;
 		posy = (Toolkit.getDefaultToolkit().getScreenSize().height / 2) - 100;

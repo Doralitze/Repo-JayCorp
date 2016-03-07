@@ -75,7 +75,7 @@ public class Protocol {
 		int wait = 0;
 		while(busy){
 			wait++;
-			if(wait == 2000)
+			if(wait == 5000)
 				throw new RuntimeException("Waiting too long. Assuming network crash");
 			try {
 				Thread.sleep(1);
