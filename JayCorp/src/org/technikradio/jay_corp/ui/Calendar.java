@@ -492,7 +492,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 							g.setFont(new Font("Arial", Font.BOLD, 15));
 							g.drawString(message, (this.getWidth() / 2) - (g.getFontMetrics().stringWidth(message) / 2),
 									(this.getHeight() / 2) - g.getFontMetrics().getHeight() / 2);
-							System.out.println("painting");
+							//System.out.println("painting");
 						}
 					}
 				}
@@ -534,6 +534,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		int height = this.getHeight();
 		int x = e.getX();
 		int y = e.getY();
+		Console.log(LogType.StdOut, this, "Click: " + x + ":" + y);
 		if (e.getY() <= 25) {
 			if (x >= width - 50 && x <= width - 35) {
 				if (y >= 5 && y <= 20) {

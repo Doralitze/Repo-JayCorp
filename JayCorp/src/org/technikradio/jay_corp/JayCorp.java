@@ -21,6 +21,9 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -50,7 +53,7 @@ public class JayCorp extends JDialog {
 	private static String[] argv;
 
 	public static void main(String[] args) {
-		JayCorp splashscreen = new JayCorp();
+		final JayCorp splashscreen = new JayCorp();
 		splashscreen.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		splashscreen.setAlwaysOnTop(true);
 		splashscreen.setAutoRequestFocus(true);
@@ -75,6 +78,50 @@ public class JayCorp extends JDialog {
 			jp.add(lp);
 			splashscreen.add(jp);
 			splashscreen.repaint();
+			splashscreen.addWindowListener(new WindowListener(){
+
+				@Override
+				public void windowActivated(WindowEvent arg0) {
+					splashscreen.repaint();
+				}
+
+				@Override
+				public void windowClosed(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void windowClosing(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void windowDeactivated(WindowEvent arg0) {
+					splashscreen.repaint();
+				}
+
+				@Override
+				public void windowDeiconified(WindowEvent arg0) {
+					splashscreen.repaint();
+				}
+
+				@Override
+				public void windowIconified(WindowEvent arg0) {
+					splashscreen.repaint();
+				}
+
+				@Override
+				public void windowOpened(WindowEvent arg0) {
+					splashscreen.repaint();
+				}});
+			splashscreen.addWindowStateListener(new WindowStateListener(){
+
+				@Override
+				public void windowStateChanged(WindowEvent arg0) {
+					splashscreen.repaint();
+				}});
 		}
 		if (setSystemLookAndFeel())
 			Console.log(LogType.StdOut, "ClassLoader", //$NON-NLS-1$
