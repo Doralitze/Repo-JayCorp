@@ -1,14 +1,18 @@
 package org.technikradio.jay_corp.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.LayoutManager;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.technikradio.jay_corp.ui.helpers.MoreColors;
+import org.technikradio.universal_tools.Console;
+import org.technikradio.universal_tools.Console.LogType;
 
 public class FixedRenderTable extends JPanel {
 	private static final long serialVersionUID = 2019095826654681316L;
@@ -41,7 +45,7 @@ public class FixedRenderTable extends JPanel {
 	}
 
 	private void setup() {
-		f = new Font("Arial", 12, 0);
+		f = new Font("Arial", 0, 12);
 	}
 
 	@Override
@@ -84,8 +88,11 @@ public class FixedRenderTable extends JPanel {
 			g.drawLine(0, i * 25, this.getWidth(), i * 25);
 			int am = 15;
 			for (int j = 0; j < data[i].length; j++) {
-				g.drawString(data[i][j], am, (i * 25) + 12);
+				g.drawString(data[i][j], am, (i * 25) + (int)((25 - lastFM.getAscent())*1.25f));
+				// Console.log(LogType.StdOut, this, "Writing text: " + am + ",
+				// " + i * 25 + ", " + data[i][j]);
 				am += lastFM.stringWidth(data[i][j]);
+				am += 10;
 			}
 		}
 
@@ -98,6 +105,56 @@ public class FixedRenderTable extends JPanel {
 	public void setData(String[][] data) {
 		this.data = data;
 		this.updateUI();
+		this.repaint();
+	}
+
+	public JComponent getHeadComponent() {
+		final String[] headdata = head;
+		return new JComponent() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3976090048633541194L;
+
+			private final String[] data = headdata;
+
+			protected int maxWidth;
+
+			@Override
+			public void paintComponent(Graphics g) {
+				if (isBigger(this.getMinimumSize(), this.getSize()))
+					this.setSize(this.getMinimumSize());
+				super.paintComponent(g);
+				g.setColor(Color.BLACK);
+				int am = 10;
+				for (int i = 0; i < data.length; i++) {
+					g.drawString(data[i], this.getWidth() / 2 - g.getFontMetrics().getHeight(), am);
+					am += 10;
+					am += g.getFontMetrics().stringWidth(data[i]);
+				}
+				am += 10;
+				maxWidth = am;
+				Console.log(LogType.Information, this, "Renderred [" + this.getWidth() + "; " + this.getHeight() + "]");
+			}
+
+			private boolean isBigger(Dimension da, Dimension db) {
+				double a = da.getWidth() * da.getHeight();
+				double b = db.getWidth() * db.getHeight();
+				return a < b;
+			}
+
+			@Override
+			public Dimension getMinimumSize() {
+				Dimension s = super.getMinimumSize();
+				s.setSize(s.getWidth() + maxWidth, s.getHeight() + 25);
+				return s;
+			}
+
+			@Override
+			public String toString() {
+				return "org.technikradio.jay_corp.ui.FixedRenderTable.HeadComponent";
+			}
+		};
 	}
 
 	/**
@@ -113,6 +170,11 @@ public class FixedRenderTable extends JPanel {
 	 */
 	public void setHead(String[] head) {
 		this.head = head;
+	}
+
+	@Override
+	public String toString() {
+		return "org.technikradio.jay_corp.ui.FixedRenderTable";
 	}
 
 }
