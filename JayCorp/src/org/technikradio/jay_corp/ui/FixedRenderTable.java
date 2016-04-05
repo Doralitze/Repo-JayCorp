@@ -23,6 +23,7 @@ public class FixedRenderTable extends JPanel {
 	private String[] head;
 	private int minWidth = 0;
 	private int minHeight = 0;
+	private final static boolean debugMode = Boolean.parseBoolean(System.getProperty("org.technikradio.jay_corp.ui.debugmode"));
 
 	public FixedRenderTable() {
 		super(true);
@@ -61,18 +62,22 @@ public class FixedRenderTable extends JPanel {
 				for (int i = 0; i < head.length; i++) {
 					// Add a with textlenght of head[i]
 					a += lastFM.stringWidth(head[i]);
+					a += 20;
 				}
 			else
 				for (int i = 0; i < head.length; i++) {
-					a += head[i].length() * 6;
+					a += head[i].length() * 20;
 				}
+			minWidth = a;
 		} else
 			minWidth = 50;
-
+		this.setMinimumSize(new Dimension(minWidth, minHeight));
+		this.setPreferredSize(new Dimension(minWidth + 1, minHeight + 1));
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		if (f != null)
 			g.setFont(f);
 		lastFM = g.getFontMetrics();
@@ -92,6 +97,8 @@ public class FixedRenderTable extends JPanel {
 				// Console.log(LogType.StdOut, this, "Writing text: " + am + ",
 				// " + i * 25 + ", " + data[i][j]);
 				am += lastFM.stringWidth(data[i][j]);
+				am += 10;
+				g.drawLine(am, (i * 25), am, (i + 1) * 25);
 				am += 10;
 			}
 		}
@@ -127,14 +134,24 @@ public class FixedRenderTable extends JPanel {
 				super.paintComponent(g);
 				g.setColor(Color.BLACK);
 				int am = 10;
-				for (int i = 0; i < data.length; i++) {
+				/*for (int i = 0; i < data.length; i++) {
 					g.drawString(data[i], this.getWidth() / 2 - g.getFontMetrics().getHeight(), am);
 					am += 10;
 					am += g.getFontMetrics().stringWidth(data[i]);
+				}*/
+				for (int i = 0; i < data.length; i++) {
+					g.drawString(data[i], am, (i * 25) + (int)((25 - lastFM.getAscent())*1.25f));
+					// Console.log(LogType.StdOut, this, "Writing text: " + am + ",
+					// " + i * 25 + ", " + data[i][j]);
+					am += lastFM.stringWidth(data[i]);
+					am += 10;
+					g.drawLine(am, (i * 25), am, (i + 1) * 25);
+					am += 10;
 				}
 				am += 10;
 				maxWidth = am;
-				Console.log(LogType.Information, this, "Renderred [" + this.getWidth() + "; " + this.getHeight() + "]");
+				if(debugMode)
+					Console.log(LogType.Information, this, "Renderred [" + this.getWidth() + "; " + this.getHeight() + "]");
 			}
 
 			private boolean isBigger(Dimension da, Dimension db) {
