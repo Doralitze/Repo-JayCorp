@@ -72,9 +72,8 @@ public class SettingsFrame extends JDialog {
 	private JTabbedPane tabBox;
 	private JPanel[] pages;
 	private JCheckBox enableAccessCheckBox;
-	private JTable userTable;
+	private FixedRenderTable userTable;
 	private JSpinner allowedDaysSelector;
-	private JScrollPane tablePane;
 	private JPanel headerPanel;
 	private MainFrame owner;
 	private final SettingsFrame ownHandle = this;
@@ -179,7 +178,6 @@ public class SettingsFrame extends JDialog {
 		changePSWButton = new JButton();
 		downloadFileButton = new JButton();
 		destroyDBButton = new JButton();
-		userTable = new JTable();
 		pages = new JPanel[2];
 		pages[0] = new JPanel();
 		pages[1] = new JPanel();
@@ -311,20 +309,17 @@ public class SettingsFrame extends JDialog {
 		{
 			JPanel cp = new JPanel();
 			JPanel bp = new JPanel();
-			headerPanel = new JPanel();
 			bp.setLayout(new BoxLayout(bp, BoxLayout.X_AXIS));
 			cp.setLayout(new BorderLayout());
-			headerPanel.setLayout(new FlowLayout());
-			tablePane = new JScrollPane();
-			tablePane.add(userTable);
 			Dimension d = new Dimension();
 			d.setSize(630, 370);
-			tablePane.setPreferredSize(d);
-			tablePane.setMaximumSize(d);
-			tablePane.setMinimumSize(d);
-			headerPanel.add(userTable.getTableHeader());
-			cp.add(headerPanel, BorderLayout.PAGE_START);
-			cp.add(tablePane, BorderLayout.CENTER);
+			{
+				//AREA: create table object
+				userTable = new FixedRenderTable();
+				
+			}
+			cp.add(userTable.getHeadComponent(), BorderLayout.PAGE_START);
+			cp.add(new JScrollPane(userTable), BorderLayout.CENTER);
 			addUserButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -430,66 +425,7 @@ public class SettingsFrame extends JDialog {
 				try {
 					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
 							&& Protocol.getCurrentUser().getRights().isEditUserAllowed()) {
-						buildTable();
-
-						// String[] tableNames = {
-						// Strings.getString("SettingsFrame.UserNameHeader"),
-						// //$NON-NLS-1$
-						//
-						// Strings.getString("SettingsFrame.FullNameHeader"),
-						// //$NON-NLS-1$
-						//
-						// Strings.getString("SettingsFrame.RightsHeader"),
-						// //$NON-NLS-1$
-						//
-						// Strings.getString("SettingsFrame.AgeHeader"),
-						// //$NON-NLS-1$
-						//
-						// Strings.getString("SettingsFrame.IDHeader")
-						// };//$NON-NLS-1$
-						//
-						// ArrayList<User> users = new ArrayList<User>();
-						// int ids[] = Protocol.getUsers();
-						// for (int id : ids) {
-						// try {
-						// User u = Protocol.getUser(id);
-						// u.setRights(Protocol.getRights(id));
-						// users.add(u);
-						// } catch (Exception e) {
-						// Console.log(LogType.Error, this, "An unknown error
-						// occured"); //$NON-NLS-1$
-						// e.printStackTrace();
-						// }
-						// }
-						// DefaultTableModel dtm = (DefaultTableModel)
-						// userTable.getModel();
-						// for (int i = 0; i < tableNames.length; i++) {
-						// TableColumn c = new TableColumn();
-						// c.setHeaderValue(tableNames[i]);
-						// c.setMinWidth(125);
-						// c.setResizable(true);
-						// userTable.getColumnModel().addColumn(c);
-						// // dtm.addColumn(tableNames[i]);
-						// }
-						// for (User u : users) {
-						// String[] data = new String[5];
-						// data[0] = u.getUsername();
-						// data[1] = u.getName();
-						// data[2] =
-						// Byte.toString(RightEditFrame.getRight(u.getRights()));
-						// data[3] = Integer.toString(u.getWorkAge());
-						// data[4] = Integer.toString(u.getID());
-						// Console.log(LogType.StdOut, this, "Add user '" + //
-						// $NON-NLS-2$
-						// u.getName() + "' to table"); //$NON-NLS-1$
-						// dtm.addRow(data);
-						// }
-						//
-						// userTable.setModel(dtm);
-						// userTable.setSize(50, 50);
-						// userTable.setBackground(Color.black);
-						// userTable.repaint();
-
+						fillTable();
 					}
 					Console.log(LogType.StdOut, Strings.getString("ErrorMessages.SettingsFrame.name"), //$NON-NLS-1$
 							"Successfully loaded the data"); //$NON-NLS-1$
@@ -508,7 +444,7 @@ public class SettingsFrame extends JDialog {
 		repaint();
 	}
 
-	private void buildTable() {
+	private void fillTable() {
 		String[] tableNames = { Strings.getString("SettingsFrame.UserNameHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.RightsHeader"), //$NON-NLS-1$
@@ -540,42 +476,9 @@ public class SettingsFrame extends JDialog {
 			Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
 			data[i] = mdata;
 		}
-		// Remove old table
-		tablePane.remove(userTable);
-		headerPanel.remove(userTable.getTableHeader());
-		userTable = null;
-		// Create new one
-		JTable jt = new JTable(data, tableNames){
-			private static final long serialVersionUID = -3710849820523217205L;
-
-			public boolean isCellEditable(int x, int y){
-				return false;
-			}
-			
-			public Component prepareRenderer(TableCellRenderer r, int x, int y){
-				Component c = super.prepareRenderer(r, x, y);
-				if(y % 2 == 0)
-					c.setBackground(Color.LIGHT_GRAY);
-				else c.setBackground(Color.WHITE);
-				if(isCellSelected(x,y))
-					c.setBackground(Color.BLUE);
-				return c;
-			}
-		};
-		JTableHeader jth = jt.getTableHeader();
-		jt.setPreferredScrollableViewportSize(new Dimension(tableNames.length * 50, data.length * 20));
-		jt.setPreferredSize(new Dimension(tableNames.length * 50, data.length * 20));
-		jt.setMinimumSize(new Dimension(tableNames.length * 50, data.length * 20));
-		jt.setFillsViewportHeight(true);
-		jt.setColumnSelectionAllowed(true);
-		jt.setCellSelectionEnabled(false);
-		jt.setVisible(true);
-		jth.setMinimumSize(new Dimension(tableNames.length * 50, 35));
-		userTable = jt;
-		tablePane.add(jt);
-		//DEBUG ONLY
-		headerPanel.setBackground(Color.RED);
-		headerPanel.add(jth);
+		// Setup Table
+		userTable.setData(data);
+		userTable.setHead(tableNames);
 	}
 
 	private void pushSettings() {
@@ -605,5 +508,4 @@ public class SettingsFrame extends JDialog {
 		int y = mf.getLocation().y + ((mf.getHeight() / 2) - this.getHeight() / 2);
 		this.setLocation(x, y);
 	}
-
 }
