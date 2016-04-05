@@ -47,7 +47,7 @@ public class Protocol {
 			@Override
 			public void run() {
 				while(!keepAliveThread.isInterrupted() && c != null){
-					block();
+					block(true);
 					c.transmit("keepAlive");
 					release();
 					try {
@@ -76,6 +76,22 @@ public class Protocol {
 		while(busy){
 			wait++;
 			if(wait == 5000)
+				throw new RuntimeException("Waiting too long. Assuming network crash");
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				Console.log(LogType.Error, "ProtocolHandler", "System transmit interferred");
+				e.printStackTrace();
+			}
+		}
+		busy = true;
+	}
+	
+	private static void block(boolean longmode){
+		int wait = 0;
+		while(busy){
+			wait++;
+			if((!longmode && wait == 5000) || (longmode && wait == 60000))
 				throw new RuntimeException("Waiting too long. Assuming network crash");
 			try {
 				Thread.sleep(1);

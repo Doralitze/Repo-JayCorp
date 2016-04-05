@@ -201,7 +201,7 @@ public class MainFrame extends JFrame {
 											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
 											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
 									};
-									
+
 									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
 											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
 											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
@@ -273,40 +273,10 @@ public class MainFrame extends JFrame {
 						@Override
 						public void actionPerformed(ActionEvent arg0) {
 							try {
-								if (c.isChanged()) {
-									Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
-									};
-									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
-											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
-											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-											elements, elements[2]);
-									if (n == 1) {
-										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
-										//ownHandle.setVisible(false);
-										if (Protocol.transmitTable(c.buildFromCache(),
-												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
-
-											@Override
-											public void progressChanged(int min, int max, int current) {
-												c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
-														+ current + "/" + max); //$NON-NLS-1$
-											}
-										}))
-											Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
-										else
-											Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
-										Protocol.save();
-										c.setChanged(false);
-										c.setInfoMessage(""); //$NON-NLS-1$
-									} else if (n == 2) {
-										return;
-									}
+								if (showJesNoSaveDialog()) {
+									Protocol.disconnect();
+									JayCorp.exit(0, true);
 								}
-								Protocol.disconnect();
-								JayCorp.exit(0, true);
 							} catch (Exception e) {
 								Console.log(LogType.Error, this, "Couldn�t disconnect the client."); //$NON-NLS-1$
 								e.printStackTrace();
@@ -465,4 +435,39 @@ public class MainFrame extends JFrame {
 		t.start();
 	}
 
+	private boolean showJesNoSaveDialog() {
+		if (c.isChanged()) {
+			Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
+					Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
+					Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
+			};
+			int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
+					Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
+					Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					elements, elements[2]);
+			if (n == 1) {
+				c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
+				//ownHandle.setVisible(false);
+				if (Protocol.transmitTable(c.buildFromCache(),
+						Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
+
+					@Override
+					public void progressChanged(int min, int max, int current) {
+						c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
+								+ current + "/" + max); //$NON-NLS-1$
+					}
+				}))
+					Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
+				else
+					Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
+				Protocol.save();
+				c.setChanged(false);
+				c.setInfoMessage(""); //$NON-NLS-1$
+			} else if (n == 2) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

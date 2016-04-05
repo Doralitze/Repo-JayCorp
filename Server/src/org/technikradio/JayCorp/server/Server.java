@@ -42,15 +42,15 @@ public class Server {
 	private static Scanner s;
 
 	public static void main(String[] args) {
-		Console.log(LogType.Information, "UpstartAgend", "Opening Server @" + port);
-		Console.log(LogType.Information, "UpstartAgend", "©2014 - 2016 Leon Dietrich");
-		Console.log(LogType.Information, "UpstartAgend", "Software version: " + VERSION);
+		Console.log(LogType.Information, "UpstartAgent", "Opening Server @" + port);
+		Console.log(LogType.Information, "UpstartAgent", "©2014 - 2016 Leon Dietrich");
+		Console.log(LogType.Information, "UpstartAgent", "Software version: " + VERSION);
 
 		clients = new ArrayList<ClientConnector>();
 		if (args.length == 0) {
 			String defaultFile = Settings.getString("Default.UserFile");
 			if (defaultFile == "") {
-				Console.log(LogType.Error, "UpstartAgend", "No data path provided");
+				Console.log(LogType.Error, "UpstartAgent", "No data path provided");
 				System.exit(1);
 			} else
 				Data.loadDataFile(defaultFile);
@@ -62,15 +62,15 @@ public class Server {
 				int timeout = Integer.parseInt(Settings.getString("Settings.timeout"));
 				if (timeout != -1) {
 					server.setSoTimeout(timeout);
-					Console.log(LogType.Information, "UpstartAgend", "Set waiting connection to " + timeout);
+					Console.log(LogType.Information, "UpstartAgent", "Set waiting connection to " + timeout);
 				}
 			}
 			commandThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
-					Console.log(LogType.Information, "UpstartAgend", "Successfully started server");
-					Console.log(LogType.Information, "UpstartAgend",
+					Console.log(LogType.Information, "UpstartAgent", "Successfully started server");
+					Console.log(LogType.Information, "UpstartAgent",
 							"current edit state: " + Boolean.toString(Data.isEditEnabled()));
 					Console.log(LogType.StdOut, this, "Type 'help' to get a list of all aviable commands.");
 					s = new Scanner(System.in);
@@ -224,7 +224,7 @@ public class Server {
 			while (running) {
 				try {
 					ClientConnector c = new ClientConnector(server.accept());
-					Console.log(LogType.StdOut, "ConnectionAgend", "Got client: " + c.getRemoteAdress());
+					Console.log(LogType.StdOut, "ConnectionAgent", "Got client: " + c.getRemoteAdress());
 					clients.add(c);
 				} catch (SocketException e) {
 					if (running) {
@@ -242,11 +242,11 @@ public class Server {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		Console.log(LogType.Information, "ShutdownAgend", "Closing Server");
+		Console.log(LogType.Information, "ShutdownAgent", "Closing Server");
 	}
 
 	public static void exit() {
-		Console.log(LogType.Information, "ShutdownAgend", "sending stop request");
+		Console.log(LogType.Information, "ShutdownAgent", "sending stop request");
 		for (ClientConnector c : clients)
 			c.postMessage("disconnect");
 		running = false;
@@ -254,7 +254,7 @@ public class Server {
 		try {
 			server.close();
 		} catch (IOException e) {
-			Console.log(LogType.Error, "ShutdownAgend", "failed to close socket");
+			Console.log(LogType.Error, "ShutdownAgent", "failed to close socket");
 			e.printStackTrace();
 		}
 		s.close();
