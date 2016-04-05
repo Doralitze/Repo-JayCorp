@@ -89,10 +89,15 @@ public class Protocol {
 	
 	private static void block(boolean longmode){
 		int wait = 0;
+		boolean called = false;
 		while(busy){
 			wait++;
 			if((!longmode && wait == 5000) || (longmode && wait == 60000))
 				throw new RuntimeException("Waiting too long. Assuming network crash");
+			if(longmode && called && wait > 5000){
+				called = true;
+				Console.log(LogType.Warning, "ProtocolHandler", "Waiting verry long on Protocol.");
+			}
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {

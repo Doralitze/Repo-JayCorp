@@ -371,9 +371,8 @@ public class MainFrame extends JFrame {
 	private void save() {
 		c.setMessage(Strings.getString("MainFrame.SaveNotifierPopUp")); //$NON-NLS-1$
 		ownHandle.setEnabled(false);
-		// ownHandle.repaint();
 		c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
-
+		ownHandle.repaint();
 		boolean successfullBackup = Protocol.moveToBackup(Protocol.getCurrentUser().getID());
 		if (successfullBackup)
 			Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
@@ -390,19 +389,22 @@ public class MainFrame extends JFrame {
 				})) {
 			Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
 			c.setChanged(false);
+			ownHandle.repaint();
 			c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
+			ownHandle.repaint();
 		}
 
 		else {
 			Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
 			c.setChanged(true);
 			c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
+			ownHandle.repaint();
 		}
 		Protocol.save();
 		c.setInfoMessage(""); //$NON-NLS-1$
 		c.setMessage(null);
 		ownHandle.setEnabled(true);
-		// ownHandle.repaint();
+		ownHandle.repaint();
 	}
 
 	private void doPostChecks() {
@@ -447,23 +449,7 @@ public class MainFrame extends JFrame {
 					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 					elements, elements[2]);
 			if (n == 1) {
-				c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
-				//ownHandle.setVisible(false);
-				if (Protocol.transmitTable(c.buildFromCache(),
-						Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
-
-					@Override
-					public void progressChanged(int min, int max, int current) {
-						c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
-								+ current + "/" + max); //$NON-NLS-1$
-					}
-				}))
-					Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
-				else
-					Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
-				Protocol.save();
-				c.setChanged(false);
-				c.setInfoMessage(""); //$NON-NLS-1$
+				save();
 			} else if (n == 2) {
 				return false;
 			}
