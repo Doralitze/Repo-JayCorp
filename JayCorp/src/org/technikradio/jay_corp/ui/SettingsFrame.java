@@ -315,8 +315,9 @@ public class SettingsFrame extends JDialog {
 			d.setSize(630, 370);
 			{
 				//AREA: create table object
+				//System.setProperty("org.technikradio.jay_corp.ui.debugmode", "true");
 				userTable = new FixedRenderTable();
-				
+				userTable.setSize(userTable.getPreferredSize());
 			}
 			cp.add(userTable.getHeadComponent(), BorderLayout.PAGE_START);
 			cp.add(new JScrollPane(userTable), BorderLayout.CENTER);
@@ -479,6 +480,7 @@ public class SettingsFrame extends JDialog {
 		// Setup Table
 		userTable.setData(data);
 		userTable.setHead(tableNames);
+		this.repaint();
 	}
 
 	private void pushSettings() {

@@ -23,7 +23,8 @@ public class FixedRenderTable extends JPanel {
 	private String[] head;
 	private int minWidth = 0;
 	private int minHeight = 0;
-	private final static boolean debugMode = Boolean.parseBoolean(System.getProperty("org.technikradio.jay_corp.ui.debugmode"));
+	private final static boolean debugMode = Boolean
+			.parseBoolean(System.getProperty("org.technikradio.jay_corp.ui.debugmode"));
 
 	public FixedRenderTable() {
 		super(true);
@@ -72,7 +73,7 @@ public class FixedRenderTable extends JPanel {
 		} else
 			minWidth = 50;
 		this.setMinimumSize(new Dimension(minWidth, minHeight));
-		this.setPreferredSize(new Dimension(minWidth + 1, minHeight + 1));
+		this.setPreferredSize(new Dimension(minWidth + 10, minHeight + 10));
 	}
 
 	@Override
@@ -83,26 +84,30 @@ public class FixedRenderTable extends JPanel {
 		lastFM = g.getFontMetrics();
 		// Draw the header (Or use a special component for it)
 		// Draw the body
-		for (int i = 0; i < data.length; i++) {
-			if (i % 2 == 0)
-				g.setColor(Color.LIGHT_GRAY);
-			else
-				g.setColor(MoreColors.VERRY_LIGHT_GRAY);
-			g.fillRect(0, i * 25, this.getWidth(), 25);
-			g.setColor(Color.BLACK);
-			g.drawLine(0, i * 25, this.getWidth(), i * 25);
-			int am = 15;
-			for (int j = 0; j < data[i].length; j++) {
-				g.drawString(data[i][j], am, (i * 25) + (int)((25 - lastFM.getAscent())*1.25f));
-				// Console.log(LogType.StdOut, this, "Writing text: " + am + ",
-				// " + i * 25 + ", " + data[i][j]);
-				am += lastFM.stringWidth(data[i][j]);
-				am += 10;
-				g.drawLine(am, (i * 25), am, (i + 1) * 25);
-				am += 10;
+		if (data != null)
+			for (int i = 0; i < data.length; i++) {
+				if (i % 2 == 0)
+					g.setColor(Color.LIGHT_GRAY);
+				else
+					g.setColor(MoreColors.VERRY_LIGHT_GRAY);
+				g.fillRect(0, i * 25, this.getWidth(), 25);
+				g.setColor(Color.BLACK);
+				g.drawLine(0, i * 25, this.getWidth(), i * 25);
+				int am = 15;
+				for (int j = 0; j < data[i].length; j++) {
+					g.drawString(data[i][j], am, (i * 25) + (int) ((25 - lastFM.getAscent()) * 1.25f));
+					// Console.log(LogType.StdOut, this, "Writing text: " + am +
+					// ",
+					// " + i * 25 + ", " + data[i][j]);
+					am += lastFM.stringWidth(data[i][j]);
+					am += 10;
+					g.drawLine(am, (i * 25), am, (i + 1) * 25);
+					am += 10;
+				}
 			}
+		else if(debugMode){
+			Console.log(LogType.StdOut, this, "No data");
 		}
-
 	}
 
 	public String[][] getData() {
@@ -134,24 +139,27 @@ public class FixedRenderTable extends JPanel {
 				super.paintComponent(g);
 				g.setColor(Color.BLACK);
 				int am = 10;
-				/*for (int i = 0; i < data.length; i++) {
-					g.drawString(data[i], this.getWidth() / 2 - g.getFontMetrics().getHeight(), am);
-					am += 10;
-					am += g.getFontMetrics().stringWidth(data[i]);
-				}*/
-				for (int i = 0; i < data.length; i++) {
-					g.drawString(data[i], am, (i * 25) + (int)((25 - lastFM.getAscent())*1.25f));
-					// Console.log(LogType.StdOut, this, "Writing text: " + am + ",
-					// " + i * 25 + ", " + data[i][j]);
-					am += lastFM.stringWidth(data[i]);
-					am += 10;
-					g.drawLine(am, (i * 25), am, (i + 1) * 25);
-					am += 10;
-				}
+				/*
+				 * for (int i = 0; i < data.length; i++) { g.drawString(data[i],
+				 * this.getWidth() / 2 - g.getFontMetrics().getHeight(), am); am
+				 * += 10; am += g.getFontMetrics().stringWidth(data[i]); }
+				 */
+				if (data != null)
+					for (int i = 0; i < data.length; i++) {
+						g.drawString(data[i], am, (i * 25) + (int) ((25 - lastFM.getAscent()) * 1.25f));
+						// Console.log(LogType.StdOut, this, "Writing text: " +
+						// am + ",
+						// " + i * 25 + ", " + data[i][j]);
+						am += lastFM.stringWidth(data[i]);
+						am += 10;
+						g.drawLine(am, (i * 25), am, (i + 1) * 25);
+						am += 10;
+					}
 				am += 10;
 				maxWidth = am;
-				if(debugMode)
-					Console.log(LogType.Information, this, "Renderred [" + this.getWidth() + "; " + this.getHeight() + "]");
+				if (debugMode)
+					Console.log(LogType.Information, this,
+							"Renderred [" + this.getWidth() + "; " + this.getHeight() + "]");
 			}
 
 			private boolean isBigger(Dimension da, Dimension db) {

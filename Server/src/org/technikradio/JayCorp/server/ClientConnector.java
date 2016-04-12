@@ -563,7 +563,7 @@ public class ClientConnector extends Thread {
 				if (!processRequest(in.readLine())) {
 					try {
 						Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' lost connection");
-						loggedInUsers.remove(user);
+						disconnect();
 					} catch (NullPointerException e) {
 					}
 					break;
@@ -692,29 +692,34 @@ public class ClientConnector extends Thread {
 					if (_user != null /* && _user != Data.getUser("root") */) {
 						DayTable dtUser = _user.getSelectedDays();
 						DayTable dtUserNew = new DayTable();
-						for (ParaDate pdDC : dc.getDays().keySet()) {
-							ParaDate pdUser = find(pdDC, dtUser);
-							Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
-							switch (expected) {
-							case allowed:
-							case undefined:
-							case normal:
-								if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
-									if (crt)
-										Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
-								break;
-							case selected:
-								if ((got == Status.normal) || (got == Status.undefined)) {
-									if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+						try {
+							for (ParaDate pdDC : dc.getDays().keySet()) {
+								ParaDate pdUser = find(pdDC, dtUser);
+								Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
+								switch (expected) {
+								case allowed:
+								case undefined:
+								case normal:
+									if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
 										if (crt)
 											Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
-								} else
-									dtUserNew.getDays().put(pdUser, got);
-								break;
-							default:
-								break;
+									break;
+								case selected:
+									if ((got == Status.normal) || (got == Status.undefined)) {
+										if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+											if (crt)
+												Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+									} else
+										dtUserNew.getDays().put(pdUser, got);
+									break;
+								default:
+									break;
 
+								}
 							}
+						} catch (NullPointerException e) {
+							Console.log(LogType.Error, this, "Nullpointer on user " + _user.getName() + ": ");
+							e.printStackTrace();
 						}
 						_user.setSelectedDays(dtUserNew);
 					}

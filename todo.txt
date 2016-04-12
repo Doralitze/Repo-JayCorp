@@ -1,4 +1,7 @@
-Fix rendering of calendar
-Fix Coursor position detection
-Improve performance
-Fix table or write own
+Fix rendering of calendar (Lay Year over status bar)
+Fix Coursor position detection (Exclude loops inside function to find the right position; looks like its getting the wrong multiplier)
+Improve performance (Only transmit changes)
+Fix root deleting all data on save
+
+Done:
+	Fix table or write own

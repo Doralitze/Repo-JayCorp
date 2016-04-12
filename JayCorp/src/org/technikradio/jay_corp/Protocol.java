@@ -43,10 +43,10 @@ public class Protocol {
 	static {
 		c = new Connection();
 		validLogin = false;
-		keepAliveThread = new Thread(new Runnable(){
+		keepAliveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while(!keepAliveThread.isInterrupted() && c != null){
+				while (!keepAliveThread.isInterrupted() && c != null) {
 					block(true);
 					c.transmit("keepAlive");
 					release();
@@ -57,7 +57,8 @@ public class Protocol {
 						e.printStackTrace();
 					}
 				}
-			}});
+			}
+		});
 		keepAliveThread.setName("KeepAliveThread");
 		keepAliveThread.setPriority(2);
 		keepAliveThread.start();
@@ -70,12 +71,12 @@ public class Protocol {
 			throw new NullPointerException();
 		return answer.split(";"); //$NON-NLS-1$
 	}
-	
-	private static void block(){
+
+	private static void block() {
 		int wait = 0;
-		while(busy){
+		while (busy) {
 			wait++;
-			if(wait == 5000)
+			if (wait == 5000)
 				throw new RuntimeException("Waiting too long. Assuming network crash");
 			try {
 				Thread.sleep(1);
@@ -86,15 +87,15 @@ public class Protocol {
 		}
 		busy = true;
 	}
-	
-	private static void block(boolean longmode){
+
+	private static void block(boolean longmode) {
 		int wait = 0;
 		boolean called = false;
-		while(busy){
+		while (busy) {
 			wait++;
-			if((!longmode && wait == 5000) || (longmode && wait == 60000))
+			if ((!longmode && wait == 5000) || (longmode && wait == 60000))
 				throw new RuntimeException("Waiting too long. Assuming network crash");
-			if(longmode && called && wait > 5000){
+			if (longmode && called && wait > 5000) {
 				called = true;
 				Console.log(LogType.Warning, "ProtocolHandler", "Waiting verry long on Protocol.");
 			}
@@ -107,8 +108,8 @@ public class Protocol {
 		}
 		busy = true;
 	}
-	
-	private static void release(){
+
+	private static void release() {
 		busy = false;
 	}
 
@@ -193,8 +194,9 @@ public class Protocol {
 			Console.log(LogType.Error, "Protocol", "Connection refused:"); //$NON-NLS-1$ //$NON-NLS-2$
 			e.printStackTrace();
 			return false;
-		}finally{
-		release();}
+		} finally {
+			release();
+		}
 	}
 
 	public static boolean moveToBackup(int ID) {
@@ -488,31 +490,35 @@ public class Protocol {
 		return currentUser;
 	}
 
-	public static boolean transmitTable(DayTable d, int ID) {
+	public static boolean transmitTable(DayTable d, DayTable o, int ID) {
 		boolean success = true;
 		for (ParaDate pd : d.getDays().keySet()) {
-			if (!setDay(pd, d.getDays().get(pd), ID))
-				success = false;
+			if ((o != null && o.getDays().get(o.findCorresponding(pd)).equals(d.getDays().get(pd))) || (o == null))
+				if (!setDay(pd, d.getDays().get(pd), ID))
+					success = false;
 		}
 		return success;
 	}
 
-	public static boolean transmitTable(DayTable d, int ID, ProgressChangedNotifier pcn) {
+	public static boolean transmitTable(DayTable d, DayTable o, int ID, ProgressChangedNotifier pcn) {
 		boolean success = true;
 		int max = d.getDays().size();
 		int current = 1;
 		for (ParaDate pd : d.getDays().keySet()) {
-			if (!setDay(pd, d.getDays().get(pd), ID))
-				success = false;
+			if ((o != null &&
+					o.getDays().get(o.findCorresponding(pd))
+					.equals(d.getDays().get(pd))) || (o == null))
+				if (!setDay(pd, d.getDays().get(pd), ID))
+					success = false;
 			pcn.progressChanged(1, max, current);
 			current++;
 		}
 		return success;
 	}
 
-	public static boolean transmitTable(DayTable d, int ID, ProgressChangedNotifier pcn, boolean fast) {
+	public static boolean transmitTable(DayTable d, DayTable o, int ID, ProgressChangedNotifier pcn, boolean fast) {
 		if (!fast)
-			return transmitTable(d, ID, pcn);
+			return transmitTable(d, o, ID, pcn);
 		else {
 			boolean success = true;
 			int max = d.getDays().size();
@@ -520,13 +526,15 @@ public class Protocol {
 			StringBuilder sb = new StringBuilder();
 
 			for (ParaDate pd : d.getDays().keySet()) {
-				sb.append("setDay ");
-				sb.append(pd.toString());
-				sb.append(' ');
-				Status s = d.getDays().get(pd);
-				sb.append(' ');
-				sb.append(Integer.toString(ID));
-				sb.append("\n");
+				if ((o != null && o.getDays().get(o.findCorresponding(pd)).equals(d.getDays().get(pd))) || (o == null)) {
+					sb.append("setDay ");
+					sb.append(pd.toString());
+					sb.append(' ');
+					Status s = d.getDays().get(pd);
+					sb.append(' ');
+					sb.append(Integer.toString(ID));
+					sb.append("\n");
+				}
 				pcn.progressChanged(1, max * 2 + 1, current + 1);
 				current++;
 			}
@@ -671,8 +679,8 @@ public class Protocol {
 		}
 		return true;
 	}
-	
-	public static boolean isConnectionAviable(){
+
+	public static boolean isConnectionAviable() {
 		return c.isValidConnection();
 	}
 

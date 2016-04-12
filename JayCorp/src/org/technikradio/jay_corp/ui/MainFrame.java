@@ -64,7 +64,7 @@ public class MainFrame extends JFrame {
 		}
 		this.setTitle(Strings.getString("MainFrame.FrameTitle")); //$NON-NLS-1$
 		this.setMinimumSize(new Dimension(830, 500));
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		{
 			menuStrip = new JMenuBar();
 			{
@@ -113,7 +113,7 @@ public class MainFrame extends JFrame {
 						public void actionPerformed(ActionEvent e) {
 							try {
 								c.setInfoMessage(Strings.getString("MainFrame.LoadBckupMessage")); //$NON-NLS-1$
-								Protocol.transmitTable(Protocol.getProgress(Protocol.getCurrentUser().getID()),
+								Protocol.transmitTable(Protocol.getProgress(Protocol.getCurrentUser().getID()), null,
 										Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
 									@Override
@@ -144,45 +144,7 @@ public class MainFrame extends JFrame {
 
 						@Override
 						public void actionPerformed(ActionEvent arg0) {
-							try {
-								if (c.isChanged()) {
-									Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
-									};
-									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
-											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
-											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-											elements, elements[2]);
-									if (n == 1) {
-										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
-										if (Protocol.transmitTable(c.buildFromCache(),
-												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
-
-											@Override
-											public void progressChanged(int min, int max, int current) {
-												c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
-														+ current + "/" + max); //$NON-NLS-1$
-											}
-										}))
-											Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
-										else
-											Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
-										Protocol.save();
-										c.setChanged(false);
-										c.setInfoMessage(""); //$NON-NLS-1$
-									} else if (n == 2) {
-										return;
-									}
-								}
-								Protocol.disconnect();
-								JayCorp.exit(0);
-							} catch (Exception e) {
-								Console.log(LogType.Error, this, "Couldn�t disconnect the client."); //$NON-NLS-1$
-								e.printStackTrace();
-								JayCorp.exit(1);
-							}
+							exit();
 						}
 
 					});
@@ -195,47 +157,8 @@ public class MainFrame extends JFrame {
 
 						@Override
 						public void windowClosing(WindowEvent e) {
-							try {
-								if (c.isChanged()) {
-									Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
-									};
-
-									int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
-											Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
-											Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
-											JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-											elements, elements[2]);
-									if (n == 1) {
-										ownHandle.setVisible(false);
-										c.setInfoMessage(Strings.getString("MainFrame.SaveData")); //$NON-NLS-1$
-										if (Protocol.transmitTable(c.buildFromCache(),
-												Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
-
-											@Override
-											public void progressChanged(int min, int max, int current) {
-												c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " //$NON-NLS-1$ //$NON-NLS-2$
-														+ current + "/" + max); //$NON-NLS-1$
-											}
-										}))
-											Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
-										else
-											Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
-										Protocol.save();
-										c.setChanged(false);
-										c.setInfoMessage(""); //$NON-NLS-1$
-									} else if (n == 2) {
-										return;
-									}
-								}
-								Protocol.disconnect();
-								JayCorp.exit(0);
-							} catch (Exception e1) {
-								Console.log(LogType.Error, this, "Couldn�t disconnect the client."); //$NON-NLS-1$
-								e1.printStackTrace();
-								JayCorp.exit(1);
-							}
+							exit();
+								
 						}
 
 						@Override
@@ -368,6 +291,9 @@ public class MainFrame extends JFrame {
 			save();
 	}
 
+	/**
+	 * This method is an highlevel save method for the ui
+	 */
 	private void save() {
 		c.setMessage(Strings.getString("MainFrame.SaveNotifierPopUp")); //$NON-NLS-1$
 		ownHandle.setEnabled(false);
@@ -377,7 +303,7 @@ public class MainFrame extends JFrame {
 		if (successfullBackup)
 			Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
 
-		if (Protocol.transmitTable(c.buildFromCache(), Protocol.getCurrentUser().getID(),
+		if (Protocol.transmitTable(c.buildFromCache(), c.getOriginalContent(), Protocol.getCurrentUser().getID(),
 				new ProgressChangedNotifier() {
 
 					@Override
@@ -437,7 +363,12 @@ public class MainFrame extends JFrame {
 		t.start();
 	}
 
+	/**
+	 * Show a dialog if it should save the content
+	 * @return true if the application is allowed to exit otherwise false
+	 */
 	private boolean showJesNoSaveDialog() {
+		Console.log(LogType.Information, this, "Evaluating if it would be good to display the save message");
 		if (c.isChanged()) {
 			Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
 					Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
@@ -455,5 +386,25 @@ public class MainFrame extends JFrame {
 			}
 		}
 		return true;
+	}
+	
+
+
+	private void exit() {
+		Thread t = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				ownHandle.setEnabled(false);
+				if(showJesNoSaveDialog()){
+					ownHandle.dispose();
+					Protocol.disconnect();
+					System.exit(0);
+				}
+				ownHandle.setEnabled(false);
+			}});
+		t.setName("SaveAndCloseThread");
+		t.setPriority(10);
+		t.start();
 	}
 }

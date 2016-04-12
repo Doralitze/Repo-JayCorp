@@ -46,6 +46,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private static final long serialVersionUID = -1865312314642912485L;
 	private static final float OVER_SIZE_DIVISOR = 1.05f;
 	private DayTable content;
+	private DayTable originalContent;
 	private boolean editEnabled = false;
 	private int maxNumDay = 0;
 	private boolean advancedOutputFlag = Boolean.valueOf(Settings.getString(Settings.getString("AdvancedOutputMode"))); // $NON-NLS-2$ //$NON-NLS-1$
@@ -108,7 +109,12 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		Console.log(LogType.StdOut, this, "Loaded font: " + Settings.getString("Calendar.UsedFont")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	/**
+	 * This functions builds thge cache from the given daytable
+	 * @param d The DayTable object to use
+	 */
 	private void calcCache(DayTable d) {
+		originalContent = d;
 		boolean cY = false;
 		int sDc = 0;
 		if (d == null)
@@ -754,6 +760,20 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	public void setMessage(String message) {
 		this.message = message;
 		this.repaint();
+	}
+
+	/**
+	 * @return the originalContent
+	 */
+	public DayTable getOriginalContent() {
+		return originalContent;
+	}
+
+	/**
+	 * @param originalContent the originalContent to set
+	 */
+	private void setOriginalContent(DayTable originalContent) {
+		this.originalContent = originalContent;
 	}
 
 }

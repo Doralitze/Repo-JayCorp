@@ -108,7 +108,7 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 			Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
 		// Protocol.moveToBackup(Protocol.getCurrentUser().getID());
 		progress++;
-		Protocol.transmitTable(c.buildFromCache(), Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
+		Protocol.transmitTable(c.buildFromCache(), null, Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
 			@Override
 			public void progressChanged(int min, int max, int current) {
