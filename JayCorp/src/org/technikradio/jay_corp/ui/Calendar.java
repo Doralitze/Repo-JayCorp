@@ -28,6 +28,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Date;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -111,7 +112,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 
 	/**
 	 * This functions builds thge cache from the given daytable
-	 * @param d The DayTable object to use
+	 * 
+	 * @param d
+	 *            The DayTable object to use
 	 */
 	private void calcCache(DayTable d) {
 		setOriginalContent(d);
@@ -498,7 +501,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 							g.setFont(new Font("Arial", Font.BOLD, 15));
 							g.drawString(message, (this.getWidth() / 2) - (g.getFontMetrics().stringWidth(message) / 2),
 									(this.getHeight() / 2) - g.getFontMetrics().getHeight() / 2);
-							//System.out.println("painting");
+							// System.out.println("painting");
 						}
 					}
 				}
@@ -770,20 +773,21 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	}
 
 	/**
-	 * @param originalContent the originalContent to set
+	 * @param originalContent
+	 *            the originalContent to set
 	 */
 	private void setOriginalContent(DayTable originalContent) {
 		this.originalContent = originalContent;
 	}
 
 	public void clearAll() {
-		//Clear all selections
+		// Clear all selections
 		try {
 			for (int m = 1; m <= 12; m++) {
 				int ml = getMonthLenght(currentYear, Month.valueOf(m - 1));
 				for (int d = 1; d <= ml; d++) {
 					Status s = Status.valueOf(cachedData[m][d]);
-					switch(s){
+					switch (s) {
 					case selected:
 						cachedData[m][d] = Status.allowed.ordinal();
 						break;
@@ -792,14 +796,54 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 					case undefined:
 					default:
 						break;
-					
+
 					}
 				}
 			}
 		} catch (DateException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
-			
+
+		}
+	}
+
+	/**
+	 * This method markes all dates between and including start and end
+	 * @param start The first date to mark
+	 * @param end The last date to mark
+	 * @throws SelectionNotAllowedException if there are days in between that are not selectable
+	 */
+	@SuppressWarnings("deprecation")
+	public void selectRange(ParaDate start, ParaDate end, Status wanted) throws SelectionNotAllowedException{
+		try {
+			long uStart, uEnd;
+			{
+				Date d = new Date();
+				d.setYear(start.getYear());
+				d.setMonth(start.getMonth() - 1);
+				d.setDate(start.getDay());
+				d.setHours(0);
+				d.setMinutes(0);
+				d.setSeconds(0);
+				uStart = d.getTime() / 1000;
+				d.setYear(end.getYear());
+				d.setMonth(end.getMonth() - 1);
+				d.setDate(end.getDay());
+				d.setHours(0);
+				d.setMinutes(0);
+				d.setSeconds(0);
+				uEnd = d.getTime() / 1000;
+				
+			}
+			for (int m = 1; m <= 12; m++) {
+				int ml = getMonthLenght(currentYear, Month.valueOf(m - 1));
+				for (int d = 1; d <= ml; d++) {
+					//TODO finish
+				}
+			}
+		} catch (DateException e) {
+			Console.log(LogType.Error, this, "Failed to iterate through calendar");
+			e.printStackTrace();
 		}
 	}
 
