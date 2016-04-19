@@ -41,6 +41,7 @@ public class LoginPanel extends JPanel {
 
 	private static final long serialVersionUID = -5270618477711942318L;
 	private Thread lookyLookyThread;
+	private Thread redrawThread;
 	private JTextField username;
 	private JPasswordField password;
 	private JButton submitButton;
@@ -50,6 +51,7 @@ public class LoginPanel extends JPanel {
 	private JLabel copyrightLabel;
 	private boolean didEntered;
 	private JFrame parent;
+	private LoginPanel ownHandle = this;
 
 	public LoginPanel() {
 		super();
@@ -82,7 +84,6 @@ public class LoginPanel extends JPanel {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -90,6 +91,20 @@ public class LoginPanel extends JPanel {
 				copyrightLabel.setText(old);
 			}});
 		lookyLookyThread.setName("ServerConWacher");
+		redrawThread = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if(ownHandle != null)
+					ownHandle.repaint();
+			}});
+		redrawThread.setDaemon(true);
+		redrawThread.setName("LPRedrawThread");
 		this.setSize(500, 200);
 		this.setLayout(null);
 		this.setPreferredSize(getSize());
@@ -171,6 +186,7 @@ public class LoginPanel extends JPanel {
 		});
 		this.add(abortButton);
 		lookyLookyThread.start();
+		redrawThread.start();
 		this.repaint();
 	}
 

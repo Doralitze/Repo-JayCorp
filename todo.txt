@@ -1,4 +1,4 @@
-Fix rendering of calendar (Lay Year over status bar)
+Fix rendering of calendar (Lay Year over status bar) (Put after moth label)
 Fix Coursor position detection (Exclude loops inside function to find the right position; looks like its getting the wrong multiplier)
 Improve performance (Only transmit changes)
 Fix root deleting all data on save

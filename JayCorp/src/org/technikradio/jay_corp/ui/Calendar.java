@@ -114,7 +114,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	 * @param d The DayTable object to use
 	 */
 	private void calcCache(DayTable d) {
-		originalContent = d;
+		setOriginalContent(d);
 		boolean cY = false;
 		int sDc = 0;
 		if (d == null)
@@ -774,6 +774,33 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	 */
 	private void setOriginalContent(DayTable originalContent) {
 		this.originalContent = originalContent;
+	}
+
+	public void clearAll() {
+		//Clear all selections
+		try {
+			for (int m = 1; m <= 12; m++) {
+				int ml = getMonthLenght(currentYear, Month.valueOf(m - 1));
+				for (int d = 1; d <= ml; d++) {
+					Status s = Status.valueOf(cachedData[m][d]);
+					switch(s){
+					case selected:
+						cachedData[m][d] = Status.allowed.ordinal();
+						break;
+					case allowed:
+					case normal:
+					case undefined:
+					default:
+						break;
+					
+					}
+				}
+			}
+		} catch (DateException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			
+		}
 	}
 
 }

@@ -43,6 +43,7 @@ import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.user.PermissionDeninedException;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
+import org.technikradio.universal_tools.ParaDate;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -7376675328576164082L;
@@ -158,7 +159,7 @@ public class MainFrame extends JFrame {
 						@Override
 						public void windowClosing(WindowEvent e) {
 							exit();
-								
+
 						}
 
 						@Override
@@ -244,6 +245,45 @@ public class MainFrame extends JFrame {
 					fileMenu.add(aboutItem);
 				}
 				menuStrip.add(fileMenu);
+			}
+			{
+				JMenu markMenu = new JMenu();
+				JMenuItem clearAllItem = new JMenuItem();
+				clearAllItem.setText("Gesamte Auswahl aufheben");
+				clearAllItem.setName("mark-menu:clearall");
+				clearAllItem.setToolTipText(
+						"Mit einem Click auf diesen Button setzen Sie ihre gesamte " + "Auswahl zurück");
+				clearAllItem.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						c.clearAll();
+					}
+				});
+				markMenu.add(clearAllItem);
+				JMenuItem selectRangeItem = new JMenuItem();
+				selectRangeItem.setText("Bereich auswählen");
+				selectRangeItem.setName("mark-menu:selectrange");
+				selectRangeItem.setToolTipText(
+						"Hiermit können Sie einen zusammenhängenden Bereich auswählen."
+						+ "\n(Zum Beispiel eine ganze Woche)");
+				selectRangeItem.addActionListener(new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						Thread t = new Thread(new Runnable(){
+
+							@Override
+							public void run() {
+								String[] sa = {"Bitte das Anfangsdatum angeben: ",
+								"Bitte das Enddatum angeben: "};
+								ParaDate dates[] = DateSelectorFrame.query(sa);
+							}});
+						t.setName("RangeSelectionQuerryThread");
+						t.start();
+					}});
+				markMenu.add(selectRangeItem);
+				menuStrip.add(markMenu);
 			}
 			this.setJMenuBar(menuStrip);
 			c = new Calendar();
@@ -365,6 +405,7 @@ public class MainFrame extends JFrame {
 
 	/**
 	 * Show a dialog if it should save the content
+	 * 
 	 * @return true if the application is allowed to exit otherwise false
 	 */
 	private boolean showJesNoSaveDialog() {
@@ -374,11 +415,9 @@ public class MainFrame extends JFrame {
 					Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
 					Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
 			};
-			int n = FixedOptionPane.showFixedOptionDialog(ownHandle,
-					Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
+			int n = FixedOptionPane.showFixedOptionDialog(ownHandle, Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
 					Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
-					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-					elements, elements[2]);
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, elements, elements[2]);
 			if (n == 1) {
 				save();
 			} else if (n == 2) {
@@ -387,22 +426,21 @@ public class MainFrame extends JFrame {
 		}
 		return true;
 	}
-	
-
 
 	private void exit() {
-		Thread t = new Thread(new Runnable(){
+		Thread t = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				ownHandle.setEnabled(false);
-				if(showJesNoSaveDialog()){
+				if (showJesNoSaveDialog()) {
 					ownHandle.dispose();
 					Protocol.disconnect();
 					System.exit(0);
 				}
 				ownHandle.setEnabled(false);
-			}});
+			}
+		});
 		t.setName("SaveAndCloseThread");
 		t.setPriority(10);
 		t.start();
