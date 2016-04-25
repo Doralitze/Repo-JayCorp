@@ -249,6 +249,9 @@ public class MainFrame extends JFrame {
 			}
 			{
 				JMenu markMenu = new JMenu();
+				markMenu.setName("mark-menu");
+				markMenu.setText("Markieren");
+				markMenu.setToolTipText("In diesem Menu können Sie automatismen zur auswahl aufrufen.");
 				JMenuItem clearAllItem = new JMenuItem();
 				clearAllItem.setText("Gesamte Auswahl aufheben");
 				clearAllItem.setName("mark-menu:clearall");

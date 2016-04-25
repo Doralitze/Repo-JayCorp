@@ -8,6 +8,7 @@ public class SelectionNotAllowedException extends Exception {
 
 	private static final long serialVersionUID = 727136990702288041L;
 	private ArrayList<ParaDate> forbiddenDays;
+	private boolean regularException = false;
 
 	public SelectionNotAllowedException() {
 		super();
@@ -36,11 +37,16 @@ public class SelectionNotAllowedException extends Exception {
 	}
 	
 	public boolean addForbiddenDate(ParaDate date){
+		regularException = true;
 		return forbiddenDays.add(date);
 	}
 	
 	public ParaDate[] getProblematicDays(){
 		return (ParaDate[]) forbiddenDays.toArray();
+	}
+	
+	public boolean isRegularException(){
+		return regularException;
 	}
 
 }

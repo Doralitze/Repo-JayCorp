@@ -1,7 +1,8 @@
-Fix rendering of calendar (Lay Year over status bar) (Put after moth label)
+Fix point where calendar switches between shorts and full names
 Fix Coursor position detection (Exclude loops inside function to find the right position; looks like its getting the wrong multiplier)
-Improve performance (Only transmit changes)
+Improve performance (Only transmit changes, Put inside single command [invent protocol change])
 Fix root deleting all data on save
 
 Done:
 	Fix table or write own
+	Fix year renderring

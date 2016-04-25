@@ -24,6 +24,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -54,13 +56,14 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private String infoMessage = ""; //$NON-NLS-1$
 
 	// Internal data cache
-	private Month currentSelected = Month.JANUARY;
+	private Month currentSelectedMonth = Month.JANUARY;
 	private String dsString = ""; //$NON-NLS-1$
 	private String message = null;
 	private int[][] cachedData; // [Month][Day] = (Ordinal) Status
 	private int currentYear = 0;
 	private int selectedDays = 0;
 	private boolean changed = false;
+	private boolean renderYearInFooter = true;
 
 	public enum Month {
 		JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULI, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER,;
@@ -108,6 +111,35 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		this.addMouseListener(this);
 		this.addKeyListener(this);
 		Console.log(LogType.StdOut, this, "Loaded font: " + Settings.getString("Calendar.UsedFont")); //$NON-NLS-1$//$NON-NLS-2$
+		this.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				return;
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				return;
+			}
+
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				int m = 900;
+				if (infoMessage != null)
+					if (infoMessage.length() > 15)
+						m = 1000;
+				if (getWidth() < m) {
+					setRenderYearInFooterHint(false);
+				} else
+					setRenderYearInFooterHint(true);
+			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				return;
+			}
+		});
 	}
 
 	/**
@@ -316,7 +348,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 					Font.BOLD, 15));
 			g.drawLine(0, 25, width, 25);
-			g.drawString(monthToString(currentSelected), 5, 15);
+			if (renderYearInFooter)
+				g.drawString(monthToString(currentSelectedMonth), 5, 15);
+			else
+				g.drawString(monthToString(currentSelectedMonth) + " " + Integer.toString(currentYear), 5, 15);
 			{
 				FontMetrics m = g.getFontMetrics();
 				if (getMaxNumDay() - selectedDays < 1) {
@@ -330,6 +365,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				int w = m.getAscent() / 2;
 				g.drawString(s, (width / 2) - w, 15);
 			}
+
 			{
 				// Draw month-navigators
 				g.drawRoundRect(width - 50, 5, 15, 15, 3, 3);
@@ -349,12 +385,13 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				p.addPoint(width - 22, 17);
 				g.fillPolygon(p);
 			}
+
 			{
 				// Render calendar
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, 20));
 				float mul = 0;
-				if (getMonthConversion(currentSelected.ordinal()) - 1 <= 4)
+				if (getMonthConversion(currentSelectedMonth.ordinal()) - 1 <= 4)
 					mul = (float) width / 400;
 				else
 					mul = (float) (width / 400) / OVER_SIZE_DIVISOR;
@@ -382,10 +419,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				}
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, (int) (10 + mul * mul * 2)));
-				for (int i = 1, r = 1, s = getMonthConversion(currentSelected.ordinal()) - 1; i <= getMonthLenght(
-						currentYear, currentSelected); i++) {
+				for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
+						currentYear, currentSelectedMonth); i++) {
 					try {
-						g.setColor(getColor(Status.valueOf(cachedData[currentSelected.ordinal() + 1][i])));
+						g.setColor(getColor(Status.valueOf(cachedData[currentSelectedMonth.ordinal() + 1][i])));
 					} catch (Exception e) {
 						Console.log(LogType.Error, this, "An unexpected exception occured: " //$NON-NLS-1$
 								+ e.getMessage());
@@ -414,6 +451,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						s = 0;
 					}
 				}
+				// End of calendar rendering
+
 				{
 					// Render the footer
 					g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -470,6 +509,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						}
 						g.drawLine(x, height - 25, x, height);
 						x += 10;
+						// Show document unsaved hint
 						if (isChanged()) {
 							g.drawString(Strings.getString("Calendar.Messages.Unsaved"), x, height - 7);//$NON-NLS-1$
 							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.Unsaved")) + 10; //$NON-NLS-1$
@@ -482,12 +522,15 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						x += 10;
 						g.drawString(getInfoMessage(), x, height - 7);
 					}
-
-					{
+					// Render year
+					if (renderYearInFooter) {
 						g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 								Font.BOLD, 15));
 						FontMetrics fm = g.getFontMetrics();
 						int strWidth = fm.stringWidth(dsString) + 15;
+						g.setColor(this.getBackground());
+						g.fillRect(width - (strWidth + 5), height - 24, width, height);
+						g.setColor(Color.BLACK);
 						g.drawString(dsString, width - strWidth, height - 7);
 					}
 					{
@@ -547,9 +590,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		if (e.getY() <= 25) {
 			if (x >= width - 50 && x <= width - 35) {
 				if (y >= 5 && y <= 20) {
-					if (currentSelected != Month.JANUARY) {
+					if (currentSelectedMonth != Month.JANUARY) {
 						try {
-							currentSelected = Month.valueOf(currentSelected.ordinal() - 1);
+							currentSelectedMonth = Month.valueOf(currentSelectedMonth.ordinal() - 1);
 							if (isAdvancedOutputFlag())
 								Console.log(LogType.Information, this, "Pressed on rew button"); //$NON-NLS-1$
 						} catch (DateException e1) {
@@ -561,9 +604,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			}
 			if (x >= width - 25 && x <= width - 10) {
 				if (y >= 5 && y <= 20) {
-					if (currentSelected != Month.DECEMBER) {
+					if (currentSelectedMonth != Month.DECEMBER) {
 						try {
-							currentSelected = Month.valueOf(currentSelected.ordinal() + 1);
+							currentSelectedMonth = Month.valueOf(currentSelectedMonth.ordinal() + 1);
 							if (isAdvancedOutputFlag())
 								Console.log(LogType.Information, this, "Pressed on next button"); //$NON-NLS-1$
 						} catch (DateException e1) {
@@ -575,8 +618,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			}
 		} else {
 			if (isEditEnabled())
-				for (int i = 1, r = 1, s = getMonthConversion(currentSelected.ordinal()) - 1; i <= getMonthLenght(
-						currentYear, currentSelected); i++) {
+				for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
+						currentYear, currentSelectedMonth); i++) {
 					float t = (float) width / 400;
 					while (true)
 						if ((t * 35) + 50 > height)
@@ -593,10 +636,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 							if (isAdvancedOutputFlag())
 								Console.log(LogType.Information, this, "Pressed on day element: (" + i + ") "); //$NON-NLS-1$ //$NON-NLS-2$
 							setChanged(true);
-							if (cachedData[currentSelected.ordinal() + 1][i] == Status.allowed.ordinal()) {
+							if (cachedData[currentSelectedMonth.ordinal() + 1][i] == Status.allowed.ordinal()) {
 								if (getMaxNumDay() - selectedDays > 0) {
 									selectedDays++;
-									cachedData[currentSelected.ordinal() + 1][i] = Status.selected.ordinal();
+									cachedData[currentSelectedMonth.ordinal() + 1][i] = Status.selected.ordinal();
 								} else {
 									// No days left
 									JOptionPane.showMessageDialog(this.getParent(),
@@ -606,9 +649,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 								}
 								if (isAdvancedOutputFlag())
 									System.out.print("allowed found"); //$NON-NLS-1$
-							} else if (cachedData[currentSelected.ordinal() + 1][i] == Status.selected.ordinal()) {
+							} else if (cachedData[currentSelectedMonth.ordinal() + 1][i] == Status.selected.ordinal()) {
 								selectedDays--;
-								cachedData[currentSelected.ordinal() + 1][i] = Status.allowed.ordinal();
+								cachedData[currentSelectedMonth.ordinal() + 1][i] = Status.allowed.ordinal();
 								if (isAdvancedOutputFlag())
 									System.out.print("selected found"); //$NON-NLS-1$
 							} else {
@@ -723,9 +766,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		if (isAdvancedOutputFlag())
 			Console.log(LogType.Information, this, "Key released: " + e.getKeyCode()); //$NON-NLS-1$
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			if (currentSelected != Month.JANUARY) {
+			if (currentSelectedMonth != Month.JANUARY) {
 				try {
-					currentSelected = Month.valueOf(currentSelected.ordinal() - 1);
+					currentSelectedMonth = Month.valueOf(currentSelectedMonth.ordinal() - 1);
 					if (isAdvancedOutputFlag())
 						Console.log(LogType.Information, this, "Pressed on rew key"); //$NON-NLS-1$
 				} catch (DateException e1) {
@@ -734,9 +777,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			if (currentSelected != Month.DECEMBER) {
+			if (currentSelectedMonth != Month.DECEMBER) {
 				try {
-					currentSelected = Month.valueOf(currentSelected.ordinal() + 1);
+					currentSelectedMonth = Month.valueOf(currentSelectedMonth.ordinal() + 1);
 					if (isAdvancedOutputFlag())
 						Console.log(LogType.Information, this, "Pressed on next key"); //$NON-NLS-1$
 				} catch (DateException e1) {
@@ -822,11 +865,53 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			long uStart, uEnd, time;
 			uStart = getUnixTime(start);
 			uEnd = getUnixTime(end);
+			SelectionNotAllowedException e = null;
 			for (int m = 1; m <= 12; m++) {
 				int ml = getMonthLenght(currentYear, Month.valueOf(m - 1));
 				for (int d = 1; d <= ml; d++) {
-					//TODO finish
-					//Check if day is selectable otherwise switch bool to throw exception at the end
+					// TODO finish
+					// Check if day is selectable otherwise switch bool to throw
+					// exception at the end
+					Status currentState;
+					try {
+						currentState = Status.valueOf(cachedData[m][d]);
+					} catch (Exception e1) {
+						Console.log(LogType.Error, this, "Value out of date range");
+						e1.printStackTrace();
+						currentState = Status.undefined;
+					}
+					switch (wanted) {
+					case allowed:
+					case selected:
+						switch (currentState) {
+						case allowed:
+							if (wanted.ordinal() == Status.selected.ordinal())
+								if (getMaxNumDay() - selectedDays > 0)
+									selectedDays++;
+								else
+									break;
+							else
+								selectedDays--;
+						case selected:
+							cachedData[m][d] = wanted.ordinal();
+							break;
+						case normal:
+						case undefined:
+						default:
+							if (e == null)
+								e = new SelectionNotAllowedException();
+							ParaDate p = new ParaDate();
+							p.setDay((short) d);
+							p.setMonth((short) m);
+							p.setYear(currentYear);
+							e.addForbiddenDate(p);
+						}
+						break;
+					case normal:
+					case undefined:
+					default:
+						throw new SelectionNotAllowedException("Unallowed requested status:" + wanted.toString());
+					}
 				}
 			}
 		} catch (DateException e) {
@@ -845,6 +930,22 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		d.setMinutes(0);
 		d.setSeconds(0);
 		return d.getTime() / 1000;
+	}
+
+	/**
+	 * @return the renderYearInFooter
+	 */
+	public boolean isRenderYearInFooterEnabled() {
+		return renderYearInFooter;
+	}
+
+	/**
+	 * @param renderYearInFooter
+	 *            the renderYearInFooter to set
+	 */
+	public void setRenderYearInFooterHint(boolean renderYearInFooter) {
+		this.renderYearInFooter = renderYearInFooter;
+		this.repaint();
 	}
 
 }
