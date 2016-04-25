@@ -40,6 +40,7 @@ import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.ProgressChangedNotifier;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
+import org.technikradio.jay_corp.user.DayTable.Status;
 import org.technikradio.jay_corp.user.PermissionDeninedException;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -278,11 +279,47 @@ public class MainFrame extends JFrame {
 								String[] sa = {"Bitte das Anfangsdatum angeben: ",
 								"Bitte das Enddatum angeben: "};
 								ParaDate dates[] = DateSelectorFrame.query(sa);
+								if(dates != null)
+									try {
+										c.selectRange(dates[0], dates[1], Status.selected);
+									} catch (SelectionNotAllowedException e) {
+										Console.log(LogType.Information, this, "Cannot select all wanted dates.");
+										e.printStackTrace();
+									}
 							}});
 						t.setName("RangeSelectionQuerryThread");
 						t.start();
 					}});
 				markMenu.add(selectRangeItem);
+				JMenuItem deselectRangeItem = new JMenuItem();
+				deselectRangeItem.setText("Bereich aufheben");
+				deselectRangeItem.setName("mark-menu:deselectrange");
+				deselectRangeItem.setToolTipText(
+						"Hiermit können Sie einen zusammenhängenden Bereich aufheben."
+						+ "\n(Zum Beispiel eine ganze Woche)");
+				deselectRangeItem.addActionListener(new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						Thread t = new Thread(new Runnable(){
+
+							@Override
+							public void run() {
+								String[] sa = {"Bitte das Anfangsdatum angeben: ",
+								"Bitte das Enddatum angeben: "};
+								ParaDate dates[] = DateSelectorFrame.query(sa);
+								if(dates != null)
+									try {
+										c.selectRange(dates[0], dates[1], Status.allowed);
+									} catch (SelectionNotAllowedException e) {
+										Console.log(LogType.Information, this, "Cannot deselect all wanted dates.");
+										e.printStackTrace();
+									}
+							}});
+						t.setName("RangeDeselectionQuerryThread");
+						t.start();
+					}});
+				markMenu.add(deselectRangeItem);
 				menuStrip.add(markMenu);
 			}
 			this.setJMenuBar(menuStrip);

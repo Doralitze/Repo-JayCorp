@@ -809,42 +809,42 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 
 	/**
 	 * This method markes all dates between and including start and end
-	 * @param start The first date to mark
-	 * @param end The last date to mark
-	 * @throws SelectionNotAllowedException if there are days in between that are not selectable
+	 * 
+	 * @param start
+	 *            The first date to mark
+	 * @param end
+	 *            The last date to mark
+	 * @throws SelectionNotAllowedException
+	 *             if there are days in between that are not selectable
 	 */
-	@SuppressWarnings("deprecation")
-	public void selectRange(ParaDate start, ParaDate end, Status wanted) throws SelectionNotAllowedException{
+	public void selectRange(ParaDate start, ParaDate end, Status wanted) throws SelectionNotAllowedException {
 		try {
-			long uStart, uEnd;
-			{
-				Date d = new Date();
-				d.setYear(start.getYear());
-				d.setMonth(start.getMonth() - 1);
-				d.setDate(start.getDay());
-				d.setHours(0);
-				d.setMinutes(0);
-				d.setSeconds(0);
-				uStart = d.getTime() / 1000;
-				d.setYear(end.getYear());
-				d.setMonth(end.getMonth() - 1);
-				d.setDate(end.getDay());
-				d.setHours(0);
-				d.setMinutes(0);
-				d.setSeconds(0);
-				uEnd = d.getTime() / 1000;
-				
-			}
+			long uStart, uEnd, time;
+			uStart = getUnixTime(start);
+			uEnd = getUnixTime(end);
 			for (int m = 1; m <= 12; m++) {
 				int ml = getMonthLenght(currentYear, Month.valueOf(m - 1));
 				for (int d = 1; d <= ml; d++) {
 					//TODO finish
+					//Check if day is selectable otherwise switch bool to throw exception at the end
 				}
 			}
 		} catch (DateException e) {
 			Console.log(LogType.Error, this, "Failed to iterate through calendar");
 			e.printStackTrace();
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private long getUnixTime(ParaDate p) {
+		Date d = new Date();
+		d.setYear(p.getYear());
+		d.setMonth(p.getMonth() - 1);
+		d.setDate(p.getDay());
+		d.setHours(0);
+		d.setMinutes(0);
+		d.setSeconds(0);
+		return d.getTime() / 1000;
 	}
 
 }
