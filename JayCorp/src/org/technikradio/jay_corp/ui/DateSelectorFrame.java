@@ -3,6 +3,7 @@ package org.technikradio.jay_corp.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
@@ -21,6 +22,8 @@ import javax.swing.JScrollPane;
 import org.jdatepicker.DateModel;
 import org.jdatepicker.JDatePicker;
 import org.jdatepicker.UtilDateModel;
+import org.technikradio.universal_tools.Console;
+import org.technikradio.universal_tools.Console.LogType;
 import org.technikradio.universal_tools.ParaDate;
 
 public class DateSelectorFrame extends JDialog {
@@ -124,6 +127,7 @@ public class DateSelectorFrame extends JDialog {
 			abortButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					Console.log(LogType.Information, ownHandle, "Abort button clicked");
 					clear();
 					ownHandle.dispose();
 				}
@@ -137,6 +141,7 @@ public class DateSelectorFrame extends JDialog {
 			submitButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					Console.log(LogType.Information, ownHandle, "OK-button clicked");
 					collectResults();
 					ownHandle.dispose();
 				}
@@ -180,6 +185,7 @@ public class DateSelectorFrame extends JDialog {
 		JDatePicker p = new JDatePicker(model);
 		if (fixedYear != 0)
 			p.setShowYearButtons(false);
+
 		c.setLayout(new FlowLayout());
 		c.add(lb);
 		c.add(p);
@@ -237,6 +243,11 @@ public class DateSelectorFrame extends JDialog {
 		return query(labels, parent, "DateSelector", 0);
 	}
 
+	@Override
+	public String toString() {
+		return "DateSelectorFrame:{ size=\"" + pickers.size() + "\" }";
+	}
+
 	/**
 	 * This static Method generates a dialog for you and returnes an array
 	 * containing the dates.
@@ -252,11 +263,26 @@ public class DateSelectorFrame extends JDialog {
 	public static ParaDate[] query(String[] labels, Frame parent, String title, int fixedYear) {
 		DateSelectorFrame f = new DateSelectorFrame(parent, title);
 		f.setFixedYear(fixedYear);
-		for(String s : labels){
+		for (String s : labels) {
 			f.addPicker(s);
 		}
+		{
+			Dimension pref = f.getPreferredSize();
+			if (pref.getWidth() < 700 && pref.getHeight() < (labels.length * 75) + 50){
+				f.setSize(700, (labels.length * 75) + 50);
+			} else {
+				f.setSize(pref);
+			}
+		}
+		if (parent != null) {
+			f.setBounds((int) (parent.getBounds().x + (parent.getBounds().getWidth() / 2)),
+					(int) (parent.getBounds().y + (parent.getBounds().getHeight() / 2)),
+					f.getWidth(), f.getHeight());
+		}
+		Console.log(LogType.StdOut, "DateSelectorFrame->query", "Displaying frame");
 		f.setVisible(true);
-		while(f.isVisible());
+		while (f.isVisible())
+			;
 		return f.getResults();
 	}
 

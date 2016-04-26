@@ -247,6 +247,7 @@ public class MainFrame extends JFrame {
 				}
 				menuStrip.add(fileMenu);
 			}
+			if(Boolean.parseBoolean(System.getProperty("org.technikradio.jay_corp.ui.MainFrame.supportSmartSelect", "false")))
 			{
 				JMenu markMenu = new JMenu();
 				markMenu.setName("mark-menu");
@@ -281,7 +282,7 @@ public class MainFrame extends JFrame {
 							public void run() {
 								String[] sa = {"Bitte das Anfangsdatum angeben: ",
 								"Bitte das Enddatum angeben: "};
-								ParaDate dates[] = DateSelectorFrame.query(sa);
+								ParaDate dates[] = DateSelectorFrame.query(sa, ownHandle, "Wählen Sie die gewünschten Daten aus.", c.getActiveYear());
 								if(dates != null)
 									try {
 										c.selectRange(dates[0], dates[1], Status.selected);
@@ -310,9 +311,10 @@ public class MainFrame extends JFrame {
 							public void run() {
 								String[] sa = {"Bitte das Anfangsdatum angeben: ",
 								"Bitte das Enddatum angeben: "};
-								ParaDate dates[] = DateSelectorFrame.query(sa);
+								ParaDate dates[] = DateSelectorFrame.query(sa, ownHandle, "Wählen Sie die gewünschten Daten aus.", c.getActiveYear());
 								if(dates != null)
 									try {
+										Console.log(LogType.StdOut, this, "");
 										c.selectRange(dates[0], dates[1], Status.allowed);
 									} catch (SelectionNotAllowedException e) {
 										Console.log(LogType.Information, this, "Cannot deselect all wanted dates.");

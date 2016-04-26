@@ -23,6 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -331,6 +332,12 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		default:
 			return Strings.getString("Calendar.Month.Default"); //$NON-NLS-1$
 		}
+	}
+	
+	private Rectangle getRenderingPosition(int width, int height){
+		Rectangle r = new Rectangle();
+		
+		return r;
 	}
 
 	@Override
@@ -946,6 +953,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	public void setRenderYearInFooterHint(boolean renderYearInFooter) {
 		this.renderYearInFooter = renderYearInFooter;
 		this.repaint();
+	}
+	
+	public int getActiveYear(){
+		return currentYear;
 	}
 
 }
