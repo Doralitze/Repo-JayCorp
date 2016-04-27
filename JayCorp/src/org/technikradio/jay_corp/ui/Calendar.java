@@ -54,6 +54,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private boolean editEnabled = false;
 	private int maxNumDay = 0;
 	private boolean advancedOutputFlag = Boolean.valueOf(Settings.getString(Settings.getString("AdvancedOutputMode"))); // $NON-NLS-2$ //$NON-NLS-1$
+	private boolean alwaysDisplayShortDays = Boolean.valueOf(Settings.getString(Settings.getString("AlwaysUseShortDayNames"))); // $NON-NLS-2$ //$NON-NLS-1$
 	private String infoMessage = ""; //$NON-NLS-1$
 
 	// Internal data cache
@@ -245,7 +246,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	}
 
 	private String getDayName(int day, int width) {
-		if (width < 1300) {
+		if (width < 1300 || alwaysDisplayShortDays) {
 			switch (day) {
 			case 1:
 				return Strings.getString("Calendar.Days.ShortMonday"); //$NON-NLS-1$
@@ -334,8 +335,39 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		}
 	}
 	
-	private Rectangle getRenderingPosition(int width, int height){
+	private float getWindowMultiplicator(int width, int height){
+		float mul = 0;
+		if (getMonthConversion(currentSelectedMonth.ordinal()) - 1 <= 4)
+			mul = (float) width / 400;
+		else
+			mul = (float) (width / 400) / OVER_SIZE_DIVISOR;
+		while (true)
+			if ((mul * 35) + 50 > height)
+				mul = (float) (mul - 0.25);
+			else
+				break;
+		return mul;
+	}
+	
+	private Rectangle getRenderingPosition(int width, int height, int month, int day){
 		Rectangle r = new Rectangle();
+		
+		//Calculate size multiplicator
+		float mul = getWindowMultiplicator(width, height);
+		
+		//Calculate secondary multiplicator
+		float dmul = 1;
+		if (mul > 2)
+			dmul = (float) (mul * 0.5);
+		
+		//Output the calculated numbers so far if requested
+		if (isAdvancedOutputFlag())
+			Console.log(LogType.Information, this, "MUL -> " + Float.toString(mul) + "; DMUL -> " //$NON-NLS-1$ //$NON-NLS-2$
+					+ Float.toString(dmul));
+		
+		//Calculate positions and size
+		int x = (int) ((s * (35 * mul)) + (width - (245 * mul)) / 2);
+		int y = (int) ((r * (35 * mul) + 30) - (35 * mul * 0.5));
 		
 		return r;
 	}
@@ -397,22 +429,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				// Render calendar
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, 20));
-				float mul = 0;
-				if (getMonthConversion(currentSelectedMonth.ordinal()) - 1 <= 4)
-					mul = (float) width / 400;
-				else
-					mul = (float) (width / 400) / OVER_SIZE_DIVISOR;
-				while (true)
-					if ((mul * 35) + 50 > height)
-						mul = (float) (mul - 0.25);
-					else
-						break;
-				float dmul = 1;
-				if (mul > 2)
-					dmul = (float) (mul * 0.5);
-				if (isAdvancedOutputFlag())
-					Console.log(LogType.Information, this, "MUL -> " + Float.toString(mul) + "; DMUL -> " //$NON-NLS-1$ //$NON-NLS-2$
-							+ Float.toString(dmul));
+				
+				float mul = getWindowMultiplicator(width, height);
+				
+				//Render the week day names
 				for (int i = 1; i <= 7; i++) {
 					if (i < 6)
 						g.setColor(Color.BLACK);
@@ -424,6 +444,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						y = 50;
 					g.drawString(getDayName(i, width), x, y);
 				}
+				
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, (int) (10 + mul * mul * 2)));
 				for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
@@ -435,8 +456,9 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 								+ e.getMessage());
 						e.printStackTrace();
 					}
-					int x = (int) ((s * (35 * mul)) + (width - (245 * mul)) / 2);
-					int y = (int) ((r * (35 * mul) + 30) - (35 * mul * 0.5));
+					
+					Rectangle pos = getRenderingPosition(width, height, currentSelectedMonth.ordinal(), i);
+					
 					g.fillRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul), (int) (25 * mul), (int) (25 * mul),
 							(int) (5 * dmul), (int) (5 * dmul));
 					if (s < 5)
