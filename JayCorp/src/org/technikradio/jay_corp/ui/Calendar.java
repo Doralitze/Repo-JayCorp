@@ -22,6 +22,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -54,7 +55,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	private boolean editEnabled = false;
 	private int maxNumDay = 0;
 	private boolean advancedOutputFlag = Boolean.valueOf(Settings.getString(Settings.getString("AdvancedOutputMode"))); // $NON-NLS-2$ //$NON-NLS-1$
-	private boolean alwaysDisplayShortDays = Boolean.valueOf(Settings.getString(Settings.getString("AlwaysUseShortDayNames"))); // $NON-NLS-2$ //$NON-NLS-1$
+	private boolean alwaysDisplayShortDays = Boolean
+			.valueOf(Settings.getString(Settings.getString("AlwaysUseShortDayNames"))); // $NON-NLS-2$ //$NON-NLS-1$
 	private String infoMessage = ""; //$NON-NLS-1$
 
 	// Internal data cache
@@ -334,8 +336,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 			return Strings.getString("Calendar.Month.Default"); //$NON-NLS-1$
 		}
 	}
-	
-	private float getWindowMultiplicator(int width, int height){
+
+	private float getWindowMultiplicator(int width, int height) {
 		float mul = 0;
 		if (getMonthConversion(currentSelectedMonth.ordinal()) - 1 <= 4)
 			mul = (float) width / 400;
@@ -348,27 +350,53 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				break;
 		return mul;
 	}
-	
-	private Rectangle getRenderingPosition(int width, int height, int month, int day){
-		Rectangle r = new Rectangle();
+
+	private ComplexRectangleFloat getRenderingPosition(int frameWidth, int frameHeight, int month, int day) {
+		ComplexRectangleFloat r = new ComplexRectangleFloat();
+		r.resize(4);
 		
-		//Calculate size multiplicator
-		float mul = getWindowMultiplicator(width, height);
-		
-		//Calculate secondary multiplicator
-		float dmul = 1;
-		if (mul > 2)
-			dmul = (float) (mul * 0.5);
-		
-		//Output the calculated numbers so far if requested
+		// Calculate size multiplicator
+		float sizeMultiplicator = getWindowMultiplicator(frameWidth, frameHeight); //mul
+
+		// Calculate secondary multiplicator
+		float angleMultiplicator = 1; //dmul
+		if (sizeMultiplicator > 2)
+			angleMultiplicator = (float) (sizeMultiplicator * 0.5);
+
+		// Output the calculated numbers so far if requested
 		if (isAdvancedOutputFlag())
-			Console.log(LogType.Information, this, "MUL -> " + Float.toString(mul) + "; DMUL -> " //$NON-NLS-1$ //$NON-NLS-2$
-					+ Float.toString(dmul));
-		
-		//Calculate positions and size
-		int x = (int) ((s * (35 * mul)) + (width - (245 * mul)) / 2);
-		int y = (int) ((r * (35 * mul) + 30) - (35 * mul * 0.5));
-		
+			Console.log(LogType.Information, this, "MUL -> " + Float.toString(sizeMultiplicator) + "; DMUL -> " //$NON-NLS-1$ //$NON-NLS-2$
+					+ Float.toString(angleMultiplicator));
+
+		// Calculate positions and size
+
+		int weekColumn = getMonthConversion(month) - 1;
+		int monthlenght = getMonthLenght(currentYear, currentSelectedMonth);
+		int row = 1;
+
+		for (int i = 1; i <= monthlenght; i++) {
+			weekColumn++;
+			if (weekColumn == 7) {
+				row++;
+				weekColumn = 0;
+			}
+		}
+
+		int x = ((int) ((weekColumn * (35 * sizeMultiplicator)) + (frameWidth - (245 * sizeMultiplicator)) / 2)) + (int) (5 * angleMultiplicator);
+		int y = ((int) ((row * (35 * sizeMultiplicator) + 30) - (35 * sizeMultiplicator * 0.5))) + (int) (5 * angleMultiplicator);
+
+		int size = (int) (25 * sizeMultiplicator);
+
+		int arcWidth = (int) (5 * angleMultiplicator);
+		int arcHight = (int) (5 * angleMultiplicator);
+
+		r.setLocation(new Point(x, y));
+		r.setSize(size, size);
+		r.setAt(0, weekColumn);
+		r.setAt(1, arcWidth);
+		r.setAt(2, arcHight);
+		r.setAt(3, angleMultiplicator);
+
 		return r;
 	}
 
@@ -429,10 +457,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				// Render calendar
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, 20));
-				
+
 				float mul = getWindowMultiplicator(width, height);
-				
-				//Render the week day names
+
+				// Render the week day names
 				for (int i = 1; i <= 7; i++) {
 					if (i < 6)
 						g.setColor(Color.BLACK);
@@ -444,11 +472,10 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						y = 50;
 					g.drawString(getDayName(i, width), x, y);
 				}
-				
+
 				g.setFont(new Font(Settings.getString("Calendar.UsedFont"), // $NON-NLS-2$ //$NON-NLS-1$
 						Font.BOLD, (int) (10 + mul * mul * 2)));
-				for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
-						currentYear, currentSelectedMonth); i++) {
+				for (int i = 1; i <= getMonthLenght(currentYear, currentSelectedMonth); i++) {
 					try {
 						g.setColor(getColor(Status.valueOf(cachedData[currentSelectedMonth.ordinal() + 1][i])));
 					} catch (Exception e) {
@@ -456,29 +483,26 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 								+ e.getMessage());
 						e.printStackTrace();
 					}
-					
-					Rectangle pos = getRenderingPosition(width, height, currentSelectedMonth.ordinal(), i);
-					
-					g.fillRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul), (int) (25 * mul), (int) (25 * mul),
-							(int) (5 * dmul), (int) (5 * dmul));
-					if (s < 5)
+
+					ComplexRectangleFloat pos = getRenderingPosition(width, height, currentSelectedMonth.ordinal(), i);
+					int arcWidth = (int) pos.getAt(1);
+					int arcHeight = (int) pos.getAt(2);
+					float dmul = pos.getAt(3);
+
+					g.fillRoundRect(pos.x, pos.y, pos.width, pos.height, arcWidth, arcHeight);
+					if (pos.getAt(0) < 5)
 						g.setColor(Color.BLACK);
 					else
 						g.setColor(Color.decode("0xb30000")); //$NON-NLS-1$
-					g.drawRoundRect(x + (int) (5 * dmul), y + (int) (5 * dmul), (int) (25 * mul), (int) (25 * mul),
-							(int) (5 * dmul), (int) (5 * dmul));
-					g.drawRoundRect(x + (int) (5 * dmul) + 1, y + (int) (5 * dmul) + 1, (int) (25 * mul) - 2,
-							(int) (25 * mul) - 2, (int) (5 * dmul) - 1, (int) (5 * dmul) - 1);
+					g.drawRoundRect(pos.x, pos.y, pos.width, pos.height, arcWidth, arcHeight);
+					g.drawRoundRect(pos.x + 1, pos.y + 1, pos.width - 2, pos.height - 2, arcWidth - 1, arcHeight - 1);
+					// Render date inside rectangle
 					{
 						int xi = (int) ((25 * mul) / 2) - g.getFontMetrics().stringWidth(Integer.toString(i)) / 2;
 						int yi = (int) ((25 * mul) / 2) + g.getFontMetrics().getHeight() / 3;
-						g.drawString(Integer.toString(i), (x + (int) (5 * dmul)) + xi, (y + (int) (5 * dmul)) + yi);
+						g.drawString(Integer.toString(i), (pos.x + (int) (5 * dmul)) + xi, (pos.y + (int) (5 * dmul)) + yi);
 					}
-					s++;
-					if (s == 7) {
-						r++;
-						s = 0;
-					}
+
 				}
 				// End of calendar rendering
 
@@ -976,8 +1000,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		this.renderYearInFooter = renderYearInFooter;
 		this.repaint();
 	}
-	
-	public int getActiveYear(){
+
+	public int getActiveYear() {
 		return currentYear;
 	}
 
