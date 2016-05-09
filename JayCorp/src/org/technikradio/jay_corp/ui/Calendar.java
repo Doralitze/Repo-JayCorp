@@ -286,6 +286,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		return "Invalid Day"; //$NON-NLS-1$
 	}
 
+	/**
+	 * Calculate the first weekday in month
+	 * @param month The month to calculate for
+	 * @return the first weekday in the given month (1 - 7, Mo - So)
+	 */
 	private int getMonthConversion(int month) {
 		java.util.Calendar c = java.util.Calendar.getInstance();
 		c.set(currentYear, month, 1);
@@ -351,6 +356,14 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		return mul;
 	}
 
+	/**
+	 * This function computes the position of the day buttons
+	 * @param frameWidth The width of the parent frame
+	 * @param frameHeight The height of the parent frame
+	 * @param month The current selected Month
+	 * @param day The current day
+	 * @return The position and size of the buttons
+	 */
 	private ComplexRectangleFloat getRenderingPosition(int frameWidth, int frameHeight, int month, int day) {
 		ComplexRectangleFloat r = new ComplexRectangleFloat();
 		r.resize(4);
@@ -370,11 +383,12 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 
 		// Calculate positions and size
 
-		int weekColumn = getMonthConversion(month) - 1;
-		int monthlenght = getMonthLenght(currentYear, currentSelectedMonth);
+		int weekColumn = getMonthConversion(month) - 2;
+		//int monthlenght = getMonthLenght(currentYear, currentSelectedMonth);
 		int row = 1;
 
-		for (int i = 1; i <= monthlenght; i++) {
+		
+		for (int i = 0; i < day; i++) {
 			weekColumn++;
 			if (weekColumn == 7) {
 				row++;
@@ -397,6 +411,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		r.setAt(2, arcHight);
 		r.setAt(3, angleMultiplicator);
 
+		System.out.println("Date position (" + day + "): " + x + ", " + y + " [" + size + ", " + size + "]");
+		
 		return r;
 	}
 
@@ -488,7 +504,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 					int arcWidth = (int) pos.getAt(1);
 					int arcHeight = (int) pos.getAt(2);
 					float dmul = pos.getAt(3);
-
+					
 					g.fillRoundRect(pos.x, pos.y, pos.width, pos.height, arcWidth, arcHeight);
 					if (pos.getAt(0) < 5)
 						g.setColor(Color.BLACK);
@@ -670,8 +686,16 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				}
 			}
 		} else {
-			if (isEditEnabled())
-				for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
+			if (isEditEnabled()){
+				int month = currentSelectedMonth.ordinal();
+				for (int i = 1; i <= getMonthLenght(currentYear, currentSelectedMonth); i++) {
+					ComplexRectangleFloat pos = getRenderingPosition(width, height, month, i);
+					if(pos.getX() >= x && (pos.getX() + pos.getWidth()) <= x)
+						if(pos.getY() >= y && (pos.getY() + pos.getHeight()) <= y)
+							;//TODO implement click
+				}
+			}
+				/*for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
 						currentYear, currentSelectedMonth); i++) {
 					float t = (float) width / 400;
 					while (true)
@@ -718,7 +742,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						r++;
 						s = 0;
 					}
-				}
+				}*/
 		}
 		this.repaint();
 	}
