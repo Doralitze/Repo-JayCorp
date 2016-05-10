@@ -48,6 +48,7 @@ import org.technikradio.universal_tools.ParaDate;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -7376675328576164082L;
+	private static final boolean useJumboFrames = Boolean.parseBoolean(Settings.getString("Connection.useJumboFrames"));
 
 	private JMenuBar menuStrip;
 	private Calendar c;
@@ -118,14 +119,15 @@ public class MainFrame extends JFrame {
 								Protocol.transmitTable(Protocol.getProgress(Protocol.getCurrentUser().getID()), null,
 										Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
-									@Override
-									public void progressChanged(int min, int max, int current) {
+											@Override
+											public void progressChanged(int min, int max, int current) {
 
-										c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
-												+ "/" + max); //$NON-NLS-1$
+												c.setInfoMessage(
+														Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
+																+ "/" + max); //$NON-NLS-1$
 
-									}
-								});
+											}
+										});
 							} catch (IOException e1) {
 								Console.log(LogType.Error, ownHandle, "An error occured doing the restore operation:"); //$NON-NLS-1$
 								e1.printStackTrace();
@@ -247,8 +249,8 @@ public class MainFrame extends JFrame {
 				}
 				menuStrip.add(fileMenu);
 			}
-			if(Boolean.parseBoolean(System.getProperty("org.technikradio.jay_corp.ui.MainFrame.supportSmartSelect", "false")))
-			{
+			if (Boolean.parseBoolean(
+					System.getProperty("org.technikradio.jay_corp.ui.MainFrame.supportSmartSelect", "false"))) {
 				JMenu markMenu = new JMenu();
 				markMenu.setName("mark-menu");
 				markMenu.setText("Markieren");
@@ -269,50 +271,50 @@ public class MainFrame extends JFrame {
 				JMenuItem selectRangeItem = new JMenuItem();
 				selectRangeItem.setText("Bereich auswählen");
 				selectRangeItem.setName("mark-menu:selectrange");
-				selectRangeItem.setToolTipText(
-						"Hiermit können Sie einen zusammenhängenden Bereich auswählen."
+				selectRangeItem.setToolTipText("Hiermit können Sie einen zusammenhängenden Bereich auswählen."
 						+ "\n(Zum Beispiel eine ganze Woche)");
-				selectRangeItem.addActionListener(new ActionListener(){
+				selectRangeItem.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
-						Thread t = new Thread(new Runnable(){
+						Thread t = new Thread(new Runnable() {
 
 							@Override
 							public void run() {
-								String[] sa = {"Bitte das Anfangsdatum angeben: ",
-								"Bitte das Enddatum angeben: "};
-								ParaDate dates[] = DateSelectorFrame.query(sa, ownHandle, "Wählen Sie die gewünschten Daten aus.", c.getActiveYear());
-								if(dates != null)
+								String[] sa = { "Bitte das Anfangsdatum angeben: ", "Bitte das Enddatum angeben: " };
+								ParaDate dates[] = DateSelectorFrame.query(sa, ownHandle,
+										"Wählen Sie die gewünschten Daten aus.", c.getActiveYear());
+								if (dates != null)
 									try {
 										c.selectRange(dates[0], dates[1], Status.selected);
 									} catch (SelectionNotAllowedException e) {
 										Console.log(LogType.Information, this, "Cannot select all wanted dates.");
 										e.printStackTrace();
 									}
-							}});
+							}
+						});
 						t.setName("RangeSelectionQuerryThread");
 						t.start();
-					}});
+					}
+				});
 				markMenu.add(selectRangeItem);
 				JMenuItem deselectRangeItem = new JMenuItem();
 				deselectRangeItem.setText("Bereich aufheben");
 				deselectRangeItem.setName("mark-menu:deselectrange");
-				deselectRangeItem.setToolTipText(
-						"Hiermit können Sie einen zusammenhängenden Bereich aufheben."
+				deselectRangeItem.setToolTipText("Hiermit können Sie einen zusammenhängenden Bereich aufheben."
 						+ "\n(Zum Beispiel eine ganze Woche)");
-				deselectRangeItem.addActionListener(new ActionListener(){
+				deselectRangeItem.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
-						Thread t = new Thread(new Runnable(){
+						Thread t = new Thread(new Runnable() {
 
 							@Override
 							public void run() {
-								String[] sa = {"Bitte das Anfangsdatum angeben: ",
-								"Bitte das Enddatum angeben: "};
-								ParaDate dates[] = DateSelectorFrame.query(sa, ownHandle, "Wählen Sie die gewünschten Daten aus.", c.getActiveYear());
-								if(dates != null)
+								String[] sa = { "Bitte das Anfangsdatum angeben: ", "Bitte das Enddatum angeben: " };
+								ParaDate dates[] = DateSelectorFrame.query(sa, ownHandle,
+										"Wählen Sie die gewünschten Daten aus.", c.getActiveYear());
+								if (dates != null)
 									try {
 										Console.log(LogType.StdOut, this, "");
 										c.selectRange(dates[0], dates[1], Status.allowed);
@@ -320,10 +322,12 @@ public class MainFrame extends JFrame {
 										Console.log(LogType.Information, this, "Cannot deselect all wanted dates.");
 										e.printStackTrace();
 									}
-							}});
+							}
+						});
 						t.setName("RangeDeselectionQuerryThread");
 						t.start();
-					}});
+					}
+				});
 				markMenu.add(deselectRangeItem);
 				menuStrip.add(markMenu);
 			}
@@ -385,29 +389,43 @@ public class MainFrame extends JFrame {
 		if (successfullBackup)
 			Protocol.rmDatabaseEntries(Protocol.getCurrentUser().getID());
 
-		if (Protocol.transmitTable(c.buildFromCache(), c.getOriginalContent(), Protocol.getCurrentUser().getID(),
-				new ProgressChangedNotifier() {
+		if (!useJumboFrames) {
+			if (Protocol.transmitTable(c.buildFromCache(), c.getOriginalContent(), Protocol.getCurrentUser().getID(),
+					new ProgressChangedNotifier() {
 
-					@Override
-					public void progressChanged(int min, int max, int current) {
+						@Override
+						public void progressChanged(int min, int max, int current) {
 
-						c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
-								+ "/" + max); //$NON-NLS-1$
-					}
-				})) {
-			Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
-			c.setChanged(false);
-			ownHandle.repaint();
-			c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
-			ownHandle.repaint();
+							c.setInfoMessage(Strings.getString("MainFrame.SaveData") + ": " + current //$NON-NLS-1$ //$NON-NLS-2$
+									+ "/" + max); //$NON-NLS-1$
+						}
+					})) {
+				Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
+				c.setChanged(false);
+				ownHandle.repaint();
+				c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
+				ownHandle.repaint();
+			} else {
+				Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
+				c.setChanged(true);
+				c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
+				ownHandle.repaint();
+			}
+		} else {
+			if (Protocol.transmitTableAsSingleFrame(c.buildFromCache())) {
+				Console.log(LogType.StdOut, this, "Successfully transmitted Data"); //$NON-NLS-1$
+				c.setChanged(false);
+				ownHandle.repaint();
+				c.setInfoMessage("Führe Backup aus..."); //$NON-NLS-1$
+				ownHandle.repaint();
+			} else {
+				Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
+				c.setChanged(true);
+				c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
+				ownHandle.repaint();
+			}
 		}
 
-		else {
-			Console.log(LogType.StdOut, this, "Failed to transmitt Data"); //$NON-NLS-1$
-			c.setChanged(true);
-			c.setInfoMessage(Strings.getString("MainFrame.TransmitFailMessage")); //$NON-NLS-1$
-			ownHandle.repaint();
-		}
 		Protocol.save();
 		c.setInfoMessage(""); //$NON-NLS-1$
 		c.setMessage(null);

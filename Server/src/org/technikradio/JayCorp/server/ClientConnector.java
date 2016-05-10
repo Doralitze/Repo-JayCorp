@@ -513,6 +513,46 @@ public class ClientConnector extends Thread {
 				}
 				break;
 			}
+			case "setRange": {
+				String[] m = request[1].split(";");
+				for (String b : m) {
+					if(b.length() < 3)
+						break;
+					String[] sr = b.split("=");
+					pd = ParaDate.valueOf(sr[0]);
+					s = Status.valueOf(sr[1]);
+					try {
+						user.getSelectedDays().getDays().remove(getCompared(pd));
+					} catch (NullPointerException e) {
+						// Should we do something is there is nothing to delete?
+						// probably not
+					}
+					user.getSelectedDays().getDays().put(pd, s);
+					if (user.getID() == Data.getUser("root").getID()) {
+						// Update dc
+						Status ss = Status.normal;
+						switch (s) {
+						case allowed:
+							ss = Status.normal;
+							break;
+						case undefined:
+						case normal:
+							// Should never happen
+							Console.log(LogType.Error, this, "Root has normal state @setDay::updateDC");
+							break;
+						case selected:
+							ss = Status.allowed;
+							break;
+						}
+
+						Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
+						Data.getDefaultConfiguration().getDays().put(pd, ss);
+					}
+				}
+				out.println("true");
+				out.flush();
+			}
+				break;
 			case "disconnect": //$NON-NLS-1$
 				try {
 					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
@@ -694,27 +734,33 @@ public class ClientConnector extends Thread {
 						DayTable dtUserNew = new DayTable();
 						try {
 							for (ParaDate pdDC : dc.getDays().keySet()) {
-								ParaDate pdUser = find(pdDC, dtUser);
-								Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
-								switch (expected) {
-								case allowed:
-								case undefined:
-								case normal:
-									if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
-										if (crt)
-											Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
-									break;
-								case selected:
-									if ((got == Status.normal) || (got == Status.undefined)) {
-										if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+								try {
+									ParaDate pdUser = find(pdDC, dtUser);
+									Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
+									switch (expected) {
+									case allowed:
+									case undefined:
+									case normal:
+										if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
 											if (crt)
 												Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
-									} else
-										dtUserNew.getDays().put(pdUser, got);
-									break;
-								default:
-									break;
+										break;
+									case selected:
+										if ((got == Status.normal) || (got == Status.undefined)) {
+											if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+												if (crt)
+													Console.log(LogType.Error, this,
+															"Invalid operation @updateDatabase()");
+										} else
+											dtUserNew.getDays().put(pdUser, got);
+										break;
+									default:
+										break;
 
+									}
+								} catch (NullPointerException e) {
+									Console.log(LogType.Error, this,
+											"Nullpointer in cleanup routine: " + e.getLocalizedMessage());
 								}
 							}
 						} catch (NullPointerException e) {

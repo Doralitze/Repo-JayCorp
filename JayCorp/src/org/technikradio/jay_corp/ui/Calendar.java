@@ -248,7 +248,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 	}
 
 	private String getDayName(int day, int width) {
-		if (width < 1300 || alwaysDisplayShortDays) {
+		if (width < 1500 || alwaysDisplayShortDays) {
 			switch (day) {
 			case 1:
 				return Strings.getString("Calendar.Days.ShortMonday"); //$NON-NLS-1$
@@ -411,7 +411,8 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		r.setAt(2, arcHight);
 		r.setAt(3, angleMultiplicator);
 
-		System.out.println("Date position (" + day + "): " + x + ", " + y + " [" + size + ", " + size + "]");
+		if(advancedOutputFlag)
+			System.out.println("Date position (" + day + "): " + x + ", " + y + " [" + size + ", " + size + "]");
 		
 		return r;
 	}
@@ -656,7 +657,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		int x = e.getX();
 		int y = e.getY();
 		Console.log(LogType.StdOut, this, "Click: " + x + ":" + y);
-		if (e.getY() <= 25) {
+		if (y <= 25) {
 			if (x >= width - 50 && x <= width - 35) {
 				if (y >= 5 && y <= 20) {
 					if (currentSelectedMonth != Month.JANUARY) {
@@ -690,11 +691,43 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 				int month = currentSelectedMonth.ordinal();
 				for (int i = 1; i <= getMonthLenght(currentYear, currentSelectedMonth); i++) {
 					ComplexRectangleFloat pos = getRenderingPosition(width, height, month, i);
-					if(pos.getX() >= x && (pos.getX() + pos.getWidth()) <= x)
-						if(pos.getY() >= y && (pos.getY() + pos.getHeight()) <= y)
-							;//TODO implement click
+					if((pos.x <= x) && (pos.x + pos.width) >= x){
+						if(pos.y <= y && (pos.y + pos.height) >= y){
+							System.out.println("hit");
+							
+							//Found the clicked position
+							if (isAdvancedOutputFlag())
+								Console.log(LogType.Information, this, "Pressed on day element: (" + i + ") "); //$NON-NLS-1$ //$NON-NLS-2$
+							setChanged(true);
+							if (cachedData[currentSelectedMonth.ordinal() + 1][i] == Status.allowed.ordinal()) {
+								if (getMaxNumDay() - selectedDays > 0) {
+									selectedDays++;
+									cachedData[currentSelectedMonth.ordinal() + 1][i] = Status.selected.ordinal();
+								} else {
+									// No days left
+									JOptionPane.showMessageDialog(this.getParent(),
+											Strings.getString("Calendar.NoDaysLeft"),
+											Strings.getString("Calendar.NoDaysLeftHeader"),
+											JOptionPane.INFORMATION_MESSAGE);
+								}
+								if (isAdvancedOutputFlag())
+									System.out.print("allowed found"); //$NON-NLS-1$
+							} else if (cachedData[currentSelectedMonth.ordinal() + 1][i] == Status.selected.ordinal()) {
+								selectedDays--;
+								cachedData[currentSelectedMonth.ordinal() + 1][i] = Status.allowed.ordinal();
+								if (isAdvancedOutputFlag())
+									System.out.print("selected found"); //$NON-NLS-1$
+							} else {
+								if (isAdvancedOutputFlag())
+									System.out.print("disabled found"); //$NON-NLS-1$
+							}
+						}
+					}
+					//Didn't found it this time
 				}
 			}
+		}
+		this.repaint();
 				/*for (int i = 1, r = 1, s = getMonthConversion(currentSelectedMonth.ordinal()) - 1; i <= getMonthLenght(
 						currentYear, currentSelectedMonth); i++) {
 					float t = (float) width / 400;
@@ -743,8 +776,7 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						s = 0;
 					}
 				}*/
-		}
-		this.repaint();
+		
 	}
 
 	@Override

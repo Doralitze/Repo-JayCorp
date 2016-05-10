@@ -1,8 +1,10 @@
-Fix point where calendar switches between shorts and full names
-Fix Coursor position detection (Exclude loops inside function to find the right position; looks like its getting the wrong multiplier)
-Improve performance (Only transmit changes, Put inside single command [invent protocol change])
 Fix root deleting all data on save
+Make extrenal Frame for user watch in settings
+Optional: Fix Progressbar invisible when uploading users
 
 Done:
 	Fix table or write own
 	Fix year renderring
+	Fix point where calendar switches between shorts and full names
+	Fix Coursor position detection (Exclude loops inside function to find the right position; looks like its getting the wrong multiplier)
+	Improve performance (Only transmit changes, Put inside single command [invent protocol change])
