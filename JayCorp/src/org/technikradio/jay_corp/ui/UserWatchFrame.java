@@ -6,14 +6,15 @@ import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
-import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,11 +29,11 @@ public class UserWatchFrame extends JDialog {
 	private JTable table;
 	private final UserWatchFrame ownHandle = this;
 
-	private void setup() {
+	private void setup(String[] head, String[][] data) {
 		this.setLayout(new BorderLayout());
 		//Initialize table
 		{
-			table = new JTable();
+			table = new JTable(data, head);
 			add(new JScrollPane(table.getTableHeader()), BorderLayout.PAGE_START);
 			add(new JScrollPane(table), BorderLayout.CENTER);
 		}
@@ -70,86 +71,96 @@ public class UserWatchFrame extends JDialog {
 				
 			});
 		}
+		{
+			int posy, posx, width, height;
+			Insets s = Toolkit.getDefaultToolkit().getScreenInsets(getGraphicsConfiguration());
+			posx = 0 + s.left;
+			posy = 0 + s.top;
+			width = (Toolkit.getDefaultToolkit().getScreenSize().width - s.right) / 3;
+			height = (Toolkit.getDefaultToolkit().getScreenSize().height - s.bottom) / 3;
+			this.setBounds(new Rectangle(posx, posy, width, height));
+			this.setLocation(posx, posy);
+		}
 	}
 
-	public UserWatchFrame() {
+	public UserWatchFrame(String[] head, String[][] data) {
 		super();
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Dialog owner, boolean modal) {
+	public UserWatchFrame(String[] head, String[][] data, Dialog owner, boolean modal) {
 		super(owner, modal);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Dialog owner, String title, boolean modal, GraphicsConfiguration gc) {
+	public UserWatchFrame(String[] head, String[][] data, Dialog owner, String title, boolean modal, GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Dialog owner, String title, boolean modal) {
+	public UserWatchFrame(String[] head, String[][] data, Dialog owner, String title, boolean modal) {
 		super(owner, title, modal);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Dialog owner, String title) {
+	public UserWatchFrame(String[] head, String[][] data, Dialog owner, String title) {
 		super(owner, title);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Dialog owner) {
+	public UserWatchFrame(String[] head, String[][] data, Dialog owner) {
 		super(owner);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Frame owner, boolean modal) {
+	public UserWatchFrame(String[] head, String[][] data, Frame owner, boolean modal) {
 		super(owner, modal);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Frame arg0, String arg1, boolean arg2, GraphicsConfiguration arg3) {
+	public UserWatchFrame(String[] head, String[][] data, Frame arg0, String arg1, boolean arg2, GraphicsConfiguration arg3) {
 		super(arg0, arg1, arg2, arg3);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Frame arg0, String arg1, boolean arg2) {
+	public UserWatchFrame(String[] head, String[][] data, Frame arg0, String arg1, boolean arg2) {
 		super(arg0, arg1, arg2);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Frame owner, String title) {
+	public UserWatchFrame(String[] head, String[][] data, Frame owner, String title) {
 		super(owner, title);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Frame owner) {
+	public UserWatchFrame(String[] head, String[][] data, Frame owner) {
 		super(owner);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Window owner, ModalityType modalityType) {
+	public UserWatchFrame(String[] head, String[][] data, Window owner, ModalityType modalityType) {
 		super(owner, modalityType);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Window owner, String title, ModalityType modalityType, GraphicsConfiguration gc) {
+	public UserWatchFrame(String[] head, String[][] data, Window owner, String title, ModalityType modalityType, GraphicsConfiguration gc) {
 		super(owner, title, modalityType, gc);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Window owner, String title, ModalityType modalityType) {
+	public UserWatchFrame(String[] head, String[][] data, Window owner, String title, ModalityType modalityType) {
 		super(owner, title, modalityType);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Window owner, String title) {
+	public UserWatchFrame(String[] head, String[][] data, Window owner, String title) {
 		super(owner, title);
-		setup();
+		setup(head, data);
 	}
 
-	public UserWatchFrame(Window owner) {
+	public UserWatchFrame(String[] head, String[][] data, Window owner) {
 		super(owner);
-		setup();
+		setup(head, data);
 	}
 
 }

@@ -25,6 +25,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
+import org.technikradio.jay_corp.ui.SettingsFrame;
 import org.technikradio.jay_corp.ui.Strings;
 
 public class ProgressIndicator extends JDialog {
@@ -34,11 +35,30 @@ public class ProgressIndicator extends JDialog {
 
 	private static final long serialVersionUID = -4545977169805276112L;
 
+	/**
+	 * This initializes a new instance
+	 * @throws HeadlessException
+	 */
 	public ProgressIndicator() throws HeadlessException {
 		super();
 		setup();
 	}
+	
+	/**
+	 * This initializes a new instance
+	 * @param parent The parent of the dialog 
+	 * @throws HeadlessException
+	 */
+	public ProgressIndicator(JDialog parent) throws HeadlessException {
+		super(parent);
+		setup();
+	}
 
+	/**
+	 * This initializes a new instance
+	 * @param parent The parent of this dialog
+	 * @throws HeadlessException
+	 */
 	public ProgressIndicator(Frame parent) throws HeadlessException {
 		super(parent);
 		setup();
@@ -64,12 +84,22 @@ public class ProgressIndicator extends JDialog {
 		this.setResizable(false);
 	}
 
+	/**
+	 * Set the progress of the dialog
+	 * @param percent the progress in percentage
+	 */
 	public void setProgress(int percent) {
 		if (percent > 100 || percent < 0)
 			throw new RuntimeException("Invalid percentage value recieved"); //$NON-NLS-1$
 		pb.setValue(percent);
 	}
 
+	/**
+	 * Set the progress of the dialog
+	 * @param min The minimum of the progress bar
+	 * @param max The maximum of the progress bar
+	 * @param prog The current value of the progressbar
+	 */
 	public void setValv(int min, int max, int prog) {
 		if ((prog > max) || (prog < min))
 			throw new RuntimeException(
@@ -79,6 +109,10 @@ public class ProgressIndicator extends JDialog {
 		pb.setValue(prog);
 	}
 
+	/**
+	 * Sets the info label
+	 * @param text The text to use
+	 */
 	public void setInfoLabelText(String text) {
 		infoLabel.setText(text);
 	}

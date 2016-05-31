@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package org.technikradio.jay_corp.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -37,13 +35,11 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
@@ -51,6 +47,7 @@ import org.technikradio.jay_corp.ui.helpers.AddUserDialog;
 import org.technikradio.jay_corp.ui.helpers.CSVImporter;
 import org.technikradio.jay_corp.ui.helpers.DataDownloadProcessor;
 import org.technikradio.jay_corp.ui.helpers.PasswordInputDialog;
+import org.technikradio.jay_corp.ui.helpers.ProgressIndicator;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -69,13 +66,14 @@ public class SettingsFrame extends JDialog {
 	private JButton changePSWButton;
 	private JButton downloadFileButton;
 	private JButton destroyDBButton;
+	private JButton openUserFrameButton;
 	private JTabbedPane tabBox;
 	private JPanel[] pages;
 	private JCheckBox enableAccessCheckBox;
-	private FixedRenderTable userTable;
 	private JSpinner allowedDaysSelector;
-	private JPanel headerPanel;
+	private JProgressBar dataloadProgressBar;
 	private MainFrame owner;
+	private final DataLoader dl = new DataLoader();
 	private final SettingsFrame ownHandle = this;
 
 	public SettingsFrame() {
@@ -314,13 +312,20 @@ public class SettingsFrame extends JDialog {
 			Dimension d = new Dimension();
 			d.setSize(630, 370);
 			{
-				//AREA: create table object
-				//System.setProperty("org.technikradio.jay_corp.ui.debugmode", "true");
-				userTable = new FixedRenderTable();
-				userTable.setSize(userTable.getPreferredSize());
+				openUserFrameButton = new JButton("Benutzertabelle öffnen");
+				openUserFrameButton.setEnabled(false);
+				openUserFrameButton.setToolTipText("Hiermit öffnen Sie die Benutzertabelle.");
+				openUserFrameButton.addActionListener(new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						dl.show();
+						
+					}});
+				cp.add(openUserFrameButton, BorderLayout.CENTER);
+				dataloadProgressBar = new JProgressBar();
+				cp.add(dataloadProgressBar, BorderLayout.PAGE_START);
 			}
-			cp.add(userTable.getHeadComponent(), BorderLayout.PAGE_START);
-			cp.add(new JScrollPane(userTable), BorderLayout.CENTER);
 			addUserButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -426,7 +431,8 @@ public class SettingsFrame extends JDialog {
 				try {
 					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
 							&& Protocol.getCurrentUser().getRights().isEditUserAllowed()) {
-						fillTable();
+						dl.start();
+						openUserFrameButton.setEnabled(true);
 					}
 					Console.log(LogType.StdOut, Strings.getString("ErrorMessages.SettingsFrame.name"), //$NON-NLS-1$
 							"Successfully loaded the data"); //$NON-NLS-1$
@@ -440,50 +446,115 @@ public class SettingsFrame extends JDialog {
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.setName("SettingsDataLoadThread"); //$NON-NLS-1$
 		t.start();
-		userTable.setVisible(false);
 
 		repaint();
 	}
-
-	private void fillTable() {
-		String[] tableNames = { Strings.getString("SettingsFrame.UserNameHeader"), //$NON-NLS-1$
+	
+	private class DataLoader{
+		
+		private Thread loadingThread;
+		private boolean running = true;
+		private boolean done = false;
+		private int max = 0;
+		private int vPos = 0;
+		private String currentUser = "";
+		private final String[] tableNames = { Strings.getString("SettingsFrame.UserNameHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.RightsHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.AgeHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.IDHeader") }; //$NON-NLS-1$
-		// Alle Benutzer laden
-		ArrayList<User> users = new ArrayList<User>();
-		int ids[] = Protocol.getUsers();
-		for (int id : ids) {
-			try {
-				User u = Protocol.getUser(id);
-				u.setRights(Protocol.getRights(id));
-				users.add(u);
-			} catch (Exception e) {
-				Console.log(LogType.Error, this, "An unknown error occured"); //$NON-NLS-1$
-				e.printStackTrace();
-			}
+		private String[][] data;
+		private UserWatchFrame frame;
+		
+		public DataLoader(){
+			loadingThread = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					
+					// Alle Benutzer laden
+					ArrayList<User> users = new ArrayList<User>();
+					int ids[] = Protocol.getUsers();
+					max = ids.length;
+					vPos = 0;
+					dataloadProgressBar.setMaximum(max);
+					dataloadProgressBar.setValue(0);
+					dataloadProgressBar.setMinimum(0);
+					for (int id : ids) {
+						vPos++;
+						dataloadProgressBar.setValue(vPos);
+						try {
+							if(!running)
+								return;
+							User u = Protocol.getUser(id);
+							u.setRights(Protocol.getRights(id));
+							users.add(u);
+							currentUser = u.getName();
+						} catch (Exception e) {
+							Console.log(LogType.Error, this, "An unknown error occured"); //$NON-NLS-1$
+							e.printStackTrace();
+						}
+					}
+					
+					// Daten eintragen
+					String[][] localData = new String[users.size()][tableNames.length];
+					for (int i = 0; i < users.size(); i++) {
+						User u = users.get(i);
+						String[] mdata = new String[tableNames.length];
+						mdata[0] = u.getUsername();
+						mdata[1] = u.getName();
+						mdata[2] = Byte.toString(RightEditFrame.getRight(u.getRights()));
+						mdata[3] = Integer.toString(u.getWorkAge());
+						mdata[4] = Integer.toString(u.getID());
+						Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
+						localData[i] = mdata;
+					}
+					data = localData;
+					dataloadProgressBar.setVisible(false);
+					done = true;
+				}
+			});
+			loadingThread.setName("UserTableLoadingThread");
 		}
-		// Daten eintragen
-		String[][] data = new String[users.size()][tableNames.length];
-		for (int i = 0; i < users.size(); i++) {
-			User u = users.get(i);
-			String[] mdata = new String[tableNames.length];
-			mdata[0] = u.getUsername();
-			mdata[1] = u.getName();
-			mdata[2] = Byte.toString(RightEditFrame.getRight(u.getRights()));
-			mdata[3] = Integer.toString(u.getWorkAge());
-			mdata[4] = Integer.toString(u.getID());
-			Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
-			data[i] = mdata;
+		
+		public void start(){
+			running = true;
+			loadingThread.start();
 		}
-		// Setup Table
-		userTable.setData(data);
-		userTable.setHead(tableNames);
-		this.repaint();
+		
+		public void stop(){
+			running = false;
+		}
+		
+		public void show(){
+			Thread showDialogThread = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					ProgressIndicator e = new ProgressIndicator(ownHandle);
+					if(!done){
+						e.setVisible(true);
+					}
+					while(!done){try {
+						e.setValv(0, max, vPos);
+						e.setInfoLabelText(currentUser);
+						Thread.sleep(1);
+					} catch (InterruptedException e1) {
+						Console.log(LogType.Warning, ownHandle, "UI Thread interrupted");
+						e1.printStackTrace();
+					}}
+					e.setVisible(false);
+					e = null;
+					frame = new UserWatchFrame(tableNames, data, ownHandle);
+					frame.setVisible(true);
+				}});
+			showDialogThread.setName("UserDialogWaitThread");
+			showDialogThread.start();
+		}
 	}
 
 	private void pushSettings() {
+		dl.stop();
 		this.setEnabled(false);
 		this.setTitle("Aktualisiere Einstellungen... Bitte warten...");
 		boolean savereq = false;
