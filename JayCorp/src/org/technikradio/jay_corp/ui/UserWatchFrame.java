@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -63,6 +64,7 @@ public class UserWatchFrame extends JDialog {
 					} catch (Exception e1) {
 						Console.log(LogType.Error, ownHandle, "This shouldn't happen.");
 						e1.printStackTrace();
+						JOptionPane.showMessageDialog(ownHandle, "An unknown exception occured: \n\n" + e1.getLocalizedMessage() + "\n" + e1.getStackTrace().toString());
 					}
 				}
 				
