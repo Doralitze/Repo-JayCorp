@@ -135,7 +135,7 @@ public class AboutDialog extends JDialog {
 			this.setBounds(new Rectangle(posx, posy, width, height));
 		}
 		closeButton = new JButton("Schließen");
-		closeButton.setBounds(425, 425, 70, 40);
+		closeButton.setBounds(325, 425, 150, 40);
 		closeButton.addActionListener(new ActionListener() {
 
 			@Override

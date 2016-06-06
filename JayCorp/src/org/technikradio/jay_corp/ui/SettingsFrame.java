@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,9 +38,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
@@ -60,7 +64,7 @@ public class SettingsFrame extends JDialog {
 	private boolean mustSave = false;
 
 	private JButton addUserButton;
-	private JButton addUserBySystem;
+	private JButton addUserBySystemButton;
 	private JButton cancleButton;
 	private JButton okButton;
 	private JButton changePSWButton;
@@ -172,7 +176,7 @@ public class SettingsFrame extends JDialog {
 		cancleButton = new JButton();
 		okButton = new JButton();
 		addUserButton = new JButton();
-		addUserBySystem = new JButton();
+		addUserBySystemButton = new JButton();
 		changePSWButton = new JButton();
 		downloadFileButton = new JButton();
 		destroyDBButton = new JButton();
@@ -189,7 +193,7 @@ public class SettingsFrame extends JDialog {
 		okButton.setText(Strings.getString("SettingsFrame.OKButton")); //$NON-NLS-1$
 		okButton.setToolTipText(Strings.getString("SettingsFrame.OKButtonToolTip")); //$NON-NLS-1$
 		addUserButton.setText(Strings.getString("SettingsFrame.AddUserButton")); //$NON-NLS-1$
-		addUserBySystem.setText(Strings.getString("SettingsFrame.LoadUserFileButton")); //$NON-NLS-1$
+		addUserBySystemButton.setText(Strings.getString("SettingsFrame.LoadUserFileButton")); //$NON-NLS-1$
 		okButton.setSize(100, 25);
 		cancleButton.setSize(100, 25);
 		okButton.setPreferredSize(okButton.getSize());
@@ -201,6 +205,7 @@ public class SettingsFrame extends JDialog {
 			Console.log(LogType.Error, this, Strings.getString("ErrorMessages.SettingsFrame.NullData")); //$NON-NLS-1$
 			enableAccessCheckBox.setEnabled(false);
 		}
+		pages[0].add(Box.createRigidArea(new Dimension(15,15)));
 		pages[0].add(enableAccessCheckBox);
 		{
 			changePSWButton.setText(Strings.getString("SettingsFrame.ChangePasswordText")); //$NON-NLS-1$
@@ -284,11 +289,20 @@ public class SettingsFrame extends JDialog {
 
 				}
 			});
+			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
 			pages[0].add(changePSWButton);
+			{
+				JSeparator js = new JSeparator(SwingConstants.HORIZONTAL);
+				js.setBorder(new EmptyBorder(10,10,10,10));
+				pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+				pages[0].add(js);
+			}
+			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
 			pages[0].add(downloadFileButton);
+			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
 			pages[0].add(destroyDBButton);
 		}
-		addUserBySystem.addActionListener(new ActionListener() {
+		addUserBySystemButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -308,7 +322,7 @@ public class SettingsFrame extends JDialog {
 			JPanel cp = new JPanel();
 			JPanel bp = new JPanel();
 			bp.setLayout(new BoxLayout(bp, BoxLayout.X_AXIS));
-			cp.setLayout(new BorderLayout());
+			cp.setLayout(new BorderLayout(10,10));
 			Dimension d = new Dimension();
 			d.setSize(630, 370);
 			{
@@ -342,15 +356,19 @@ public class SettingsFrame extends JDialog {
 					mustSave = true;
 				}
 			});
+			//bp.add(Box.createRigidArea(new Dimension(15,15)));
 			bp.add(addUserButton);
-			bp.add(addUserBySystem);
+			//bp.add(Box.createRigidArea(new Dimension(15,15)));
+			bp.add(addUserBySystemButton);
 			{
 				JLabel userLabel = new JLabel();
 				userLabel.setText(Strings.getString("SettingsFrame.UserLabel") + Protocol.getCurrentUser().getID()); //$NON-NLS-1$
 				userLabel.setToolTipText(Strings.getString("SettingsFrame.UserLabelToolTip")); //$NON-NLS-1$
 				bp.add(userLabel);
 			}
+			//cp.add(Box.createRigidArea(new Dimension(15,15)));
 			cp.add(bp, BorderLayout.PAGE_END);
+			//pages[1].add(Box.createRigidArea(new Dimension(15,15)));
 			pages[1].add(cp);
 		}
 		for (JPanel p : pages) {
@@ -364,14 +382,19 @@ public class SettingsFrame extends JDialog {
 			Dimension d = new Dimension();
 			d.setSize(this.getWidth(), this.getHeight() - 35);
 			jc.setMaximumSize(d);
+			this.getContentPane().add(Box.createRigidArea(new Dimension(15,15)));
 			this.getContentPane().add(jc);
 		}
 		this.setSize(660, 550);
 		{
 			JPanel jc = new JPanel();
 			jc.setLayout(new BoxLayout(jc, BoxLayout.X_AXIS));
+			jc.add(Box.createRigidArea(new Dimension(15,15)));
 			jc.add(cancleButton);
+			jc.add(Box.createRigidArea(new Dimension(15,15)));
 			jc.add(okButton);
+			jc.add(Box.createRigidArea(new Dimension(15,15)));
+			this.getContentPane().add(Box.createRigidArea(new Dimension(15,15)));
 			this.getContentPane().add(jc);
 		}
 		{
@@ -400,9 +423,18 @@ public class SettingsFrame extends JDialog {
 			allowedDaysSelector.setToolTipText(Strings.getString("SettingsFrame.AllowedDaysToolTip")); //$NON-NLS-1$
 			JLabel hintLabel = new JLabel(Strings.getString("SettingsFrame.AllowedDaysText")); //$NON-NLS-1$
 			JPanel containerLabel = new JPanel();
-			containerLabel.setLayout(new FlowLayout());
+			containerLabel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
+			containerLabel.add(Box.createRigidArea(new Dimension(15,15)));
 			containerLabel.add(hintLabel);
+			{
+				JSeparator js = new JSeparator(SwingConstants.HORIZONTAL);
+				js.setBorder(new EmptyBorder(10,10,10,10));
+				containerLabel.add(Box.createRigidArea(new Dimension(15,15)));
+				containerLabel.add(js);
+			}
+			containerLabel.add(Box.createRigidArea(new Dimension(15,15)));
 			containerLabel.add(allowedDaysSelector);
+			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
 			pages[0].add(containerLabel);
 			if (Protocol.getCurrentUser().getID() == 0) {
 				containerLabel.setEnabled(false);
@@ -420,7 +452,7 @@ public class SettingsFrame extends JDialog {
 					enableAccessCheckBox.setEnabled(Protocol.getCurrentUser().getRights().isOpenCloseEditAllowed());
 					enableAccessCheckBox.setSelected(Protocol.isEditEnabled());
 					addUserButton.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
-					addUserBySystem.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
+					addUserBySystemButton.setEnabled(Protocol.getCurrentUser().getRights().isAddUserAllowed());
 					downloadFileButton.setEnabled(Protocol.getCurrentUser().getRights().isViewOtherSelectionsAllowed()
 							&& Protocol.getCurrentUser().getRights().isGetIDCountAllowed()
 							&& Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
@@ -446,7 +478,21 @@ public class SettingsFrame extends JDialog {
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.setName("SettingsDataLoadThread"); //$NON-NLS-1$
 		t.start();
-
+		{
+			//Add paddings to layout
+			addUserButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			addUserBySystemButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			cancleButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			okButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			changePSWButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			downloadFileButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			destroyDBButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			openUserFrameButton.setBorder(new EmptyBorder(5, 10, 5, 10));
+			enableAccessCheckBox.setBorder(new EmptyBorder(10, 10, 10, 10));
+			allowedDaysSelector.setBorder(new EmptyBorder(5, 10, 5, 5));
+			dataloadProgressBar.setBorder(new EmptyBorder(10, 10, 10, 10));
+			
+		}
 		repaint();
 	}
 	
