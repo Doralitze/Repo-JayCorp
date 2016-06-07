@@ -122,7 +122,7 @@ public class DataDownloadProcessor {
 			progressIndicator.setVisible(true);
 			int maxUsers = Protocol.getIDCount();
 			f.append(Strings.getString("DataDownloadProcessor.FileInitial") + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			for (int i = 1; i < maxUsers; i++) {
+			for (int i = 1; i < maxUsers + 1; i++) {
 				progressIndicator.setValv(0, maxUsers * 3, i * 3);
 				User selected = Protocol.getUser(i);
 				if (selected != null) {
@@ -132,7 +132,7 @@ public class DataDownloadProcessor {
 					int year = ttt.getYear();
 					int selectedDays = 0;
 					Status[][] t = listToSortedArray(ttt);
-					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 1);
+					progressIndicator.setValv(0, (maxUsers + 1) * 3, (i * 3) + 1);
 					ArrayList<String> freeList = new ArrayList<String>();
 					ParaDate firstFound = null, lastValid = null;
 					/*
@@ -196,7 +196,7 @@ public class DataDownloadProcessor {
 									}
 								}
 						}
-					progressIndicator.setValv(0, maxUsers * 3, (i * 3) + 2);
+					progressIndicator.setValv(0, (maxUsers + 1) * 3, (i * 3) + 2);
 					StringBuilder sb = new StringBuilder();
 					sb.append(selected.getUsername());
 					sb.append(';');
