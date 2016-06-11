@@ -98,4 +98,14 @@ public class DayTable {
 		}
 		return null;
 	}
+	
+	public int countDays(){
+		int i = 0;
+		for(Status s : days.values()){
+			if(s.ordinal() == Status.selected.ordinal()){
+				i++;
+			}
+		}
+		return i;
+	}
 }

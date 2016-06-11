@@ -51,8 +51,14 @@ public class UserWatchFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					// TODO Auto-generated method stub
-					
+					//TODO make user edition possible
+					try {
+						ownHandle.dispose();
+					} catch (Exception e1) {
+						Console.log(LogType.Error, ownHandle, "This shouldn't happen.");
+						e1.printStackTrace();
+						JOptionPane.showMessageDialog(ownHandle, "An unknown exception occured: \n\n" + e1.getLocalizedMessage() + "\n" + e1.getStackTrace().toString());
+					}
 				}
 				
 			});
@@ -108,7 +114,7 @@ public class UserWatchFrame extends JDialog {
 		setup(head, data);
 	}
 
-	public UserWatchFrame(String[] head, String[][] data, Dialog owner) {
+	public UserWatchFrame(String[] head, String[][] data, JDialog owner) {
 		super(owner);
 		setup(head, data);
 	}

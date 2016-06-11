@@ -26,6 +26,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -52,6 +53,8 @@ import org.technikradio.jay_corp.ui.helpers.CSVImporter;
 import org.technikradio.jay_corp.ui.helpers.DataDownloadProcessor;
 import org.technikradio.jay_corp.ui.helpers.PasswordInputDialog;
 import org.technikradio.jay_corp.ui.helpers.ProgressIndicator;
+import org.technikradio.jay_corp.user.DayTable;
+import org.technikradio.jay_corp.user.PermissionDeninedException;
 import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -205,7 +208,7 @@ public class SettingsFrame extends JDialog {
 			Console.log(LogType.Error, this, Strings.getString("ErrorMessages.SettingsFrame.NullData")); //$NON-NLS-1$
 			enableAccessCheckBox.setEnabled(false);
 		}
-		pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+		pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
 		pages[0].add(enableAccessCheckBox);
 		{
 			changePSWButton.setText(Strings.getString("SettingsFrame.ChangePasswordText")); //$NON-NLS-1$
@@ -289,17 +292,17 @@ public class SettingsFrame extends JDialog {
 
 				}
 			});
-			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+			pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
 			pages[0].add(changePSWButton);
 			{
 				JSeparator js = new JSeparator(SwingConstants.HORIZONTAL);
-				js.setBorder(new EmptyBorder(10,10,10,10));
-				pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+				js.setBorder(new EmptyBorder(10, 10, 10, 10));
+				pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
 				pages[0].add(js);
 			}
-			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+			pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
 			pages[0].add(downloadFileButton);
-			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+			pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
 			pages[0].add(destroyDBButton);
 		}
 		addUserBySystemButton.addActionListener(new ActionListener() {
@@ -322,20 +325,21 @@ public class SettingsFrame extends JDialog {
 			JPanel cp = new JPanel();
 			JPanel bp = new JPanel();
 			bp.setLayout(new BoxLayout(bp, BoxLayout.X_AXIS));
-			cp.setLayout(new BorderLayout(10,10));
+			cp.setLayout(new BorderLayout(10, 10));
 			Dimension d = new Dimension();
 			d.setSize(630, 370);
 			{
 				openUserFrameButton = new JButton("Benutzertabelle öffnen");
 				openUserFrameButton.setEnabled(false);
 				openUserFrameButton.setToolTipText("Hiermit öffnen Sie die Benutzertabelle.");
-				openUserFrameButton.addActionListener(new ActionListener(){
+				openUserFrameButton.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dl.show();
-						
-					}});
+
+					}
+				});
 				cp.add(openUserFrameButton, BorderLayout.CENTER);
 				dataloadProgressBar = new JProgressBar();
 				cp.add(dataloadProgressBar, BorderLayout.PAGE_START);
@@ -356,9 +360,9 @@ public class SettingsFrame extends JDialog {
 					mustSave = true;
 				}
 			});
-			//bp.add(Box.createRigidArea(new Dimension(15,15)));
+			// bp.add(Box.createRigidArea(new Dimension(15,15)));
 			bp.add(addUserButton);
-			//bp.add(Box.createRigidArea(new Dimension(15,15)));
+			// bp.add(Box.createRigidArea(new Dimension(15,15)));
 			bp.add(addUserBySystemButton);
 			{
 				JLabel userLabel = new JLabel();
@@ -366,9 +370,9 @@ public class SettingsFrame extends JDialog {
 				userLabel.setToolTipText(Strings.getString("SettingsFrame.UserLabelToolTip")); //$NON-NLS-1$
 				bp.add(userLabel);
 			}
-			//cp.add(Box.createRigidArea(new Dimension(15,15)));
+			// cp.add(Box.createRigidArea(new Dimension(15,15)));
 			cp.add(bp, BorderLayout.PAGE_END);
-			//pages[1].add(Box.createRigidArea(new Dimension(15,15)));
+			// pages[1].add(Box.createRigidArea(new Dimension(15,15)));
 			pages[1].add(cp);
 		}
 		for (JPanel p : pages) {
@@ -382,19 +386,19 @@ public class SettingsFrame extends JDialog {
 			Dimension d = new Dimension();
 			d.setSize(this.getWidth(), this.getHeight() - 35);
 			jc.setMaximumSize(d);
-			this.getContentPane().add(Box.createRigidArea(new Dimension(15,15)));
+			this.getContentPane().add(Box.createRigidArea(new Dimension(15, 15)));
 			this.getContentPane().add(jc);
 		}
 		this.setSize(660, 550);
 		{
 			JPanel jc = new JPanel();
 			jc.setLayout(new BoxLayout(jc, BoxLayout.X_AXIS));
-			jc.add(Box.createRigidArea(new Dimension(15,15)));
+			jc.add(Box.createRigidArea(new Dimension(15, 15)));
 			jc.add(cancleButton);
-			jc.add(Box.createRigidArea(new Dimension(15,15)));
+			jc.add(Box.createRigidArea(new Dimension(15, 15)));
 			jc.add(okButton);
-			jc.add(Box.createRigidArea(new Dimension(15,15)));
-			this.getContentPane().add(Box.createRigidArea(new Dimension(15,15)));
+			jc.add(Box.createRigidArea(new Dimension(15, 15)));
+			this.getContentPane().add(Box.createRigidArea(new Dimension(15, 15)));
 			this.getContentPane().add(jc);
 		}
 		{
@@ -424,17 +428,17 @@ public class SettingsFrame extends JDialog {
 			JLabel hintLabel = new JLabel(Strings.getString("SettingsFrame.AllowedDaysText")); //$NON-NLS-1$
 			JPanel containerLabel = new JPanel();
 			containerLabel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
-			containerLabel.add(Box.createRigidArea(new Dimension(15,15)));
+			containerLabel.add(Box.createRigidArea(new Dimension(15, 15)));
 			containerLabel.add(hintLabel);
 			{
 				JSeparator js = new JSeparator(SwingConstants.HORIZONTAL);
-				js.setBorder(new EmptyBorder(10,10,10,10));
-				containerLabel.add(Box.createRigidArea(new Dimension(15,15)));
+				js.setBorder(new EmptyBorder(10, 10, 10, 10));
+				containerLabel.add(Box.createRigidArea(new Dimension(15, 15)));
 				containerLabel.add(js);
 			}
-			containerLabel.add(Box.createRigidArea(new Dimension(15,15)));
+			containerLabel.add(Box.createRigidArea(new Dimension(15, 15)));
 			containerLabel.add(allowedDaysSelector);
-			pages[0].add(Box.createRigidArea(new Dimension(15,15)));
+			pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
 			pages[0].add(containerLabel);
 			if (Protocol.getCurrentUser().getID() == 0) {
 				containerLabel.setEnabled(false);
@@ -479,7 +483,7 @@ public class SettingsFrame extends JDialog {
 		t.setName("SettingsDataLoadThread"); //$NON-NLS-1$
 		t.start();
 		{
-			//Add paddings to layout
+			// Add paddings to layout
 			addUserButton.setBorder(new EmptyBorder(5, 10, 5, 10));
 			addUserBySystemButton.setBorder(new EmptyBorder(5, 10, 5, 10));
 			cancleButton.setBorder(new EmptyBorder(5, 10, 5, 10));
@@ -491,13 +495,13 @@ public class SettingsFrame extends JDialog {
 			enableAccessCheckBox.setBorder(new EmptyBorder(10, 10, 10, 10));
 			allowedDaysSelector.setBorder(new EmptyBorder(5, 10, 5, 5));
 			dataloadProgressBar.setBorder(new EmptyBorder(10, 10, 10, 10));
-			
+
 		}
 		repaint();
 	}
-	
-	private class DataLoader{
-		
+
+	private class DataLoader {
+
 		private Thread loadingThread;
 		private boolean running = true;
 		private boolean done = false;
@@ -508,16 +512,18 @@ public class SettingsFrame extends JDialog {
 				Strings.getString("SettingsFrame.FullNameHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.RightsHeader"), //$NON-NLS-1$
 				Strings.getString("SettingsFrame.AgeHeader"), //$NON-NLS-1$
-				Strings.getString("SettingsFrame.IDHeader") }; //$NON-NLS-1$
+				Strings.getString("SettingsFrame.IDHeader"), //$NON-NLS-1$
+				Strings.getString("SettingsFrame.AviableDays"), //$NON-NLS-1$
+				Strings.getString("SettingsFrame.SelectedDays") }; //$NON-NLS-1$
 		private String[][] data;
 		private UserWatchFrame frame;
-		
-		public DataLoader(){
-			loadingThread = new Thread(new Runnable(){
+
+		public DataLoader() {
+			loadingThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
-					
+
 					// Alle Benutzer laden
 					ArrayList<User> users = new ArrayList<User>();
 					int ids[] = Protocol.getUsers();
@@ -530,7 +536,7 @@ public class SettingsFrame extends JDialog {
 						vPos++;
 						dataloadProgressBar.setValue(vPos);
 						try {
-							if(!running)
+							if (!running)
 								return;
 							User u = Protocol.getUser(id);
 							u.setRights(Protocol.getRights(id));
@@ -541,7 +547,7 @@ public class SettingsFrame extends JDialog {
 							e.printStackTrace();
 						}
 					}
-					
+
 					// Daten eintragen
 					String[][] localData = new String[users.size()][tableNames.length];
 					for (int i = 0; i < users.size(); i++) {
@@ -552,6 +558,19 @@ public class SettingsFrame extends JDialog {
 						mdata[2] = Byte.toString(RightEditFrame.getRight(u.getRights()));
 						mdata[3] = Integer.toString(u.getWorkAge());
 						mdata[4] = Integer.toString(u.getID());
+						mdata[5] = Integer.toString(u.getExtraDays());
+						if (Protocol.getCurrentUser().getRights().isAccessUserInputAllowed()) {
+							try {
+								DayTable sd = Protocol.getProgress(u.getID());
+								mdata[6] = Integer.toString(sd.countDays());
+							} catch (IOException | PermissionDeninedException e) {
+								Console.log(LogType.Error, ownHandle,
+										"This shouldn't happen due to the fact that it's checked:");
+								e.printStackTrace();
+							}
+						} else {
+							mdata[6] = "<<No Data>>";
+						}
 						Console.log(LogType.StdOut, this, "Add user '" + u.getName() + "' to table"); //$NON-NLS-1$ //$NON-NLS-2$
 						localData[i] = mdata;
 					}
@@ -562,38 +581,41 @@ public class SettingsFrame extends JDialog {
 			});
 			loadingThread.setName("UserTableLoadingThread");
 		}
-		
-		public void start(){
+
+		public void start() {
 			running = true;
 			loadingThread.start();
 		}
-		
-		public void stop(){
+
+		public void stop() {
 			running = false;
 		}
-		
-		public void show(){
-			Thread showDialogThread = new Thread(new Runnable(){
+
+		public void show() {
+			Thread showDialogThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 					ProgressIndicator e = new ProgressIndicator(ownHandle);
-					if(!done){
+					if (!done) {
 						e.setVisible(true);
 					}
-					while(!done){try {
-						e.setValv(0, max, vPos);
-						e.setInfoLabelText(currentUser);
-						Thread.sleep(1);
-					} catch (InterruptedException e1) {
-						Console.log(LogType.Warning, ownHandle, "UI Thread interrupted");
-						e1.printStackTrace();
-					}}
+					while (!done) {
+						try {
+							e.setValv(0, max, vPos);
+							e.setInfoLabelText(currentUser);
+							Thread.sleep(1);
+						} catch (InterruptedException e1) {
+							Console.log(LogType.Warning, ownHandle, "UI Thread interrupted");
+							e1.printStackTrace();
+						}
+					}
 					e.setVisible(false);
 					e = null;
 					frame = new UserWatchFrame(tableNames, data, ownHandle);
 					frame.setVisible(true);
-				}});
+				}
+			});
 			showDialogThread.setName("UserDialogWaitThread");
 			showDialogThread.start();
 		}
