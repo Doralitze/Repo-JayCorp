@@ -23,4 +23,4 @@ output/
 output.zip
 Server_lib/
 Server.jar
-Makefile
+build
