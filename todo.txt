@@ -1,3 +1,4 @@
+Fix blocking on setup dialog
 Fix root deleting all data on save
 Optional: Fix Progressbar invisible when uploading users
 

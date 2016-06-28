@@ -471,14 +471,14 @@ public class MainFrame extends JFrame {
 	private boolean showJesNoSaveDialog() {
 		Console.log(LogType.Information, this, "Evaluating if it would be good to display the save message");
 		if (c.isChanged()) {
-			Object[] elements = { Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
-					Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
+			Object[] elements = { Strings.getString("MainFrame.Dialog.No"), //$NON-NLS-1$
+					Strings.getString("MainFrame.Dialog.Yes"), //$NON-NLS-1$
 					Strings.getString("MainFrame.Dialog.Abort") //$NON-NLS-1$
 			};
 			int n = FixedOptionPane.showFixedOptionDialog(ownHandle, Strings.getString("MainFrame.AskForSave"), //$NON-NLS-1$
 					Strings.getString("MainFrame.Attention"), //$NON-NLS-1$
 					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, elements, elements[2]);
-			if (n == 1) {
+			if (n == 0) {
 				save();
 			} else if (n == 2) {
 				return false;
