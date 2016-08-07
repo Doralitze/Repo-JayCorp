@@ -4,11 +4,11 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required -->
     <!--define folder properties-->
-    
+
     <!-- Set this variable to the folder where the binaries should be placed -->
-    <property name="dir.workspace" value="/home/leon/Dokumente/dev/workspace"/>
+    <property name="dir.workspace" value="."/>
     <property name="rsc.javac" value="/usr/bin/ecj" />
-    
+
     <property name="dir.buildfile" value="."/>
     <property name="dir.export" value="${dir.workspace}/exports"/>
     <property name="dir.binjc" value="${dir.export}/bin/JayCorp" />
@@ -16,7 +16,7 @@
     <property name="dir.jcjarfile" value="${dir.export}/JayCorp"/>
     <property name="dir.sejarfile" value="${dir.export}/Server"/>
     <property name="dir.installers" value="${dir.export}/Installers"/>
-    
+
     <target name="clean">
 	<delete dir="${dir.export}" />
     </target>
@@ -29,11 +29,11 @@
 	<mkdir dir="${dir.sejarfile}" />
 	<mkdir dir="${dir.installers}" />
     </target>
-    
+
     <target name="all" depends="create_jc_jar,create_se_jar">
 	<!-- Build all targets but without tests or installers -->
     </target>
-    
+
     <!-- All targets for the client side -->
     <target name="compile_jc" depends="make_build_dir">
 	<!-- Commented out due to current lack of sufficient javac compiler -->
@@ -66,7 +66,7 @@
 	<copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang"/>
 	<!-- <move file="${dir.jcjarfile}/Lang/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang" /> -->
     </target>
-    
+
     <!-- All targets for the server side -->
     <target name="compile_se" depends="make_build_dir">
     <!-- TODO make sufficiant build command -->
@@ -84,7 +84,7 @@
         <copy file="${dir.buildfile}/Server/lib/Utils.jar" todir="${dir.sejarfile}/Server_lib"/>
 	<copy file="${dir.buildfile}/Server/src/org/technikradio/JayCorp/server/settings.properties" todir="${dir.sejarfile}"/>
     </target>
-    
+
     <!-- All targets related to installers, packages, tests and checksums -->
     <target name="installers" depends="all">
 	<zip destfile="${dir.installers}/JayCorp.zip" basedir="${dir.buildfile}/JayCorp"/>
