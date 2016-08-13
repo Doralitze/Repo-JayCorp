@@ -105,7 +105,7 @@
                 <attribute name="Main-Class" value="org.technikradio.JayCorp.server.Server"/>
                 <attribute name="Class-Path" value=". Server_lib/Utils.jar"/>
             </manifest>
-            <fileset dir="${dir.workspace}/Server/bin"/>
+            <fileset dir="${dir.binse}"/>
         </jar>
         <!-- <delete dir="${dir.sejarfile}/Server_lib"/> -->
         <mkdir dir="${dir.sejarfile}/Server_lib"/>
