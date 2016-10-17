@@ -1,93 +1,121 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- TODO build dependant libaries from source -->
 <project default="all" name="Create Runnable Jar for Project JayCorp with libraries in sub-folder">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required -->
-    <!--define folder properties-->
-    
-    <!-- Set this variable to the folder where the binaries should be placed -->
-    <property name="dir.workspace" value="/home/leon/Dokumente/dev/workspace"/>
+    <property name="dir.workspace" value="."/>
     <property name="rsc.javac" value="/usr/bin/ecj" />
-    
+
     <property name="dir.buildfile" value="."/>
     <property name="dir.export" value="${dir.workspace}/exports"/>
     <property name="dir.binjc" value="${dir.export}/bin/JayCorp" />
+    <property name="dir.binjdp" value="${dir.export}/bin/libjdp" />
     <property name="dir.binse" value="${dir.export}/bin/Server" />
     <property name="dir.jcjarfile" value="${dir.export}/JayCorp"/>
     <property name="dir.sejarfile" value="${dir.export}/Server"/>
     <property name="dir.installers" value="${dir.export}/Installers"/>
-    
+
+    <path id="build.clpjc">
+      <fileset dir="${dir.buildfile}/JayCorp/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${dir.jcjarfile}/JayCorp_lib">
+        <include name="**/*.jar"/>
+      </fileset>
+    </path>
+
+    <path id="build.clpse">
+      <fileset dir="${dir.buildfile}/Server/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+    </path>
+
     <target name="clean">
-	<delete dir="${dir.export}" />
+      <delete dir="${dir.export}" />
     </target>
+
     <target name="make_build_dir">
-	<mkdir dir="${dir.export}" />
-	<mkdir dir="${dir.export}/bin" />
-	<mkdir dir="${dir.binjc}" />
-	<mkdir dir="${dir.binse}" />
-	<mkdir dir="${dir.jcjarfile}" />
-	<mkdir dir="${dir.sejarfile}" />
-	<mkdir dir="${dir.installers}" />
+      <mkdir dir="${dir.export}" />
+      <mkdir dir="${dir.export}/bin" />
+      <mkdir dir="${dir.binjc}" />
+      <mkdir dir="${dir.binjdp}" />
+      <mkdir dir="${dir.binse}" />
+      <mkdir dir="${dir.jcjarfile}" />
+      <mkdir dir="${dir.sejarfile}" />
+      <mkdir dir="${dir.installers}" />
+      <mkdir dir="${dir.jcjarfile}/JayCorp_lib"/>
+      <mkdir dir="${dir.jcjarfile}/Lang"/>
     </target>
-    
+
     <target name="all" depends="create_jc_jar,create_se_jar">
-	<!-- Build all targets but without tests or installers -->
     </target>
-    
+
+    <target name="compilejdplib" depends="make_build_dir">
+      <javac srcdir="${dir.buildfile}/JayCorp/JDatePicker-master/src/main/java"
+        destdir="${dir.binjdp}"
+        classpathref="build.clpjc"
+        optimize="on"
+        fork="yes"
+        includeAntRuntime="no"
+        includeJavaRuntime="yes" />
+      <jar destfile="${dir.jcjarfile}/JayCorp_lib/libjdp.jar">
+        <fileset dir="${dir.binjdp}"/>
+      </jar>
+    </target>
+
     <!-- All targets for the client side -->
-    <target name="compile_jc" depends="make_build_dir">
-	<!-- Commented out due to current lack of sufficient javac compiler -->
-	<!-- <javac srcdir="${dir.buildfile}/JayCorp/src"
-		destdir="${dir.binjc}"
-		classpath="${dir.buildfile}/JayCorp/lib/Utils.jar, ${dir.buildfile}/JayCorp/lib/User.jar"
-		optimize="on"
-		target="1.7"
-		fork="yes"
-		executable="${rsc.javac}"
-		includeAntRuntime="no"
-		includeJavaRuntime="yes" /> -->
+    <target name="compile_jc" depends="make_build_dir,compilejdplib">
+      <echo message="Compiling with date picker support"/>
+      <javac srcdir="${dir.buildfile}/JayCorp/src"
+        destdir="${dir.binjc}"
+        classpathref="build.clpjc"
+        optimize="on"
+        fork="yes"
+        includeAntRuntime="no"
+        includeJavaRuntime="yes" />
     </target>
+
     <target name="create_jc_jar" depends="compile_jc">
         <jar destfile="${dir.jcjarfile}/JayCorp.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.technikradio.jay_corp.JayCorp"/>
                 <attribute name="Class-Path" value=". JayCorp_lib/Utils.jar JayCorp_lib/User.jar"/>
             </manifest>
-            <fileset dir="${dir.workspace}/JayCorp/bin"/>
-	    <!-- <fileset dir="${dir.binjc}" /> -->
+            <fileset dir="${dir.binjc}"/>
         </jar>
-        <!-- <delete dir="${dir.jcjarfile}/JayCorp_lib"/> -->
-        <mkdir dir="${dir.jcjarfile}/JayCorp_lib"/>
-	<mkdir dir="${dir.jcjarfile}/Lang"/>
         <copy file="${dir.buildfile}/JayCorp/lib/Utils.jar" todir="${dir.jcjarfile}/JayCorp_lib"/>
         <copy file="${dir.buildfile}/JayCorp/lib/User.jar" todir="${dir.jcjarfile}/JayCorp_lib"/>
-	<copy file="${dir.buildfile}/buildtools/JayCorp.exe" todir="${dir.jcjarfile}"/>
-	<copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/settings.properties" todir="${dir.jcjarfile}"/>
-	<copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang"/>
-	<!-- <move file="${dir.jcjarfile}/Lang/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang" /> -->
+        <copy file="${dir.buildfile}/buildtools/JayCorp.exe" todir="${dir.jcjarfile}"/>
+        <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/settings.properties" todir="${dir.jcjarfile}"/>
+        <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang"/>
     </target>
-    
+
     <!-- All targets for the server side -->
     <target name="compile_se" depends="make_build_dir">
-    <!-- TODO make sufficiant build command -->
+      <javac srcdir="${dir.buildfile}/Server/src"
+        destdir="${dir.binse}"
+        classpathref="build.clpse"
+        optimize="on"
+        fork="yes"
+        includeAntRuntime="no"
+        includeJavaRuntime="yes" />
     </target>
+
     <target name="create_se_jar" depends="compile_se">
-	<jar destfile="${dir.sejarfile}/Server.jar">
+      <jar destfile="${dir.sejarfile}/Server.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.technikradio.JayCorp.server.Server"/>
                 <attribute name="Class-Path" value=". Server_lib/Utils.jar"/>
             </manifest>
-            <fileset dir="${dir.workspace}/Server/bin"/>
+            <fileset dir="${dir.binse}"/>
         </jar>
         <!-- <delete dir="${dir.sejarfile}/Server_lib"/> -->
         <mkdir dir="${dir.sejarfile}/Server_lib"/>
         <copy file="${dir.buildfile}/Server/lib/Utils.jar" todir="${dir.sejarfile}/Server_lib"/>
-	<copy file="${dir.buildfile}/Server/src/org/technikradio/JayCorp/server/settings.properties" todir="${dir.sejarfile}"/>
+        <copy file="${dir.buildfile}/Server/src/org/technikradio/JayCorp/server/settings.properties" todir="${dir.sejarfile}"/>
     </target>
-    
+
     <!-- All targets related to installers, packages, tests and checksums -->
     <target name="installers" depends="all">
-	<zip destfile="${dir.installers}/JayCorp.zip" basedir="${dir.buildfile}/JayCorp"/>
-	<zip destfile="${dir.installers}/Server.zip" basedir="${dir.buildfile}/Server"/>
+      <zip destfile="${dir.installers}/JayCorp.zip" basedir="${dir.buildfile}/JayCorp"/>
+      <zip destfile="${dir.installers}/Server.zip" basedir="${dir.buildfile}/Server"/>
     </target>
 </project>

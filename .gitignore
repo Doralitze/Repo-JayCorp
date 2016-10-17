@@ -24,3 +24,4 @@ output.zip
 Server_lib/
 Server.jar
 build
+exports
