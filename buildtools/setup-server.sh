@@ -11,5 +11,8 @@ chown jcserver /var/log/jc
 chown jcserver /usr/bin/jc/*
 chown jcserver /usr/bin/jc/*/*
 chown jcserver /usr/bin/jc/*/*/*
+chmod 777 /var/jc
+chmod 777 /var/log/jc
+chmod 777 /usr/bin/jc
 echo "please edit the following chron file manually in order to set the @reboot flag to the startup script."
 crontab -e -u jcserver
