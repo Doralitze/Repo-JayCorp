@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.technikradio.jay_corp.user.DayTable;
@@ -434,11 +435,33 @@ public class ClientConnector extends Thread {
 			case "save": //$NON-NLS-1$
 			{
 				final User root = Data.getUser("root");
-				if(needtoFixDB){
-					//TODO fix
-				}
 				if (user == root) {
-					processDCWrite();
+					if(needtoFixDB){
+						//fix root's database if broken
+						Hashtable<ParaDate, Status> rootDays = user.getSelectedDays().getDays();
+						Enumeration<ParaDate> er = rootDays.keys();
+						while(er.hasMoreElements()){
+							ParaDate pda = er.nextElement();
+							if(pda != null){
+								Status pdas = rootDays.get(pda);
+								switch(pdas){
+								case allowed:
+								case selected:
+									rootDays.remove(pda);
+									rootDays.put(pda, Status.selected);
+									break;
+								case normal:
+								case undefined:
+								default:
+									rootDays.remove(pda);
+									rootDays.put(pda, Status.allowed);
+									break;
+								
+								}
+							}
+						}
+					}
+					//processDCWrite();
 					updateDatabase(root);
 				} else {
 					Data.save();
@@ -697,12 +720,18 @@ public class ClientConnector extends Thread {
 		return found;
 	}
 
+	/**
+	 * This medthod updates all dates from non root users
+	 * @param root The root user
+	 */
 	private void updateDatabase(final User root) {
 
 		Thread t = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
+				Data.setDefaultConfiguration(root.getSelectedDays());
+				processDCWrite();
 				int changed = 0;
 				int total = 0;
 				DayTable dc = Data.getDefaultConfiguration();
@@ -719,9 +748,6 @@ public class ClientConnector extends Thread {
 									switch (expected) {
 									case normal:
 									case undefined:
-										//This happens when the data isn't saved correctly
-										//TODO fix
-										//dc.getDays().
 									case allowed:
 										if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
 											if (crt)
@@ -760,10 +786,12 @@ public class ClientConnector extends Thread {
 		t.setName("DatabaseUpdateThread");
 		t.setPriority(9);
 		t.start();
-		Data.setDefaultConfiguration(root.getSelectedDays());
 		Console.log(LogType.StdOut, this, "root saved allowed days");
 	}
 
+	/**
+	 * This method lowers the DC values
+	 */
 	private void processDCWrite() {
 		Hashtable<ParaDate, Status> dcp = Data.getDefaultConfiguration().getDays();
 		for (ParaDate p : dcp.keySet()) {
