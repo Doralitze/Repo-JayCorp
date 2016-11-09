@@ -609,6 +609,7 @@ public class ClientConnector extends Thread {
 				}
 			}
 		}
+		Console.log(LogType.Warning, this, "Was required to fix roots database.");
 	}
 
 	public User getConnectedUser() {
@@ -743,6 +744,7 @@ public class ClientConnector extends Thread {
 				DayTable dc = Data.getDefaultConfiguration();
 				for (int id = 1; id <= Data.getLatestID(); id++) {
 					User _user = Data.getUser(id);
+					Console.log(LogType.Information, this, "Adopting days of user: " + _user.getUsername());
 					if (_user != null /* && _user != Data.getUser("root") */) {
 						DayTable dtUser = _user.getSelectedDays();
 						DayTable dtUserNew = new DayTable();
