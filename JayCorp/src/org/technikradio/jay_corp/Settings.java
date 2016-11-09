@@ -42,6 +42,7 @@ public class Settings {
 			try {
 				altPath += File.separator + "settings.properties";
 				FIRST_VALUES.load(new FileInputStream(altPath));
+				Console.log(LogType.StdOut, "StringManager", "Successfully loaded " + altPath);
 			} catch (IOException e) {
 				Console.log(LogType.Error, "StringManager", "Couldn´t load external strings:");
 				if (Boolean.parseBoolean(Settings.getString("AdvancedOutputMode"))) {

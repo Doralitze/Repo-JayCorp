@@ -39,6 +39,8 @@ public class Connection {
 
 	public Connection() {
 		try {
+			Console.log(LogType.StdOut, this, "Trying to conntect to "
+									+ SERVER_ADDRESS + ":" + SERVER_PORT);
 			socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
 			br = new BufferedReader(new InputStreamReader(
 					socket.getInputStream()));

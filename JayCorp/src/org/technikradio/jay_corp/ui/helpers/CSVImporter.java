@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.RightEditFrame;
 import org.technikradio.jay_corp.ui.Strings;
@@ -76,25 +77,32 @@ public class CSVImporter {
 		try {
 			fis = new FileInputStream(workFile);
 			in = new DataInputStream(fis);
-			br = new BufferedReader(new InputStreamReader(in));
+			br = new BufferedReader(new InputStreamReader(in, Settings.getString("Importing.FileEncoding")));
 			String currentLine = br.readLine();
 			int i = 0;
 			while ((currentLine = br.readLine()) != null) {
-				if (i != 0) {
-					String[] s = currentLine.split(";"); //$NON-NLS-1$
-					User u = new User();
-					u.setName(s[2] + " " + s[1]); //$NON-NLS-1$
-					u.setExtraDays(1);
-					u.setPassword(Strings.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
-					u.setSelectedDays(new DayTable());
-					u.setUsername(s[3]);
-					u.setWorkAge(1);
-					u.setID(Protocol.getIDCount() + 1);
-					u.setRights(defaultRT);
-					Protocol.addUser(u);
-					Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+				if(!currentLine.equals("") && !currentLine.equals(";;;")){
+					if (i != 0) {
+						String[] s = currentLine.split(";"); //$NON-NLS-1$
+						User u = new User();
+						for(int j = 0; j < s.length; j++){
+							s[j] = s[j].replace("ü", "ue").replace("ö", "oe").replace("ä", "ae")
+											 	 .replace("Ü", "Ue").replace("Ö", "Oe").replace("Ä", "Ae")
+											   .replace("ß", "ss");
+											 }
+						u.setName(s[2] + " " + s[1]); //$NON-NLS-1$
+						u.setExtraDays(1);
+						u.setPassword(Strings.getString("CSVImporter.DefaultNewPassword")); //$NON-NLS-1$
+						u.setSelectedDays(new DayTable());
+						u.setUsername(s[3]);
+						u.setWorkAge(1);
+						u.setID(Protocol.getIDCount() + 1);
+						u.setRights(defaultRT);
+						Protocol.addUser(u);
+						Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+					}
+					i++;
 				}
-				i++;
 			}
 			Protocol.save();
 		} catch (FileNotFoundException e) {

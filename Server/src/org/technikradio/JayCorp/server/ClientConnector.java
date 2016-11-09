@@ -43,6 +43,7 @@ public class ClientConnector extends Thread {
 	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
 	private int loginAttemps = 0;
 	private long lastCall = System.currentTimeMillis() / 1000;
+	private boolean needtoFixDB = false;
 
 	private Socket client;
 	private Thread kickThread;
@@ -273,6 +274,7 @@ public class ClientConnector extends Thread {
 					case normal:
 						// Should never happen
 						Console.log(LogType.Error, this, "Root has normal state @setDay::updateDC");
+						needtoFixDB = true;
 						break;
 					case selected:
 						ss = Status.allowed;
@@ -432,12 +434,16 @@ public class ClientConnector extends Thread {
 			case "save": //$NON-NLS-1$
 			{
 				final User root = Data.getUser("root");
+				if(needtoFixDB){
+					//TODO fix
+				}
 				if (user == root) {
 					processDCWrite();
 					updateDatabase(root);
+				} else {
+					Data.save();
 				}
 			}
-				Data.save();
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
 				break;
@@ -697,33 +703,6 @@ public class ClientConnector extends Thread {
 
 			@Override
 			public void run() {
-				/*
-				 * int year = root.getSelectedDays().getYear(); { DayTable dt =
-				 * new DayTable(); Status[][] rd =
-				 * listToSortedArray(root.getSelectedDays()); for (short m = 1;
-				 * m <= 12; m++) for (short d = 1; d <= 31; d++) { if (rd[m][d]
-				 * != null) { ParaDate pd = new ParaDate(); pd.setDay(d);
-				 * pd.setMonth(m); pd.setYear(year); Status s = Status.normal;
-				 * switch (rd[m][d]) { case allowed: break; case normal: break;
-				 * case selected: s = Status.allowed; break; default: break; }
-				 * dt.getDays().put(pd, s); } }
-				 * Data.setDefaultConfiguration(dt); } Status[][] dc =
-				 * listToSortedArray(Data .getDefaultConfiguration()); int
-				 * updatedUsers = 0; for (int id = 1; id <= Data.getLatestID();
-				 * id++) { User u = Data.getUser(id); boolean updated = false;
-				 * Status[][] udt = listToSortedArray(u.getSelectedDays()); for
-				 * (short m = 1; m <= 12; m++) for (short d = 1; d <= 31; d++)
-				 * if (dc[m][d] != null) switch (dc[m][d]) { case allowed:
-				 * switch (udt[m][d]) { case allowed: break; case normal:
-				 * udt[m][d] = Status.allowed; updated = true; break; case
-				 * selected: break; } break; case normal: switch (udt[m][d]) {
-				 * case allowed: udt[m][d] = Status.normal; updated = true;
-				 * break; case normal: break; case selected: break; } break;
-				 * case selected: break; }
-				 * u.setSelectedDays(sortedArrayToList(udt, year)); if (updated)
-				 * updatedUsers++; } Console.log(LogType.StdOut, this,
-				 * "root did " + updatedUsers + " database updates...");
-				 */
 				int changed = 0;
 				int total = 0;
 				DayTable dc = Data.getDefaultConfiguration();
@@ -738,9 +717,12 @@ public class ClientConnector extends Thread {
 									ParaDate pdUser = find(pdDC, dtUser);
 									Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
 									switch (expected) {
-									case allowed:
-									case undefined:
 									case normal:
+									case undefined:
+										//This happens when the data isn't saved correctly
+										//TODO fix
+										//dc.getDays().
+									case allowed:
 										if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
 											if (crt)
 												Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
@@ -772,6 +754,7 @@ public class ClientConnector extends Thread {
 				}
 				Console.log(LogType.Information, this,
 						"Removed " + changed + " selected entries and " + total + " total checks");
+				Data.save();
 			}
 		});
 		t.setName("DatabaseUpdateThread");
