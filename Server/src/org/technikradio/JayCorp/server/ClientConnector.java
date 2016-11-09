@@ -437,29 +437,7 @@ public class ClientConnector extends Thread {
 				final User root = Data.getUser("root");
 				if (user == root) {
 					if(needtoFixDB){
-						//fix root's database if broken
-						Hashtable<ParaDate, Status> rootDays = user.getSelectedDays().getDays();
-						Enumeration<ParaDate> er = rootDays.keys();
-						while(er.hasMoreElements()){
-							ParaDate pda = er.nextElement();
-							if(pda != null){
-								Status pdas = rootDays.get(pda);
-								switch(pdas){
-								case allowed:
-								case selected:
-									rootDays.remove(pda);
-									rootDays.put(pda, Status.selected);
-									break;
-								case normal:
-								case undefined:
-								default:
-									rootDays.remove(pda);
-									rootDays.put(pda, Status.allowed);
-									break;
-								
-								}
-							}
-						}
+						fixRootDB();
 					}
 					//processDCWrite();
 					updateDatabase(root);
@@ -567,7 +545,8 @@ public class ClientConnector extends Thread {
 						case undefined:
 						case normal:
 							// Should never happen
-							Console.log(LogType.Error, this, "Root has normal state @setDay::updateDC");
+							Console.log(LogType.Error, this, "Root has normal state @setRange::updateDC");
+							needtoFixDB = true;
 							break;
 						case selected:
 							ss = Status.allowed;
@@ -602,6 +581,33 @@ public class ClientConnector extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
+		}
+	}
+
+	private void fixRootDB() {
+		//fix root's database if broken
+		User root = Data.getUser("root");
+		Hashtable<ParaDate, Status> rootDays = root.getSelectedDays().getDays();
+		Enumeration<ParaDate> er = rootDays.keys();
+		while(er.hasMoreElements()){
+			ParaDate pda = er.nextElement();
+			if(pda != null){
+				Status pdas = rootDays.get(pda);
+				switch(pdas){
+				case allowed:
+				case selected:
+					rootDays.remove(pda);
+					rootDays.put(pda, Status.selected);
+					break;
+				case normal:
+				case undefined:
+				default:
+					rootDays.remove(pda);
+					rootDays.put(pda, Status.allowed);
+					break;
+				
+				}
+			}
 		}
 	}
 
