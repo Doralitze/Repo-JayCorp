@@ -264,18 +264,17 @@ public class ClientConnector extends Thread {
 				}
 				um.getSelectedDays().getDays().put(pd, s);
 
-				if (user.getID() == Data.getUser("root").getID()) {
+				/*if (user.getID() == Data.getUser("root").getID()) {
 					// Update dc
 					Status ss = Status.normal;
 					switch (s) {
-					case allowed:
-						ss = Status.normal;
-						break;
 					case undefined:
 					case normal:
 						// Should never happen
 						Console.log(LogType.Error, this, "Root has normal state @setDay::updateDC");
 						needtoFixDB = true;
+					case allowed:
+						ss = Status.normal;
 						break;
 					case selected:
 						ss = Status.allowed;
@@ -284,7 +283,7 @@ public class ClientConnector extends Thread {
 
 					Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
 					Data.getDefaultConfiguration().getDays().put(pd, ss);
-				}
+				}*/
 
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
@@ -535,18 +534,17 @@ public class ClientConnector extends Thread {
 						// probably not
 					}
 					user.getSelectedDays().getDays().put(pd, s);
-					if (user.getID() == Data.getUser("root").getID()) {
+					/*if (user.getID() == Data.getUser("root").getID()) {
 						// Update dc
 						Status ss = Status.normal;
 						switch (s) {
-						case allowed:
-							ss = Status.normal;
-							break;
 						case undefined:
 						case normal:
 							// Should never happen
 							Console.log(LogType.Error, this, "Root has normal state @setRange::updateDC");
 							needtoFixDB = true;
+						case allowed:
+							ss = Status.normal;
 							break;
 						case selected:
 							ss = Status.allowed;
@@ -555,7 +553,7 @@ public class ClientConnector extends Thread {
 
 						Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
 						Data.getDefaultConfiguration().getDays().put(pd, ss);
-					}
+					}*/
 				}
 				out.println("true");
 				out.flush();
@@ -737,15 +735,15 @@ public class ClientConnector extends Thread {
 
 			@Override
 			public void run() {
-				Data.setDefaultConfiguration(root.getSelectedDays());
-				processDCWrite();
+				processDCWrite(root);
 				int changed = 0;
 				int total = 0;
 				DayTable dc = Data.getDefaultConfiguration();
 				for (int id = 1; id <= Data.getLatestID(); id++) {
 					User _user = Data.getUser(id);
-					Console.log(LogType.Information, this, "Adopting days of user: " + _user.getUsername());
 					if (_user != null /* && _user != Data.getUser("root") */) {
+						if(crt)
+						Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
 						DayTable dtUser = _user.getSelectedDays();
 						DayTable dtUserNew = new DayTable();
 						try {
@@ -756,13 +754,16 @@ public class ClientConnector extends Thread {
 									switch (expected) {
 									case normal:
 									case undefined:
-									case allowed:
 										if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
 											if (crt)
 												Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+										changed++;
 										break;
+									case allowed:
 									case selected:
+									default:
 										if ((got == Status.normal) || (got == Status.undefined)) {
+											changed++;
 											if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
 												if (crt)
 													Console.log(LogType.Error, this,
@@ -770,9 +771,6 @@ public class ClientConnector extends Thread {
 										} else
 											dtUserNew.getDays().put(pdUser, got);
 										break;
-									default:
-										break;
-
 									}
 								} catch (NullPointerException e) {
 									Console.log(LogType.Error, this,
@@ -784,6 +782,7 @@ public class ClientConnector extends Thread {
 							e.printStackTrace();
 						}
 						_user.setSelectedDays(dtUserNew);
+						total++;
 					}
 				}
 				Console.log(LogType.Information, this,
@@ -798,9 +797,10 @@ public class ClientConnector extends Thread {
 	}
 
 	/**
-	 * This method lowers the DC values
+	 * This method prepares the default configuration.
 	 */
-	private void processDCWrite() {
+	private void processDCWrite(User root) {
+		Data.setDefaultConfiguration(root.getSelectedDays().clone());
 		Hashtable<ParaDate, Status> dcp = Data.getDefaultConfiguration().getDays();
 		for (ParaDate p : dcp.keySet()) {
 			Status ss = dcp.get(p);
