@@ -562,10 +562,12 @@ public class ClientConnector extends Thread {
 				out.flush();
 			}
 				break;
-			case "isMaintaining":
-				out.println(Boolean.toString(isDBUpdateRunning()));
+			case "isMaintaining":{
+				String x = Boolean.toString(isDBUpdateRunning());
+				System.out.println("Responded to mreq: " + x);
+				out.println(x);
 				out.flush();
-				break;
+				break;}
 			case "disconnect": //$NON-NLS-1$
 				try {
 					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
