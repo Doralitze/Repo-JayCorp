@@ -309,7 +309,8 @@ public class Data {
 	}
 
 	public static void checkDatabase() {
-		if (crt)
+		return;
+		/*if (crt)
 			Console.log(LogType.StdOut, "Database", "Checking database for corrupted data");
 		boolean ok = true;
 		if (meta == null) {
@@ -326,9 +327,10 @@ public class Data {
 		}
 		postInit();
 		if (!ok)
-			repairDatabase();
+			repairDatabase();*/
 	}
 
+	@SuppressWarnings("unused")
 	private static void repairDatabase() {
 		if (crt)
 			Console.log(LogType.Warning, "Database",

@@ -74,11 +74,11 @@ public class LoginPanel extends JPanel {
 	}
 
 	private void setup() {
-		lookyLookyThread = new Thread(new Runnable(){
+		lookyLookyThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				String old = copyrightLabel.getText();
-				while(!Protocol.isConnectionAviable()){
+				while (!Protocol.isConnectionAviable()) {
 					copyrightLabel.setText("Es ist keine Verbindung zum\nServer möglich.");
 					submitButton.setEnabled(false);
 					try {
@@ -89,9 +89,10 @@ public class LoginPanel extends JPanel {
 				}
 				submitButton.setEnabled(true);
 				copyrightLabel.setText(old);
-			}});
+			}
+		});
 		lookyLookyThread.setName("ServerConWacher");
-		redrawThread = new Thread(new Runnable(){
+		redrawThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -100,9 +101,10 @@ public class LoginPanel extends JPanel {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				if(ownHandle != null)
+				if (ownHandle != null)
 					ownHandle.repaint();
-			}});
+			}
+		});
 		redrawThread.setDaemon(true);
 		redrawThread.setName("LPRedrawThread");
 		this.setSize(500, 200);
@@ -134,25 +136,34 @@ public class LoginPanel extends JPanel {
 				disableInputs();
 				if (username.getText() != "" //$NON-NLS-1$
 						&& new String(password.getPassword()) != "") //$NON-NLS-1$
-					if (Protocol.isLoginFree(username.getText()))
-						if (Protocol.login(username.getText(), new String(password.getPassword())))
-							loadWorkspace();
+					if (Protocol.isMaintaining()) {
+						if (Protocol.isLoginFree(username.getText()))
+							if (Protocol.login(username.getText(), new String(password.getPassword())))
+								loadWorkspace();
+							else {
+								JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
+								Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
+										"Entered wrong info: User: " //$NON-NLS-1$
+												+ username.getText() + " Password: " //$NON-NLS-1$
+												+ new String(password.getPassword()));
+								didEntered = false;
+								reenable();
+								return;
+							}
 						else {
-							JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
-							Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
-									"Entered wrong info: User: " //$NON-NLS-1$
-											+ username.getText() + " Password: " //$NON-NLS-1$
-											+ new String(password.getPassword()));
 							didEntered = false;
 							reenable();
+							JOptionPane.showMessageDialog(parent,
+									"Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
 							return;
 						}
-					else{
-							didEntered = false;
-							reenable();
-							JOptionPane.showMessageDialog(parent, "Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
-							return;
-						}
+					} else {
+						didEntered = false;
+						reenable();
+						JOptionPane.showMessageDialog(parent,
+								"Der Server ist zur Zeit ausgelastet.\nBitte versuchen Sie es später erneut."); //$NON-NLS-1$
+						return;
+					}
 				else {
 					didEntered = false;
 					reenable();
@@ -169,11 +180,11 @@ public class LoginPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Console.log(LogType.Information, this, "Abortbutton clicket: going to stop"); //$NON-NLS-1$
-				try{
+				try {
 					Protocol.disconnect();
-				}catch(Exception ex){
+				} catch (Exception ex) {
 					Console.log(LogType.Error, abortButton, "Failed to log off protocol. Is the server connected?");
-					if(Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
+					if (Boolean.valueOf(Settings.getString("AdvancedOutputMode")))
 						ex.printStackTrace();
 				}
 				System.exit(0);

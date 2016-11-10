@@ -707,5 +707,20 @@ public class Protocol {
 			release();
 		}
 	}
+	
+	public static boolean isMaintaining(){
+		block();
+		c.transmit("isMaintaining");
+		try {
+			return Boolean.valueOf(c.receive());
+		} catch (IOException e) {
+			Console.log(LogType.Error, "ProtocolHandler", //$NON-NLS-1$
+					"An unexpected exception occurred: " + e.getMessage()); //$NON-NLS-1$
+			e.printStackTrace();
+			return false;
+		} finally {
+			release();
+		}
+	}
 
 }

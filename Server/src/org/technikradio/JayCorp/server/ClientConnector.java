@@ -562,6 +562,10 @@ public class ClientConnector extends Thread {
 				out.flush();
 			}
 				break;
+			case "isMaintaining":
+				out.println(Boolean.toString(isDBUpdateRunning()));
+				out.flush();
+				break;
 			case "disconnect": //$NON-NLS-1$
 				try {
 					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
@@ -758,8 +762,7 @@ public class ClientConnector extends Thread {
 					for (int id = 1; id <= Data.getLatestID(); id++) {
 						User _user = Data.getUser(id);
 						if (_user != null /* && _user != Data.getUser("root") */) {
-							if(crt)
-								Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
+							Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
 							DayTable dtUser = _user.getSelectedDays();
 							DayTable dtUserNew = new DayTable();
 							try {
@@ -772,7 +775,7 @@ public class ClientConnector extends Thread {
 										case undefined:
 											if (dtUserNew.getDays().put(pdUser, Status.normal) != null)
 												if (crt)
-													Console.log(LogType.Error, this, "Invalid operation @updateDatabase() (Double save) " + pdUser.getMinimalDate());
+													Console.log(LogType.Error, this, "Invalid operation @updateDatabase() (Double save; setting to forbidden) " + pdUser.getMinimalDate());
 											changed++;
 											break;
 										case allowed:
@@ -783,7 +786,7 @@ public class ClientConnector extends Thread {
 												if (dtUserNew.getDays().put(pdUser, Status.allowed) != null)
 													if (crt)
 														Console.log(LogType.Error, this,
-																"Invalid operation @updateDatabase() (Double save) " + pdUser.getMinimalDate());
+																"Invalid operation @updateDatabase() (Double save; setting to allowed) " + pdUser.getMinimalDate());
 											} else
 												dtUserNew.getDays().put(pdUser, got);
 											break;

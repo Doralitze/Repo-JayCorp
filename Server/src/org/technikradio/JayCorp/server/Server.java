@@ -75,7 +75,7 @@ public class Server {
 					Console.log(LogType.StdOut, this, "Type 'help' to get a list of all aviable commands.");
 					s = new Scanner(System.in);
 					while (running == true && !commandThread.isInterrupted()) {
-						System.out.println("# ");
+						System.out.print("# ");
 						try {
 							String line = s.nextLine();
 							String command = line.split(" ")[0];
