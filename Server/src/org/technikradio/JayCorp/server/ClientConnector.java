@@ -434,6 +434,8 @@ public class ClientConnector extends Thread {
 				break;
 			case "save": //$NON-NLS-1$
 			{
+				if(crt)
+					Console.log(LogType.Information, this, "User '" + user.getUsername() + "' saved the database.");
 				final User root = Data.getUser("root");
 				if (user == root) {
 					if(needtoFixDB){
@@ -757,7 +759,7 @@ public class ClientConnector extends Thread {
 						User _user = Data.getUser(id);
 						if (_user != null /* && _user != Data.getUser("root") */) {
 							if(crt)
-							Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
+								Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
 							DayTable dtUser = _user.getSelectedDays();
 							DayTable dtUserNew = new DayTable();
 							try {
@@ -768,9 +770,9 @@ public class ClientConnector extends Thread {
 										switch (expected) {
 										case normal:
 										case undefined:
-											if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
+											if (dtUserNew.getDays().put(pdUser, Status.normal) != null)
 												if (crt)
-													Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+													Console.log(LogType.Error, this, "Invalid operation @updateDatabase() (Double save) " + pdUser.getMinimalDate());
 											changed++;
 											break;
 										case allowed:
@@ -778,10 +780,10 @@ public class ClientConnector extends Thread {
 										default:
 											if ((got == Status.normal) || (got == Status.undefined)) {
 												changed++;
-												if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+												if (dtUserNew.getDays().put(pdUser, Status.allowed) != null)
 													if (crt)
 														Console.log(LogType.Error, this,
-																"Invalid operation @updateDatabase()");
+																"Invalid operation @updateDatabase() (Double save) " + pdUser.getMinimalDate());
 											} else
 												dtUserNew.getDays().put(pdUser, got);
 											break;
