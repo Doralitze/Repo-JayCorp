@@ -564,7 +564,6 @@ public class ClientConnector extends Thread {
 				break;
 			case "isMaintaining":{
 				String x = Boolean.toString(isDBUpdateRunning());
-				System.out.println("Responded to mreq: " + x);
 				out.println(x);
 				out.flush();
 				break;}

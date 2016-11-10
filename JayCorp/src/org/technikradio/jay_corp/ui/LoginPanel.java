@@ -136,7 +136,7 @@ public class LoginPanel extends JPanel {
 				disableInputs();
 				if (username.getText() != "" //$NON-NLS-1$
 						&& new String(password.getPassword()) != "") //$NON-NLS-1$
-					if (Protocol.isMaintaining()) {
+					if (!Protocol.isMaintaining()) {
 						if (Protocol.isLoginFree(username.getText()))
 							if (Protocol.login(username.getText(), new String(password.getPassword())))
 								loadWorkspace();
