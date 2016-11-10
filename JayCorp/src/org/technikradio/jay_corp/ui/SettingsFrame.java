@@ -38,7 +38,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
@@ -319,7 +318,16 @@ public class SettingsFrame extends JDialog {
 				t.setName("UploadWaiterThread"); //$NON-NLS-1$
 				t.start();
 				mustSave = true;
+				Thread tm = new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+						updateUserTable();
+					}});
+				tm.start();
 			}
+
+			
 		});
 		{
 			JPanel cp = new JPanel();
@@ -358,6 +366,13 @@ public class SettingsFrame extends JDialog {
 					AddUserDialog a = new AddUserDialog(ownHandle);
 					a.setVisible(true);
 					mustSave = true;
+					Thread t = new Thread(new Runnable(){
+
+						@Override
+						public void run() {
+							updateUserTable();
+						}});
+					t.start();
 				}
 			});
 			// bp.add(Box.createRigidArea(new Dimension(15,15)));
@@ -464,18 +479,7 @@ public class SettingsFrame extends JDialog {
 					destroyDBButton.setEnabled(Protocol.getCurrentUser().getID() == 0);
 
 				}
-				try {
-					if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
-							&& Protocol.getCurrentUser().getRights().isEditUserAllowed()) {
-						dl.start();
-						openUserFrameButton.setEnabled(true);
-					}
-					Console.log(LogType.StdOut, Strings.getString("ErrorMessages.SettingsFrame.name"), //$NON-NLS-1$
-							"Successfully loaded the data"); //$NON-NLS-1$
-				} catch (Exception e) {
-					Console.log(LogType.Error, this, "An unknown exception occured while loading the data: "); //$NON-NLS-1$
-					e.printStackTrace();
-				}
+				updateUserTable();
 				ownHandle.setTitle(Strings.getString("SettingsFrame.Title")); //$NON-NLS-1$
 			}
 		});
@@ -648,5 +652,21 @@ public class SettingsFrame extends JDialog {
 		int x = mf.getLocation().x + ((mf.getWidth() / 2) - this.getWidth() / 2);
 		int y = mf.getLocation().y + ((mf.getHeight() / 2) - this.getHeight() / 2);
 		this.setLocation(x, y);
+	}
+	
+	private void updateUserTable() {
+		try {
+			openUserFrameButton.setEnabled(false);
+			if (Protocol.getCurrentUser().getRights().isListAllUsersAllowed()
+					&& Protocol.getCurrentUser().getRights().isEditUserAllowed()) {
+				dl.start();
+				openUserFrameButton.setEnabled(true);
+			}
+			Console.log(LogType.StdOut, Strings.getString("ErrorMessages.SettingsFrame.name"), //$NON-NLS-1$
+					"Successfully loaded the data"); //$NON-NLS-1$
+		} catch (Exception e) {
+			Console.log(LogType.Error, this, "An unknown exception occured while loading the data: "); //$NON-NLS-1$
+			e.printStackTrace();
+		}
 	}
 }

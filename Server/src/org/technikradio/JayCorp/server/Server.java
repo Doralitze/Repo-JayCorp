@@ -75,137 +75,163 @@ public class Server {
 					Console.log(LogType.StdOut, this, "Type 'help' to get a list of all aviable commands.");
 					s = new Scanner(System.in);
 					while (running == true && !commandThread.isInterrupted()) {
-						String line = s.nextLine();
-						String command = line.split(" ")[0];
-						switch (command) {
-						case "help":
-							Console.log(LogType.StdOut, this, "Here is a list of all commands:");
-							System.out.println("help		display this help page");
-							System.out.println("stop		shut the sever down");
-							System.out.println("list		displays the current number of logged in useres");
-							System.out.println("save		manually save the database");
-							System.out.println("addUser		this will open a dialoug to add a user");
-							System.out
-									.println("listUsers		this will list the registered users and their selections");
-							System.out.println("getDCDump   this will dump the default configuration");
-							System.out.println();
-							System.out.println("setEditEnabled <true | false>		This enables/disables the editing");
-							System.out.println(
-									"writeOnBroadcastChannel <message>       This wites <message> on to the broadcast channel");
-							System.out.println("getID <USER>                          This will return the USER's ID");
-							System.out.println(
-									"getDBDump <ID>                        This will dump the section of user ID");
-							System.out.println(
-									"getBackupDump <ID>                    This will dump the backup of user ID");
-							System.out.println(
-									"invalidate <ID>                       This will invalide the selections of ID... Danger!");
-							System.out.println();
-							break;
-						case "stop":
-							exit();
-							break;
-						case "list":
-							Console.log(LogType.StdOut, this,
-									"There are " + clients.size() + " users currently logged in.");
-							break;
-						case "save":
-							Data.save();
-							Console.log(LogType.Information, this, "Successfully saved database");
-							break;
-						case "addUser":
-							Menues.addUser();
-							break;
-						case "listUsers":
-							System.out.println("Amount of registered users: " + Data.getUserCount());
-							StringBuilder sb = new StringBuilder();
-							for (int id : Data.getAllIDs()) {
-								boolean run = false;
-								ParaDate start = null, end = null;
-								User u = Data.getUser(id);
-								DayTable dt = u.getSelectedDays();
-								sb.append(u.getID());
-								sb.append(' ');
-								sb.append(u.getWorkAge());
-								sb.append(' ');
-								sb.append(u.getName());
-								sb.append(' ');
-								sb.append(u.getUsername());
-								sb.append(" ::");
-								for (ParaDate pd : dt.getDays().keySet()) {
-									if (dt.getDays().get(pd) == Status.selected) {
-										if (!run) {
-											run = true;
-											start = pd;
+						System.out.println("# ");
+						try {
+							String line = s.nextLine();
+							String command = line.split(" ")[0];
+							switch (command) {
+							case "help":
+								Console.log(LogType.StdOut, this, "Here is a list of all commands:");
+								System.out.println("help		display this help page");
+								System.out.println("stop		shut the sever down");
+								System.out.println("list		displays the current number of logged in useres");
+								System.out.println("save		manually save the database");
+								System.out.println("addUser		this will open a dialoug to add a user");
+								System.out
+										.println("listUsers		this will list the registered users and their selections");
+								System.out.println("getDCDump   this will dump the default configuration");
+								System.out.println();
+								System.out.println("setEditEnabled <true | false>		This enables/disables the editing");
+								System.out.println(
+										"writeOnBroadcastChannel <message>       This wites <message> on to the broadcast channel");
+								System.out.println("getID <USER>                          This will return the USER's ID");
+								System.out.println(
+										"getDBDump <ID>                        This will dump the selection of user ID");
+								System.out.println(
+										"getclearDBDump <ID>                   This will dump the selections of user ID filtered by important dates.");
+								System.out.println(
+										"getBackupDump <ID>                    This will dump the backup of user ID");
+								System.out.println(
+										"invalidate <ID>                       This will invalide the selections of ID... Danger!");
+								System.out.println(
+										"isDBUpdateRunning					   This will print true if it is the case.");
+								System.out.println();
+								break;
+							case "stop":
+								exit();
+								break;
+							case "list":
+								Console.log(LogType.StdOut, this,
+										"There are " + clients.size() + " users currently logged in.");
+								break;
+							case "save":
+								Data.save();
+								Console.log(LogType.Information, this, "Successfully saved database");
+								break;
+							case "addUser":
+								Menues.addUser();
+								break;
+							case "listUsers":
+								System.out.println("Amount of registered users: " + Data.getUserCount());
+								StringBuilder sb = new StringBuilder();
+								for (int id : Data.getAllIDs()) {
+									boolean run = false;
+									ParaDate start = null, end = null;
+									User u = Data.getUser(id);
+									DayTable dt = u.getSelectedDays();
+									sb.append(u.getID());
+									sb.append(' ');
+									sb.append(u.getWorkAge());
+									sb.append(' ');
+									sb.append(u.getName());
+									sb.append(' ');
+									sb.append(u.getUsername());
+									sb.append(" ::");
+									for (ParaDate pd : dt.getDays().keySet()) {
+										if (dt.getDays().get(pd) == Status.selected) {
+											if (!run) {
+												run = true;
+												start = pd;
+											} else {
+												end = pd;
+											}
 										} else {
-											end = pd;
-										}
-									} else {
-										if (run) {
-											run = false;
-											if (!(end == null || start == null)) {
-												sb.append(' ');
-												sb.append(start.getMinimalDate());
-												sb.append(" - ");
-												sb.append(end.getMinimalDate());
-												sb.append(" || ");
+											if (run) {
+												run = false;
+												if (!(end == null || start == null)) {
+													sb.append(' ');
+													sb.append(start.getMinimalDate());
+													sb.append(" - ");
+													sb.append(end.getMinimalDate());
+													sb.append(" || ");
+												}
 											}
 										}
 									}
+									sb.append('\n');
 								}
-								sb.append('\n');
-							}
-							System.out.println(sb.toString());
-							break;
-						case "setEditEnabled":
-							Data.setEditEnabled(Boolean.valueOf(line.split(" ")[1]));
-							Console.log(LogType.StdOut, "CommandDeamon",
-									"Set EDIT_ENABLED_FLAG to " + line.split(" ")[1]);
-							MessageStream.throwOnBroadcastChannelAsync("reload");
-							break;
-						case "writeOnBroadcastChannel":
-							MessageStream.throwOnBroadcastChannel(line.split(" ")[1]);
-							break;
-						case "getID":
-							System.out.println(Data.getUser(line.split(" ")[1]).getID());
-							break;
-						case "getDBDump":
-							try {
-								DayTable dt = Data.getUser(Integer.parseInt(line.split(" ")[1])).getSelectedDays();
+								System.out.println(sb.toString());
+								break;
+							case "setEditEnabled":
+								Data.setEditEnabled(Boolean.valueOf(line.split(" ")[1]));
+								Console.log(LogType.StdOut, "CommandDeamon",
+										"Set EDIT_ENABLED_FLAG to " + line.split(" ")[1]);
+								MessageStream.throwOnBroadcastChannelAsync("reload");
+								break;
+							case "writeOnBroadcastChannel":
+								MessageStream.throwOnBroadcastChannel(line.split(" ")[1]);
+								break;
+							case "getID":
+								System.out.println(Data.getUser(line.split(" ")[1]).getID());
+								break;
+							case "getDBDump":
+								try {
+									DayTable dt = Data.getUser(Integer.parseInt(line.split(" ")[1])).getSelectedDays();
+									for (ParaDate pd : dt.getDays().keySet()) {
+										System.out.println(pd.toString() + ": " + dt.getDays().get(pd).toString());
+									}
+								} catch (NumberFormatException e) {
+									System.out.println(line.split(" ")[1] + " is not a number");
+								}
+								break;
+							case "getclearDBDump":
+								try {
+									DayTable dt = Data.getUser(Integer.parseInt(line.split(" ")[1])).getSelectedDays();
+									for (ParaDate pd : dt.getDays().keySet()) {
+										Status s = dt.getDays().get(pd);
+										if(s == Status.allowed || s == Status.selected)
+											System.out.println(pd.toString() + ": " + s.toString());
+									}
+								} catch (NumberFormatException e) {
+									System.out.println(line.split(" ")[1] + " is not a number");
+								}
+								break;
+							case "getDCDump": {
+								DayTable dt = Data.getDefaultConfiguration();
 								for (ParaDate pd : dt.getDays().keySet()) {
 									System.out.println(pd.toString() + ": " + dt.getDays().get(pd).toString());
 								}
-							} catch (NumberFormatException e) {
-								System.out.println(line.split(" ")[1] + " is not a number");
 							}
-							break;
-						case "getDCDump": {
-							DayTable dt = Data.getDefaultConfiguration();
-							for (ParaDate pd : dt.getDays().keySet()) {
-								System.out.println(pd.toString() + ": " + dt.getDays().get(pd).toString());
-							}
-						}
-							break;
-						case "getBackupDump":
-							try {
-								DayTable dt = Data.getUser(Integer.parseInt(line.split(" ")[1])).getBackup();
-								for (ParaDate pd : dt.getDays().keySet()) {
-									System.out.println(pd.toString() + ": " + dt.getDays().get(pd).toString());
+								break;
+							case "getBackupDump":
+								try {
+									DayTable dt = Data.getUser(Integer.parseInt(line.split(" ")[1])).getBackup();
+									for (ParaDate pd : dt.getDays().keySet()) {
+										System.out.println(pd.toString() + ": " + dt.getDays().get(pd).toString());
+									}
+								} catch (NumberFormatException e) {
+									System.out.println(line.split(" ")[1] + " is not a number");
 								}
-							} catch (NumberFormatException e) {
-								System.out.println(line.split(" ")[1] + " is not a number");
+								break;
+							case "invalidate":
+								try {
+									System.out.println("Are you shure? <y/n>");
+									if (Menues.getBoolInput(s))
+										Data.getUser(Integer.parseInt(line.split(" ")[1])).setSelectedDays(new DayTable());
+								} catch (NumberFormatException e) {
+									System.out.println(line.split(" ")[1] + " is not a number");
+								}
+								break;
+case "isDBUpdateRunning":
+								System.out.println(ClientConnector.isDBUpdateRunning());
+								break;
+							default:
+								Console.log(LogType.Error, this, "Unknown command: " + command);
 							}
-							break;
-						case "invalidate":
-							try {
-								System.out.println("Are you shure? <y/n>");
-								if (Menues.getBoolInput(s))
-									Data.getUser(Integer.parseInt(line.split(" ")[1])).setSelectedDays(new DayTable());
-							} catch (NumberFormatException e) {
-								System.out.println(line.split(" ")[1] + " is not a number");
-							}
-							break;
-						default:
-							Console.log(LogType.Error, this, "Unknown command: " + command);
+							
+						} catch (Exception e) {
+							Console.log(LogType.Warning, this, "An error occured inside the command:");
+							e.printStackTrace();
 						}
 					}
 					Console.log(LogType.Information, this, "stopping command deamon");

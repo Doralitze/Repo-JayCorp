@@ -28,8 +28,10 @@ public class UserWatchFrame extends JDialog {
 	private static final long serialVersionUID = -1553588773452490924L;
 	private JTable table;
 	private final UserWatchFrame ownHandle = this;
+	private String[][] originalData;
 
 	private void setup(String[] head, String[][] data) {
+		originalData = data.clone();
 		this.setLayout(new BorderLayout());
 		//Initialize table
 		{
@@ -51,7 +53,7 @@ public class UserWatchFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					//TODO make user edition possible
+					//TODO implement data synchronization
 					try {
 						ownHandle.dispose();
 					} catch (Exception e1) {

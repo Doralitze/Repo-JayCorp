@@ -42,6 +42,7 @@ public class ClientConnector extends Thread {
 	private static final int maxLoginAttemps = Integer.parseInt(Settings.getString("ClientConnector.maxLoginAttemps")); //$NON-NLS-1$
 	private static final ArrayList<User> loggedInUsers = new ArrayList<User>();
 	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
+	private static boolean isDBUpdateRunning = false;
 	private int loginAttemps = 0;
 	private long lastCall = System.currentTimeMillis() / 1000;
 	private boolean needtoFixDB = false;
@@ -735,59 +736,78 @@ public class ClientConnector extends Thread {
 
 			@Override
 			public void run() {
-				processDCWrite(root);
-				int changed = 0;
-				int total = 0;
-				DayTable dc = Data.getDefaultConfiguration();
-				for (int id = 1; id <= Data.getLatestID(); id++) {
-					User _user = Data.getUser(id);
-					if (_user != null /* && _user != Data.getUser("root") */) {
-						if(crt)
-						Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
-						DayTable dtUser = _user.getSelectedDays();
-						DayTable dtUserNew = new DayTable();
-						try {
-							for (ParaDate pdDC : dc.getDays().keySet()) {
-								try {
-									ParaDate pdUser = find(pdDC, dtUser);
-									Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
-									switch (expected) {
-									case normal:
-									case undefined:
-										if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
-											if (crt)
-												Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
-										changed++;
-										break;
-									case allowed:
-									case selected:
-									default:
-										if ((got == Status.normal) || (got == Status.undefined)) {
-											changed++;
-											if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
-												if (crt)
-													Console.log(LogType.Error, this,
-															"Invalid operation @updateDatabase()");
-										} else
-											dtUserNew.getDays().put(pdUser, got);
-										break;
-									}
-								} catch (NullPointerException e) {
-									Console.log(LogType.Error, this,
-											"Nullpointer in cleanup routine: " + e.getLocalizedMessage());
-								}
-							}
-						} catch (NullPointerException e) {
-							Console.log(LogType.Error, this, "Nullpointer on user " + _user.getName() + ": ");
-							e.printStackTrace();
-						}
-						_user.setSelectedDays(dtUserNew);
-						total++;
+				boolean printedWaitMessage = false;
+				while(isDBUpdateRunning()){
+					if(!printedWaitMessage){
+						printedWaitMessage = true;
+						Console.log(LogType.StdOut, this, "Another thread is currently updateing the database. Waiting for him to be finished...");
 					}
+					try {
+						Thread.sleep(5);
+					} catch (InterruptedException e) {}
 				}
-				Console.log(LogType.Information, this,
-						"Removed " + changed + " selected entries and " + total + " total checks");
-				Data.save();
+				Console.log(LogType.StdOut, this, "Going to update the database.");
+				try {
+					setDBUpdateRunning(true);
+					processDCWrite(root);
+					int changed = 0;
+					int total = 0;
+					DayTable dc = Data.getDefaultConfiguration();
+					for (int id = 1; id <= Data.getLatestID(); id++) {
+						User _user = Data.getUser(id);
+						if (_user != null /* && _user != Data.getUser("root") */) {
+							if(crt)
+							Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
+							DayTable dtUser = _user.getSelectedDays();
+							DayTable dtUserNew = new DayTable();
+							try {
+								for (ParaDate pdDC : dc.getDays().keySet()) {
+									try {
+										ParaDate pdUser = find(pdDC, dtUser);
+										Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
+										switch (expected) {
+										case normal:
+										case undefined:
+											if (dtUserNew.getDays().put(pdUser, Status.normal) == null)
+												if (crt)
+													Console.log(LogType.Error, this, "Invalid operation @updateDatabase()");
+											changed++;
+											break;
+										case allowed:
+										case selected:
+										default:
+											if ((got == Status.normal) || (got == Status.undefined)) {
+												changed++;
+												if (dtUserNew.getDays().put(pdUser, Status.allowed) == null)
+													if (crt)
+														Console.log(LogType.Error, this,
+																"Invalid operation @updateDatabase()");
+											} else
+												dtUserNew.getDays().put(pdUser, got);
+											break;
+										}
+									} catch (NullPointerException e) {
+										Console.log(LogType.Error, this,
+												"Nullpointer in cleanup routine: " + e.getLocalizedMessage());
+									}
+								}
+							} catch (NullPointerException e) {
+								Console.log(LogType.Error, this, "Nullpointer on user " + _user.getName() + ": ");
+								e.printStackTrace();
+							}
+							_user.setSelectedDays(dtUserNew);
+							total++;
+						}
+					}
+					Console.log(LogType.Information, this,
+							"Removed " + changed + " selected entries and " + total + " total checks");
+					Data.save();
+				} catch (Exception e) {
+					Console.log(LogType.Error, this, "Something went wrong doing the database update.");
+					e.printStackTrace();
+				} finally {
+					setDBUpdateRunning(false);
+				}
 			}
 		});
 		t.setName("DatabaseUpdateThread");
@@ -820,5 +840,19 @@ public class ClientConnector extends Thread {
 				Console.log(LogType.Error, this, "Invalid operation @processDCWrite()");
 		}
 		// System.out.println(dcp.size());
+	}
+
+	/**
+	 * @return the true if an updateDB command is running or otherwise false
+	 */
+	public static boolean isDBUpdateRunning() {
+		return isDBUpdateRunning;
+	}
+
+	/**
+	 * @param isDBUpdateRunning the isDBUpdateRunning to set
+	 */
+	public static void setDBUpdateRunning(boolean isDBUpdateRunning) {
+		ClientConnector.isDBUpdateRunning = isDBUpdateRunning;
 	}
 }
