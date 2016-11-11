@@ -28,8 +28,8 @@ import java.io.InputStreamReader;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.ui.RightEditFrame;
 import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.jay_corp.user.DayTable;
@@ -96,7 +96,7 @@ public class CSVImporter {
 						u.setSelectedDays(new DayTable());
 						u.setUsername(s[3]);
 						u.setWorkAge(1);
-						u.setID(Protocol.getIDCount() + 1);
+						u.setID(Protocol.getIDCount());
 						u.setRights(defaultRT);
 						Protocol.addUser(u);
 						Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
