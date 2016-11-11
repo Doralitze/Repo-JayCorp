@@ -32,6 +32,7 @@ import org.technikradio.universal_tools.Time;
 public class Initiator {
 
 	public static final Status defaultStatus = Status.normal;
+	public static final String DEFAULT_PASSWORD = "password";
 
 	public static DayTable getDefaultDayTable() {
 		DayTable dt = new DayTable();
@@ -429,11 +430,11 @@ public class Initiator {
 		r.setViewOtherSelectionsAllowed(true);
 		u.setID(0);
 		u.setName("root");
-		u.setPassword("password");
+		u.setPassword(DEFAULT_PASSWORD);
 		u.setUsername("root");
 		u.setWorkAge(-1);
 		Console.log(LogType.Warning, "Database",
-				"Created superuser 'root' with password 'password'.");
+				"Created superuser 'root' with password '" + DEFAULT_PASSWORD + "'.");
 		Console.log(LogType.Warning, "Database",
 				"Please change the root password soon!");
 		return u;

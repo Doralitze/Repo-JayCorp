@@ -25,6 +25,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.technikradio.jay_corp.user.DayTable;
 import org.technikradio.jay_corp.user.DayTable.Status;
@@ -265,26 +266,18 @@ public class ClientConnector extends Thread {
 				}
 				um.getSelectedDays().getDays().put(pd, s);
 
-				/*if (user.getID() == Data.getUser("root").getID()) {
-					// Update dc
-					Status ss = Status.normal;
-					switch (s) {
-					case undefined:
-					case normal:
-						// Should never happen
-						Console.log(LogType.Error, this, "Root has normal state @setDay::updateDC");
-						needtoFixDB = true;
-					case allowed:
-						ss = Status.normal;
-						break;
-					case selected:
-						ss = Status.allowed;
-						break;
-					}
-
-					Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
-					Data.getDefaultConfiguration().getDays().put(pd, ss);
-				}*/
+				/*
+				 * if (user.getID() == Data.getUser("root").getID()) { // Update
+				 * dc Status ss = Status.normal; switch (s) { case undefined:
+				 * case normal: // Should never happen
+				 * Console.log(LogType.Error, this,
+				 * "Root has normal state @setDay::updateDC"); needtoFixDB =
+				 * true; case allowed: ss = Status.normal; break; case selected:
+				 * ss = Status.allowed; break; }
+				 * 
+				 * Data.getDefaultConfiguration().getDays().remove(getCompared(
+				 * pd)); Data.getDefaultConfiguration().getDays().put(pd, ss); }
+				 */
 
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
@@ -434,14 +427,14 @@ public class ClientConnector extends Thread {
 				break;
 			case "save": //$NON-NLS-1$
 			{
-				if(crt)
+				if (crt)
 					Console.log(LogType.Information, this, "User '" + user.getUsername() + "' saved the database.");
 				final User root = Data.getUser("root");
 				if (user == root) {
-					if(needtoFixDB){
+					if (needtoFixDB) {
 						fixRootDB();
 					}
-					//processDCWrite();
+					// processDCWrite();
 					updateDatabase(root);
 				} else {
 					Data.save();
@@ -525,7 +518,7 @@ public class ClientConnector extends Thread {
 			case "setRange": {
 				String[] m = request[1].split(";");
 				for (String b : m) {
-					if(b.length() < 3)
+					if (b.length() < 3)
 						break;
 					String[] sr = b.split("=");
 					pd = ParaDate.valueOf(sr[0]);
@@ -537,36 +530,30 @@ public class ClientConnector extends Thread {
 						// probably not
 					}
 					user.getSelectedDays().getDays().put(pd, s);
-					/*if (user.getID() == Data.getUser("root").getID()) {
-						// Update dc
-						Status ss = Status.normal;
-						switch (s) {
-						case undefined:
-						case normal:
-							// Should never happen
-							Console.log(LogType.Error, this, "Root has normal state @setRange::updateDC");
-							needtoFixDB = true;
-						case allowed:
-							ss = Status.normal;
-							break;
-						case selected:
-							ss = Status.allowed;
-							break;
-						}
-
-						Data.getDefaultConfiguration().getDays().remove(getCompared(pd));
-						Data.getDefaultConfiguration().getDays().put(pd, ss);
-					}*/
+					/*
+					 * if (user.getID() == Data.getUser("root").getID()) { //
+					 * Update dc Status ss = Status.normal; switch (s) { case
+					 * undefined: case normal: // Should never happen
+					 * Console.log(LogType.Error, this,
+					 * "Root has normal state @setRange::updateDC"); needtoFixDB
+					 * = true; case allowed: ss = Status.normal; break; case
+					 * selected: ss = Status.allowed; break; }
+					 * 
+					 * Data.getDefaultConfiguration().getDays().remove(
+					 * getCompared(pd));
+					 * Data.getDefaultConfiguration().getDays().put(pd, ss); }
+					 */
 				}
 				out.println("true");
 				out.flush();
 			}
 				break;
-			case "isMaintaining":{
+			case "isMaintaining": {
 				String x = Boolean.toString(isDBUpdateRunning());
 				out.println(x);
 				out.flush();
-				break;}
+				break;
+			}
 			case "disconnect": //$NON-NLS-1$
 				try {
 					Console.log(LogType.StdOut, this, "User '" + user.getUsername() + "' diconnected");
@@ -591,15 +578,15 @@ public class ClientConnector extends Thread {
 	}
 
 	private void fixRootDB() {
-		//fix root's database if broken
+		// fix root's database if broken
 		User root = Data.getUser("root");
 		Hashtable<ParaDate, Status> rootDays = root.getSelectedDays().getDays();
 		Enumeration<ParaDate> er = rootDays.keys();
-		while(er.hasMoreElements()){
+		while (er.hasMoreElements()) {
 			ParaDate pda = er.nextElement();
-			if(pda != null){
+			if (pda != null) {
 				Status pdas = rootDays.get(pda);
-				switch(pdas){
+				switch (pdas) {
 				case allowed:
 				case selected:
 					rootDays.remove(pda);
@@ -611,7 +598,7 @@ public class ClientConnector extends Thread {
 					rootDays.remove(pda);
 					rootDays.put(pda, Status.allowed);
 					break;
-				
+
 				}
 			}
 		}
@@ -733,9 +720,16 @@ public class ClientConnector extends Thread {
 		return found;
 	}
 
+	private class Container {
+		int changed = 0;
+		int total = 0;
+	}
+
 	/**
 	 * This medthod updates all dates from non root users
-	 * @param root The root user
+	 * 
+	 * @param root
+	 *            The root user
 	 */
 	private void updateDatabase(final User root) {
 
@@ -744,69 +738,127 @@ public class ClientConnector extends Thread {
 			@Override
 			public void run() {
 				boolean printedWaitMessage = false;
-				while(isDBUpdateRunning()){
-					if(!printedWaitMessage){
+				while (isDBUpdateRunning()) {
+					if (!printedWaitMessage) {
 						printedWaitMessage = true;
-						Console.log(LogType.StdOut, this, "Another thread is currently updateing the database. Waiting for him to be finished...");
+						Console.log(LogType.StdOut, this,
+								"Another thread is currently updateing the database. Waiting for him to be finished...");
 					}
 					try {
 						Thread.sleep(5);
-					} catch (InterruptedException e) {}
+					} catch (InterruptedException e) {
+					}
 				}
 				Console.log(LogType.StdOut, this, "Going to update the database.");
 				try {
 					setDBUpdateRunning(true);
 					processDCWrite(root);
-					int changed = 0;
-					int total = 0;
-					DayTable dc = Data.getDefaultConfiguration();
-					for (int id = 1; id <= Data.getLatestID(); id++) {
-						User _user = Data.getUser(id);
-						if (_user != null /* && _user != Data.getUser("root") */) {
-							Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: " + Integer.toString(_user.getID()) + " " + _user.getUsername());
-							DayTable dtUser = _user.getSelectedDays();
-							DayTable dtUserNew = new DayTable();
-							try {
-								for (ParaDate pdDC : dc.getDays().keySet()) {
-									try {
-										ParaDate pdUser = find(pdDC, dtUser);
-										Status expected = dc.getDays().get(pdDC), got = dtUser.getDays().get(pdUser);
-										switch (expected) {
-										case normal:
-										case undefined:
-											if (dtUserNew.getDays().put(pdUser, Status.normal) != null)
-												if (crt)
-													Console.log(LogType.Error, this, "Invalid operation @updateDatabase() (Double save; setting to forbidden) " + pdUser.getMinimalDate());
-											changed++;
-											break;
-										case allowed:
-										case selected:
-										default:
-											if ((got == Status.normal) || (got == Status.undefined)) {
-												changed++;
-												if (dtUserNew.getDays().put(pdUser, Status.allowed) != null)
-													if (crt)
-														Console.log(LogType.Error, this,
-																"Invalid operation @updateDatabase() (Double save; setting to allowed) " + pdUser.getMinimalDate());
-											} else
-												dtUserNew.getDays().put(pdUser, got);
-											break;
-										}
-									} catch (NullPointerException e) {
-										Console.log(LogType.Error, this,
-												"Nullpointer in cleanup routine: " + e.getLocalizedMessage());
-									}
-								}
-							} catch (NullPointerException e) {
-								Console.log(LogType.Error, this, "Nullpointer on user " + _user.getName() + ": ");
-								e.printStackTrace();
+					final Container c = new Container();
+					final DayTable dc = Data.getDefaultConfiguration();
+					final Iterator<User> users;
+					{
+						ArrayList<User> list = new ArrayList<User>();
+						for (int id = 1; id <= Data.getLatestID(); id++) {
+							User _user = Data.getUser(id);
+							if (_user != null) {
+								list.add(_user);
 							}
-							_user.setSelectedDays(dtUserNew);
-							total++;
+						}
+						users = list.iterator();
+					}
+
+					Runnable r = new Runnable() {
+
+						@Override
+						public void run() {
+							while (users.hasNext()) {
+								User _user = users.next();
+								if (_user == null)
+									break;
+								try {
+									Console.log(LogType.Information, "DatabaseUpdater", "Adopting days of user: "
+											+ Integer.toString(_user.getID()) + " " + _user.getUsername());
+									if (!_user.getPassword().equals(Initiator.DEFAULT_PASSWORD)) {
+										DayTable dtUser = _user.getSelectedDays();
+										DayTable dtUserNew = new DayTable();
+										try {
+											for (ParaDate pdDC : dc.getDays().keySet()) {
+												try {
+													ParaDate pdUser = find(pdDC, dtUser);
+													Status expected = dc.getDays().get(pdDC),
+															got = dtUser.getDays().get(pdUser);
+													switch (expected) {
+													case normal:
+													case undefined:
+														if (dtUserNew.getDays().put(pdUser, Status.normal) != null)
+															if (crt)
+																Console.log(LogType.Error, this,
+																		"Invalid operation @updateDatabase() (Double save; setting to forbidden) "
+																				+ pdUser.getMinimalDate());
+														c.changed++;
+														break;
+													case allowed:
+													case selected:
+													default:
+														if ((got == Status.normal) || (got == Status.undefined)) {
+															c.changed++;
+															if (dtUserNew.getDays().put(pdUser, Status.allowed) != null)
+																if (crt)
+																	Console.log(LogType.Error, this,
+																			"Invalid operation @updateDatabase() (Double save; setting to allowed) "
+																					+ pdUser.getMinimalDate());
+														} else
+															dtUserNew.getDays().put(pdUser, got);
+														break;
+													}
+												} catch (NullPointerException e) {
+													Console.log(LogType.Error, this, "Nullpointer in cleanup routine: "
+															+ e.getLocalizedMessage());
+												}
+											}
+										} catch (NullPointerException e) {
+											Console.log(LogType.Error, this,
+													"Nullpointer on user " + _user.getName() + ": ");
+											e.printStackTrace();
+										}
+										_user.setSelectedDays(dtUserNew);
+									} else {
+										_user.setSelectedDays(dc.clone());
+									}
+									c.total++;
+								} catch (Exception e) {
+									Console.log(LogType.Error, this, "Exception on user " + _user.getName() + ": ");
+									e.printStackTrace();
+								}
+							}
+							Console.log(LogType.StdOut, this, "Worker thread finished its work.");
+						}
+					};
+
+					final int cores = Runtime.getRuntime().availableProcessors();
+					Thread[] threads = new Thread[cores];
+					for (int i = 0; i < cores; i++) {
+						threads[i] = new Thread(r);
+						threads[i].setName("DBUPDATE_THREAD[" + Integer.toHexString(i) + "]");
+						threads[i].setPriority(Thread.MAX_PRIORITY);
+					}
+					Console.log(LogType.StdOut, this, "Spawning " + cores + " threads for computing.");
+					for (int i = 0; i < cores; i++) {
+						threads[i].start();
+					}
+					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+
+					boolean done = false;
+					while (!done) {
+						Thread.sleep(5);
+						done = true;
+						for (int i = 0; i < cores; i++) {
+							if (threads[i].isAlive())
+								done = false;
 						}
 					}
 					Console.log(LogType.Information, this,
-							"Removed " + changed + " selected entries and " + total + " total checks");
+							"Removed " + c.changed + " selected entries and " + c.total + " total checks");
 					Data.save();
 				} catch (Exception e) {
 					Console.log(LogType.Error, this, "Something went wrong doing the database update.");
@@ -817,7 +869,6 @@ public class ClientConnector extends Thread {
 			}
 		});
 		t.setName("DatabaseUpdateThread");
-		t.setPriority(9);
 		t.start();
 		Console.log(LogType.StdOut, this, "root saved allowed days");
 	}
@@ -856,7 +907,8 @@ public class ClientConnector extends Thread {
 	}
 
 	/**
-	 * @param isDBUpdateRunning the isDBUpdateRunning to set
+	 * @param isDBUpdateRunning
+	 *            the isDBUpdateRunning to set
 	 */
 	public static void setDBUpdateRunning(boolean isDBUpdateRunning) {
 		ClientConnector.isDBUpdateRunning = isDBUpdateRunning;
