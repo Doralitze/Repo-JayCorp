@@ -36,10 +36,12 @@ public class Data {
 	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
 
 	private static ArrayList<User> users;
-	private static Hashtable<User, MetaSheet> meta;
+	private static ArrayList<MetaSheet> meta;
 	private static DayTable defaultConfiguration;
 	private static boolean editEnabled;
 	private static File file;
+	
+	private static boolean isCurrentlySaving = false;
 
 	@XmlRootElement(name = "database")
 	private static class Loader {
@@ -51,7 +53,7 @@ public class Data {
 		// @XmlElementWrapper(name = "users", required = true)
 		// @XmlElement(required = true)
 		private ArrayList<User> user;
-		private Hashtable<User, MetaSheet> meta;
+		private ArrayList<MetaSheet> meta;
 
 		public ArrayList<User> getUsers() {
 			return user;
@@ -89,41 +91,73 @@ public class Data {
 			this.lastVersion = lastVersion;
 		}
 
-		public Hashtable<User, MetaSheet> getMeta() {
+		public ArrayList<MetaSheet> getMeta() {
 			return meta;
 		}
 
-		public void setMeta(Hashtable<User, MetaSheet> meta) {
+		public void setMeta(ArrayList<MetaSheet> meta) {
 			this.meta = meta;
 		}
 	}
-
+	
 	@XmlRootElement(name = "database")
 	private static class OldLoader {
 
 		// @XmlElement(required = true, name = "defaultConfiguration")
 		private DayTable dc;
 		private boolean editEnabled;
-		@SuppressWarnings("unused")
 		private String lastVersion;
 		// @XmlElementWrapper(name = "users", required = true)
 		// @XmlElement(required = true)
 		private ArrayList<User> user;
+		private Hashtable<Integer, MetaSheet> meta;
 
 		public ArrayList<User> getUsers() {
 			return user;
+		}
+
+		public void setUsers(ArrayList<User> users) {
+			this.user = users;
+		}
+
+		public OldLoader() {
+			user = new ArrayList<User>();
 		}
 
 		public DayTable getDefaultConfiguration() {
 			return dc;
 		}
 
+		public void setDefaultConfiguration(DayTable defaultConfiguration) {
+			this.dc = defaultConfiguration;
+		}
+
 		public boolean isEditEnabled() {
 			return editEnabled;
 		}
 
+		public void setEditEnabled(boolean editEnabled) {
+			this.editEnabled = editEnabled;
+		}
+
+		public String getLastVersion() {
+			return lastVersion;
+		}
+
+		public void setLastVersion(String lastVersion) {
+			this.lastVersion = lastVersion;
+		}
+
+		public Hashtable<Integer, MetaSheet> getMeta() {
+			return meta;
+		}
+
+		public void setMeta(Hashtable<Integer, MetaSheet> meta) {
+			this.meta = meta;
+		}
 	}
 
+	
 	public static DayTable getDefaultConfiguration() {
 		return defaultConfiguration;
 	}
@@ -141,7 +175,10 @@ public class Data {
 	}
 
 	public static boolean save() {
+		if(isCurrentlySaving)
+			return true;
 		try {
+			isCurrentlySaving = true;
 			Loader pl = new Loader();
 			pl.setUsers(users);
 			pl.setEditEnabled(editEnabled);
@@ -152,6 +189,8 @@ public class Data {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
+		} finally {
+			isCurrentlySaving = false;
 		}
 		return true;
 	}
@@ -227,7 +266,7 @@ public class Data {
 		}
 		return a;
 	}
-
+	
 	public static final void loadDataFile(String file) {
 		users = new ArrayList<User>();
 		defaultConfiguration = new DayTable();
@@ -260,25 +299,23 @@ public class Data {
 				meta = pl.getMeta();
 			} else {
 				Console.log(LogType.StdOut, "Database", "Importing depreached database");
-				loadOldDataFile(file);
+				loadOldDataFile();
 			}
 		}
 		checkDatabase();
 	}
 
-	public static final void loadOldDataFile(String file) {
-		users = new ArrayList<User>();
-		defaultConfiguration = new DayTable();
-		File f = new File(file);
-		Data.file = f;
-		OldLoader pl = JAXB.unmarshal(f, OldLoader.class);
+	public static final void loadOldDataFile() {
+		OldLoader pl = JAXB.unmarshal(Data.file, OldLoader.class);
 		if (pl == null) {
 
 		} else {
-			users = pl.getUsers();
-			editEnabled = pl.isEditEnabled();
-			defaultConfiguration = pl.getDefaultConfiguration();
+				users = pl.getUsers();
+				editEnabled = pl.isEditEnabled();
+				defaultConfiguration = pl.getDefaultConfiguration();
+				meta = new ArrayList<MetaSheet>();
 		}
+		checkDatabase();
 	}
 
 	public static final void destroyDatabase() {
@@ -309,54 +346,62 @@ public class Data {
 	}
 
 	public static void checkDatabase() {
-		return;
-		/*if (crt)
-			Console.log(LogType.StdOut, "Database", "Checking database for corrupted data");
-		boolean ok = true;
 		if (meta == null) {
-			meta = new Hashtable<User, MetaSheet>();
+			meta = new ArrayList<MetaSheet>();
 		}
+		boolean ok = true;
 		for (User u : users) {
-			if (!meta.contains(u))
-				ok = false;
-			else {
-				MetaSheet s = meta.get(u);
-				if (s.getAssoziatedUser() != u.getID())
+			try {
+				if (meta.get(u.getID()) == null)
 					ok = false;
+				else {
+					MetaSheet s = meta.get(u.getID());
+					if (s.getAssoziatedUser() != u.getID())
+						ok = false;
+				}
+			} catch (Exception e) {
+				ok = false;
 			}
 		}
 		postInit();
 		if (!ok)
-			repairDatabase();*/
+			repairDatabase();
 	}
 
-	@SuppressWarnings("unused")
 	private static void repairDatabase() {
 		if (crt)
 			Console.log(LogType.Warning, "Database",
 					"Some corrupted data was found. The system now trys to correct it.");
 		for (User u : users) {
-			if (!meta.containsKey(u)) {
+			try {
+				MetaSheet ms = meta.get(u.getID());
+				if (ms == null) {
+					if (crt)
+						Console.log(LogType.Information, "Database", "Adding missing meta data for user " + u.getName());
+					MetaSheet s = new MetaSheet(u.getID());
+					MetaReg.setDefaultMetaData(s);
+					meta.add(u.getID(), s);
+				} else {
+					if (crt)
+						Console.log(LogType.Information, "Database", "Rerouting incorrect placed data of " + u.getName());
+					if (u.getID() != ms.getAssoziatedUser()) {
+						meta.remove(ms);
+						meta.add(getUser(ms.getAssoziatedUser()).getID(), ms);
+					}
+				}
+			} catch (NullPointerException e) {
 				if (crt)
 					Console.log(LogType.Information, "Database", "Adding missing meta data for user " + u.getName());
 				MetaSheet s = new MetaSheet(u.getID());
 				MetaReg.setDefaultMetaData(s);
-				meta.put(u, s);
-			} else {
-				if (crt)
-					Console.log(LogType.Information, "Database", "Rerouting incorrect placed data of " + u.getName());
-				MetaSheet s = meta.get(u);
-				if (u.getID() != s.getAssoziatedUser()) {
-					meta.remove(u);
-					meta.put(getUser(s.getAssoziatedUser()), s);
-				}
+				meta.add(u.getID(), s);
 			}
 		}
 	}
 
 	public static int setEntry(User target, String key, String value) {
 		int success = 0;
-		MetaSheet s = meta.get(target);
+		MetaSheet s = meta.get(target.getID());
 		if (s != null) {
 			success++;
 			if (s.setValue(key, value))
@@ -366,7 +411,7 @@ public class Data {
 	}
 
 	public static String getEntry(User target, String key) {
-		MetaSheet s = meta.get(target);
+		MetaSheet s = meta.get(target.getID());
 		if (s == null)
 			return "";
 		return s.getValue(key);
