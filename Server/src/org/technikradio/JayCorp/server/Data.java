@@ -40,7 +40,7 @@ public class Data {
 	private static DayTable defaultConfiguration;
 	private static boolean editEnabled;
 	private static File file;
-	
+
 	private static boolean isCurrentlySaving = false;
 
 	@XmlRootElement(name = "database")
@@ -99,7 +99,7 @@ public class Data {
 			this.meta = meta;
 		}
 	}
-	
+
 	@XmlRootElement(name = "database")
 	private static class OldLoader {
 
@@ -157,7 +157,6 @@ public class Data {
 		}
 	}
 
-	
 	public static DayTable getDefaultConfiguration() {
 		return defaultConfiguration;
 	}
@@ -175,7 +174,7 @@ public class Data {
 	}
 
 	public static boolean save() {
-		if(isCurrentlySaving)
+		if (isCurrentlySaving)
 			return true;
 		try {
 			isCurrentlySaving = true;
@@ -246,7 +245,7 @@ public class Data {
 			e.printStackTrace();
 			return false;
 		} finally {
-			//checkDatabase();
+			// checkDatabase();
 		}
 	}
 
@@ -269,7 +268,7 @@ public class Data {
 		}
 		return a;
 	}
-	
+
 	public static final void loadDataFile(String file) {
 		users = new ArrayList<User>();
 		defaultConfiguration = new DayTable();
@@ -313,10 +312,10 @@ public class Data {
 		if (pl == null) {
 
 		} else {
-				users = pl.getUsers();
-				editEnabled = pl.isEditEnabled();
-				defaultConfiguration = pl.getDefaultConfiguration();
-				meta = new ArrayList<MetaSheet>();
+			users = pl.getUsers();
+			editEnabled = pl.isEditEnabled();
+			defaultConfiguration = pl.getDefaultConfiguration();
+			meta = new ArrayList<MetaSheet>();
 		}
 		checkDatabase();
 	}
@@ -349,6 +348,7 @@ public class Data {
 	}
 
 	public static void checkDatabase() {
+		Console.log(LogType.Warning, "Database", "Checking database.");
 		if (meta == null) {
 			meta = new ArrayList<MetaSheet>();
 		}
@@ -380,19 +380,21 @@ public class Data {
 				MetaSheet ms = meta.get(u.getID());
 				if (ms == null) {
 					if (crt)
-						Console.log(LogType.Information, "Database", "Adding missing meta data for user " + u.getName());
+						Console.log(LogType.Information, "Database",
+								"Adding missing meta data for user " + u.getName());
 					MetaSheet s = new MetaSheet(u.getID());
 					MetaReg.setDefaultMetaData(s);
 					meta.add(u.getID(), s);
 				} else {
 					if (crt)
-						Console.log(LogType.Information, "Database", "Rerouting incorrect placed data of " + u.getName());
+						Console.log(LogType.Information, "Database",
+								"Rerouting incorrect placed data of " + u.getName());
 					if (u.getID() != ms.getAssoziatedUser()) {
 						meta.remove(ms);
 						meta.add(getUser(ms.getAssoziatedUser()).getID(), ms);
 					}
 				}
-			} catch (NullPointerException e) {
+			} catch (IndexOutOfBoundsException e) {
 				if (crt)
 					Console.log(LogType.Information, "Database", "Adding missing meta data for user " + u.getName());
 				MetaSheet s = new MetaSheet(u.getID());
@@ -404,17 +406,26 @@ public class Data {
 
 	public static int setEntry(User target, String key, String value) {
 		int success = 0;
-		MetaSheet s = meta.get(target.getID());
+		MetaSheet s = null;
+		try {
+			s = meta.get(target.getID());
+		} catch (IndexOutOfBoundsException e) {
+		}
 		if (s != null) {
 			success++;
 			if (s.setValue(key, value))
 				success++;
+		} else {
+			checkDatabase();
 		}
 		return success;
 	}
 
 	public static String getEntry(User target, String key) {
-		MetaSheet s = meta.get(target.getID());
+		MetaSheet s = null;
+		try {
+			s = meta.get(target.getID());
+		} catch (IndexOutOfBoundsException e) {}
 		if (s == null)
 			return "";
 		return s.getValue(key);
