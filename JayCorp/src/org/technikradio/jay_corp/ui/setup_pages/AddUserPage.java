@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.ui.AdvancedPage;
 import org.technikradio.jay_corp.ui.ProcessStartNotifier;
 import org.technikradio.jay_corp.ui.SetupNotifier;
@@ -114,7 +115,8 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 		Console.log(LogType.StdOut, this, "resuming process of transmitting data"); //$NON-NLS-1$
 		Protocol.setEditEnableOnServer(false);
 		Protocol.setEditEnabled(false);
-		Protocol.save();
+		if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
+			Protocol.save();
 	}
 
 	@Override

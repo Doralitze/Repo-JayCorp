@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 
 import org.technikradio.jay_corp.ProgressChangedNotifier;
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.ui.AdvancedPage;
 import org.technikradio.jay_corp.ui.Calendar;
 import org.technikradio.jay_corp.ui.MainFrame;
@@ -115,7 +116,8 @@ public class SelectedDaysDialog extends JPanel implements SetupNotifier, Process
 				progress = 1 + current;
 			}
 		}, false);
-		Protocol.save();
+		if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
+			Protocol.save();
 	}
 
 	@Override

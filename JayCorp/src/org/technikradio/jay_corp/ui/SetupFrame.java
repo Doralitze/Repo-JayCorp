@@ -121,7 +121,7 @@ public class SetupFrame extends JDialog {
 					for (ProcessStartNotifier p : psns) {
 						p.startTransmission();
 					}
-					// Protocol.save();
+					Protocol.save();
 					t.interrupt();
 					done = true;
 				}

@@ -38,6 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 import org.technikradio.jay_corp.Protocol;
+import org.technikradio.jay_corp.Settings;
 import org.technikradio.jay_corp.ui.RightEditFrame;
 import org.technikradio.jay_corp.ui.Strings;
 import org.technikradio.jay_corp.user.DayTable;
@@ -289,7 +290,8 @@ public class AddUserDialog extends JDialog {
 							u.setID(Protocol.getIDCount() + 1);
 							u.setRights(rights);
 							Protocol.addUser(u);
-							Protocol.save();
+							if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
+								Protocol.save();
 							ownHandle.setVisible(false);
 						}
 					});

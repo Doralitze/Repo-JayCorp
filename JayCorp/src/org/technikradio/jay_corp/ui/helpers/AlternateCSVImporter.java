@@ -128,7 +128,8 @@ public class AlternateCSVImporter {
 				}
 				i++;
 			}
-			Protocol.save();
+			if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
+				Protocol.save();
 		} catch (FileNotFoundException e) {
 			Console.log(LogType.Error, this, "The provided file wasn´t found:"); //$NON-NLS-1$
 			e.printStackTrace();
