@@ -106,20 +106,19 @@ public class Data {
 		// @XmlElement(required = true, name = "defaultConfiguration")
 		private DayTable dc;
 		private boolean editEnabled;
+		@SuppressWarnings("unused")
 		private String lastVersion;
 		// @XmlElementWrapper(name = "users", required = true)
 		// @XmlElement(required = true)
 		private ArrayList<User> user;
+		@SuppressWarnings("unused")
 		private Hashtable<Integer, MetaSheet> meta;
 
 		public ArrayList<User> getUsers() {
 			return user;
 		}
 
-		public void setUsers(ArrayList<User> users) {
-			this.user = users;
-		}
-
+		@SuppressWarnings("unused")
 		public OldLoader() {
 			user = new ArrayList<User>();
 		}
@@ -127,33 +126,9 @@ public class Data {
 		public DayTable getDefaultConfiguration() {
 			return dc;
 		}
-
-		public void setDefaultConfiguration(DayTable defaultConfiguration) {
-			this.dc = defaultConfiguration;
-		}
-
+		
 		public boolean isEditEnabled() {
 			return editEnabled;
-		}
-
-		public void setEditEnabled(boolean editEnabled) {
-			this.editEnabled = editEnabled;
-		}
-
-		public String getLastVersion() {
-			return lastVersion;
-		}
-
-		public void setLastVersion(String lastVersion) {
-			this.lastVersion = lastVersion;
-		}
-
-		public Hashtable<Integer, MetaSheet> getMeta() {
-			return meta;
-		}
-
-		public void setMeta(Hashtable<Integer, MetaSheet> meta) {
-			this.meta = meta;
 		}
 	}
 
@@ -238,7 +213,7 @@ public class Data {
 				u.setID(getLatestID() + 1);
 			MetaSheet ms = new MetaSheet();
 			ms.setAssoziatedUser(u.getID());
-			meta.add(u.getID(), ms);
+			meta.add(ms);
 			return users.add(u);
 		} catch (Exception e) {
 			Console.log(LogType.Error, "Database", "An unexpected error occured:");

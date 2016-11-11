@@ -20,6 +20,8 @@ package org.technikradio.jay_corp;
 import java.io.File;
 import java.net.URISyntaxException;
 
+import javax.swing.JOptionPane;
+
 public class Application {
 
 	private static final String APP_PATH;
@@ -68,6 +70,24 @@ public class Application {
 
 	public static String getAppInstallPath() {
 		return APP_PATH;
+	}
+
+	public static void crash(Throwable e) {
+		try{
+			JOptionPane.showMessageDialog(null, "An unknown error occured.",
+					e.getLocalizedMessage() + "\n\n" + getStrackString(e), JOptionPane.ERROR_MESSAGE);
+		} catch(Exception e1) {
+			
+		}
+	}
+
+	private static String getStrackString(Throwable e) {
+		StringBuilder sb = new StringBuilder();
+		StackTraceElement[] elements = e.getStackTrace();
+		for(int i = 0; i < elements.length; i++){
+			sb.append(elements[i].toString());
+		}
+		return sb.toString();
 	}
 
 }

@@ -19,6 +19,7 @@ package org.technikradio.jay_corp.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,6 +30,7 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.technikradio.jay_corp.Application;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
@@ -65,13 +67,24 @@ public class SlideMenuContainer extends JComponent {
 		abortButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sml.abort();
+				try {
+					sml.abort();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					Application.crash(e1);
+					
+				}
 			}
 		});
 		backButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sml.goBack();
+				try {
+					sml.goBack();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					Application.crash(e1);
+				}
 			}
 		});
 		nextButton.addActionListener(new ActionListener() {
@@ -80,17 +93,24 @@ public class SlideMenuContainer extends JComponent {
 				// if
 				// (!(panels.get(index).getClass().isAnnotationPresent(AdvancedPage.class)))
 				// {
-				if (panels.get(index) instanceof SetupNotifier) {
-					SetupNotifier s = (SetupNotifier) panels.get(index);
-					if (s.canGoForward())
+				try {
+					if (panels.get(index) instanceof SetupNotifier) {
+						SetupNotifier s = (SetupNotifier) panels.get(index);
+						if (s.canGoForward())
+							sml.goForeward();
+						else
+							JOptionPane.showMessageDialog(null, "Die aktuelle Seite ist noch nicht ausgefüllt.",
+									"Sie sind noch nicht fertig..." + toString(), JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						Console.log(LogType.Warning, this,
+								"Current panel [" + index + "] is not annotated with the @AdvancedPage annotation!");
 						sml.goForeward();
-					else
-						JOptionPane.showMessageDialog(null, "Die aktuelle Seite ist noch nicht ausgefüllt.",
-								"Sie sind noch nicht fertig..." + toString(), JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					Console.log(LogType.Warning, this,
-							"Current panel [" + index + "] is not annotated with the @AdvancedPage annotation!");
-					sml.goForeward();
+					}
+				} catch(HeadlessException e1){
+					e1.printStackTrace();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					Application.crash(e1);
 				}
 			}
 		});
