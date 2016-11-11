@@ -237,13 +237,16 @@ public class Data {
 		try {
 			if (u.getID() == 0)
 				u.setID(getLatestID() + 1);
+			MetaSheet ms = new MetaSheet();
+			ms.setAssoziatedUser(u.getID());
+			meta.add(u.getID(), ms);
 			return users.add(u);
 		} catch (Exception e) {
 			Console.log(LogType.Error, "Database", "An unexpected error occured:");
 			e.printStackTrace();
 			return false;
 		} finally {
-			checkDatabase();
+			//checkDatabase();
 		}
 	}
 
