@@ -659,7 +659,6 @@ public class SettingsFrame extends JDialog {
 		if (enableAccessCheckBox.isSelected() != Protocol.isEditEnabled() && enableAccessCheckBox.isEnabled()) {
 			// set EDIT_ENABLED_FLAG
 			Protocol.setEditEnableOnServer(enableAccessCheckBox.isSelected());
-			savereq = true;
 		}
 		if (mustSave)
 			savereq = true;

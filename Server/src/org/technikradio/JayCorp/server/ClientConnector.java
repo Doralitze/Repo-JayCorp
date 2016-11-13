@@ -437,7 +437,15 @@ public class ClientConnector extends Thread {
 					// processDCWrite();
 					updateDatabase(root);
 				} else {
-					Data.save();
+					Thread t = new Thread(new Runnable(){
+
+						@Override
+						public void run() {
+							Data.save();
+						}});
+					t.setName("DB-SAVE-THREAD:" + user.getID());
+					t.setPriority(Thread.MAX_PRIORITY);
+					t.start();
 				}
 			}
 				out.println("true"); //$NON-NLS-1$

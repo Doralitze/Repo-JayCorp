@@ -77,54 +77,65 @@ public class SetupFrame extends JDialog {
 
 			@Override
 			public void goForeward() {
-				if (!(smc.getIndex() + 1 == smc.getCardSize())) {
-					smc.goTo(smc.getIndex() + 1);
-					Console.log(LogType.StdOut, this, "went foreward");
-				} else {
-					// TODO get / process actions
-					final ProgressIndicator i = new ProgressIndicator();
-					int totalWork = 0;
-					for (ProcessStartNotifier p : psns) {
-						totalWork += p.getStrenght();
-					}
-					final int mTotal = totalWork;
-					i.setValv(0, totalWork, 0);
-					i.setInfoLabelText("Ihre Änderungen werden angewendet...");
-					i.setTitle("Bitte haben Sie einen Moment Geduld.");
-					i.setVisible(true);
-					Console.log(LogType.Information, this,
-							"Setup contained " + smc.getCardSize() + " elements and was @" + smc.getIndex());
-					final Thread t = new Thread(new Runnable() {
+				Runnable r = new Runnable(){
 
-						@Override
-						public void run() {
-							boolean running = true;
-							while (running) {
-								int sum = 0;
-								for (ProcessStartNotifier p : psns) {
-									sum += p.getWorkDone();
-								}
-								if (sum == mTotal)
-									running = false;
-								i.setValv(0, mTotal, sum);
-								try {
-									Thread.sleep(10);
-								} catch (InterruptedException e) {
-									Thread.currentThread().interrupt();
-									return;
-								}
+					@Override
+					public void run() {
+						boolean oldenabled = ownHandle.isEnabled();
+						ownHandle.setEnabled(false);
+						if (!(smc.getIndex() + 1 == smc.getCardSize())) {
+							smc.goTo(smc.getIndex() + 1);
+							Console.log(LogType.StdOut, this, "went foreward");
+						} else {
+							// TODO get / process actions
+							final ProgressIndicator i = new ProgressIndicator();
+							int totalWork = 0;
+							for (ProcessStartNotifier p : psns) {
+								totalWork += p.getStrenght();
 							}
+							final int mTotal = totalWork;
+							i.setValv(0, totalWork, 0);
+							i.setInfoLabelText("Ihre Änderungen werden angewendet...");
+							i.setTitle("Bitte haben Sie einen Moment Geduld.");
+							i.setVisible(true);
+							Console.log(LogType.Information, this,
+									"Setup contained " + smc.getCardSize() + " elements and was @" + smc.getIndex());
+							final Thread t = new Thread(new Runnable() {
+
+								@Override
+								public void run() {
+									boolean running = true;
+									while (running) {
+										int sum = 0;
+										for (ProcessStartNotifier p : psns) {
+											sum += p.getWorkDone();
+										}
+										if (sum == mTotal)
+											running = false;
+										i.setValv(0, mTotal, sum);
+										try {
+											Thread.sleep(10);
+										} catch (InterruptedException e) {
+											Thread.currentThread().interrupt();
+											return;
+										}
+									}
+								}
+							});
+							t.setName("SetupFrame:ProgressUpdater");
+							t.start();
+							for (ProcessStartNotifier p : psns) {
+								p.startTransmission();
+							}
+							Protocol.save();
+							t.interrupt();
+							done = true;
 						}
-					});
-					t.setName("SetupFrame:ProgressUpdater");
-					t.start();
-					for (ProcessStartNotifier p : psns) {
-						p.startTransmission();
-					}
-					Protocol.save();
-					t.interrupt();
-					done = true;
-				}
+						ownHandle.setEnabled(oldenabled);
+					}};
+				Thread t = new Thread(r);
+				t.setName("Pageturnprocessingthread".toUpperCase());
+				t.start();
 			}
 
 			@Override

@@ -150,38 +150,37 @@ public class Data {
 		Data.editEnabled = editEnabled;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static boolean save() {
+		return save(file.getAbsolutePath());
+	}
+
+	@SuppressWarnings("unchecked")
+	private static boolean save(String filepath) {
 		if (isCurrentlySaving)
 			return true;
 		try {
 			isCurrentlySaving = true;
+			File newFile = new File(filepath + ".part");
 			Loader pl = new Loader();
 			pl.setUsers((ArrayList<User>) users.clone());
 			pl.setEditEnabled(editEnabled);
 			pl.setDefaultConfiguration(defaultConfiguration.clone());
 			pl.setLastVersion(Server.VERSION);
-			JAXB.marshal(pl, file);
+			JAXB.marshal(pl, newFile);
+			File oldfile = new File(filepath);
+			if(oldfile.exists()){
+				if(!oldfile.delete()){
+					Console.log(LogType.Warning, "Database", "Something went wrong while deleting the old file.");
+				}
+			}
+			if(!newFile.renameTo(oldfile)){
+				Console.log(LogType.Warning, "Database", "Something went wrong doing part file renaming.");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		} finally {
 			isCurrentlySaving = false;
-		}
-		return true;
-	}
-
-	private static boolean save(String file) {
-		try {
-			Loader pl = new Loader();
-			pl.setUsers(users);
-			pl.setEditEnabled(editEnabled);
-			pl.setDefaultConfiguration(defaultConfiguration);
-			pl.setLastVersion(Server.VERSION);
-			JAXB.marshal(pl, file);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
 		}
 		return true;
 	}
@@ -328,6 +327,12 @@ public class Data {
 		final int oldprio = Thread.currentThread().getPriority();
 		try {
 			final Iterator<User> users;
+			//Perform a database check for default configuration
+			DayTable dt = getDefaultConfiguration();
+			if(dt.getDays().size() > 365){
+				setDefaultConfiguration(sortedArrayToList(listToSortedArray(dt), dt.getYear()));
+			}
+			//Collect users and put them inside a set
 			{
 				ArrayList<User> list = new ArrayList<User>();
 				for (int id = 1; id <= Data.getLatestID(); id++) {
@@ -385,6 +390,7 @@ public class Data {
 			e.printStackTrace();
 		} finally {
 			Thread.currentThread().setPriority(oldprio);
+			Console.log(LogType.StdOut, "Database", "Finished data integrity checks.");
 		}
 
 	}

@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -80,6 +81,7 @@ public class CSVImporter {
 			br = new BufferedReader(new InputStreamReader(in, Settings.getString("Importing.FileEncoding")));
 			String currentLine = br.readLine();
 			int i = 0;
+			ArrayList<User> users = new ArrayList<User>();
 			while ((currentLine = br.readLine()) != null) {
 				if(!currentLine.equals("") && !currentLine.equals(";;;")){
 					if (i != 0) {
@@ -98,11 +100,17 @@ public class CSVImporter {
 						u.setWorkAge(1);
 						u.setID(Protocol.getIDCount());
 						u.setRights(defaultRT);
-						Protocol.addUser(u);
-						Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+						users.add(u);
 					}
 					i++;
 				}
+			}
+			
+			for(int ij = 0; ij < users.size(); ij++){
+				User u = users.get(ij);
+				Protocol.addUser(u);
+				Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+				progressIndicator.setValv(0, users.size() - 1, ij);
 			}
 			if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
 				Protocol.save();

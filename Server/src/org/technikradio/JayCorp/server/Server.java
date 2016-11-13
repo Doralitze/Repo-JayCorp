@@ -42,7 +42,6 @@ public class Server {
 	private static Scanner s;
 
 	public static void main(String[] args) {
-		Console.log(LogType.Information, "UpstartAgent", "Opening Server @" + port);
 		Console.log(LogType.Information, "UpstartAgent", "©2014 - 2016 Leon Dietrich");
 		Console.log(LogType.Information, "UpstartAgent", "Software version: " + VERSION);
 
@@ -247,6 +246,7 @@ case "isDBUpdateRunning":
 			commandThread.setName("CommandDeamon");
 			commandThread.setPriority(Thread.MIN_PRIORITY);
 			commandThread.start();
+			Console.log(LogType.Information, "UpstartAgent", "Opening Server @" + port);
 			while (running) {
 				try {
 					ClientConnector c = new ClientConnector(server.accept());
