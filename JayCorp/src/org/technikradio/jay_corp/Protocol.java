@@ -310,12 +310,18 @@ public class Protocol {
 
 	public static boolean addUser(User u) {
 		boolean success = addUser(u.getName(), u.getUsername(), u.getPassword(), u.getID(), u.getWorkAge());
-		if (!success)
+		if (!success){
+			Console.log(LogType.Error, "Protocol", "Failed @ add_user");
 			return false;
+		}
 		success = changeExtraDays(u.getExtraDays(), u.getID());
-		if (!success)
+		if (!success){
+			Console.log(LogType.Error, "Protocol", "Failed @ change_extradays");
 			return false;
+		}
 		success = Protocol.changeRights(u.getID(), u.getRights());
+		if(!success)
+			Console.log(LogType.Error, "Protocol", "Failed @ change_rights");
 		return success;
 	}
 
@@ -683,7 +689,7 @@ public class Protocol {
 	public static boolean isConnectionAviable() {
 		return c.isValidConnection();
 	}
-	
+
 	public static boolean transmitTableAsSingleFrame(DayTable dt){
 		StringBuilder sb = new StringBuilder();
 		sb.append("setRange ");
@@ -707,7 +713,7 @@ public class Protocol {
 			release();
 		}
 	}
-	
+
 	public static boolean isMaintaining(){
 		block();
 		c.transmit("isMaintaining");

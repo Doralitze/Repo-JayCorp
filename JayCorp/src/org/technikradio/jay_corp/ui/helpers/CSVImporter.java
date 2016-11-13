@@ -99,16 +99,16 @@ public class CSVImporter {
 						u.setSelectedDays(new DayTable());
 						u.setUsername(s[3]);
 						u.setWorkAge(1);
-						u.setID(Protocol.getIDCount());
 						u.setRights(defaultRT);
 						users.add(u);
 					}
 					i++;
 				}
 			}
-			
+
 			for(int ij = 0; ij < users.size(); ij++){
 				User u = users.get(ij);
+				u.setID(Protocol.getIDCount());
 				Protocol.addUser(u);
 				Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
 				progressIndicator.setValv(0, users.size() - 1, ij);

@@ -129,7 +129,6 @@ public class AlternateCSVImporter {
 					u.setSelectedDays(new DayTable());
 					u.setUsername(s[3]);
 					u.setWorkAge(1);
-					u.setID(Protocol.getIDCount() + 1);
 					u.setRights(defaultRT);
 					users.add(u);
 				}
@@ -138,8 +137,11 @@ public class AlternateCSVImporter {
 			Console.log(LogType.StdOut, this, "Adding " + users.size() + " new users");
 			for(int ij = 0; ij < users.size(); ij++){
 				User u = users.get(ij);
-				Protocol.addUser(u);
-				Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+				u.setID(Protocol.getIDCount() + 1);
+				if(Protocol.addUser(u))
+					Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+				else
+					Console.log(LogType.Warning, this, "Failed to add user: " + u.getName());
 				progressIndicator.setValv(0, users.size() - 1, ij);
 			}
 			if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
