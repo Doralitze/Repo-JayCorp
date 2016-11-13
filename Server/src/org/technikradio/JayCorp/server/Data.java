@@ -19,6 +19,7 @@ package org.technikradio.JayCorp.server;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -44,6 +45,7 @@ public class Data {
 	private static File file;
 
 	private static boolean isCurrentlySaving = false;
+	private static Thread saveAwaitingThread;
 
 	@XmlRootElement(name = "database")
 	private static class Loader {
@@ -156,8 +158,10 @@ public class Data {
 
 	@SuppressWarnings("unchecked")
 	private static boolean save(String filepath) {
-		if (isCurrentlySaving)
+		if (isCurrentlySaving){
+			scheduleSaveLater();
 			return true;
+		}
 		try {
 			isCurrentlySaving = true;
 			File newFile = new File(filepath + ".part");
@@ -176,6 +180,9 @@ public class Data {
 			if(!newFile.renameTo(oldfile)){
 				Console.log(LogType.Warning, "Database", "Something went wrong doing part file renaming.");
 			}
+		} catch (ConcurrentModificationException e){
+			Console.log(LogType.Warning, "Database", "Requested to save data while iterating. Is the server overloaded?");
+			scheduleSaveLater();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -183,6 +190,30 @@ public class Data {
 			isCurrentlySaving = false;
 		}
 		return true;
+	}
+
+	private static void scheduleSaveLater() {
+		if(saveAwaitingThread != null)
+			return;
+		saveAwaitingThread = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				saveAwaitingThread.setPriority(Thread.MIN_PRIORITY);
+				while(Server.usersConnected()){
+					try {
+						Thread.sleep(1000 * 60 * 5);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				saveAwaitingThread.setPriority(Thread.MAX_PRIORITY);
+				saveAwaitingThread = null;
+				Data.save();
+			}});
+		saveAwaitingThread.setDaemon(true);
+		saveAwaitingThread.setName("SAVING-SCHEDULE-THREAD");
+		saveAwaitingThread.start();
 	}
 
 	public static User getUser(String userName) {

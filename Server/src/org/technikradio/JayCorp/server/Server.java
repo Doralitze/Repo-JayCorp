@@ -303,5 +303,11 @@ case "isDBUpdateRunning":
 				}
 		}
 	}
+	
+	public static boolean usersConnected(){
+		if(clients.size() == 0)
+			return false;
+		return true;
+	}
 
 }
