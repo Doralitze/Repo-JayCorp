@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
+import java.awt.HeadlessException;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +46,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.technikradio.jay_corp.Application;
 import org.technikradio.jay_corp.JayCorp;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.ui.helpers.AddUserDialog;
@@ -264,30 +266,35 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// delete database...
-					int result = JOptionPane.showConfirmDialog(null,
-							Strings.getString("SettingsFrame.ResetDatabaseQuestion"), //$NON-NLS-1$
-							Strings.getString("SettingsFrame.ResetDatabaseQuestionHeader"), //$NON-NLS-1$
-							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-					if (result == JOptionPane.YES_OPTION)
-						if (Protocol.getCurrentUser().getID() == 0)
-							if (Protocol.destroyDatabase()) {
+					try {
+						// delete database...
+						int result = JOptionPane.showConfirmDialog(null,
+								Strings.getString("SettingsFrame.ResetDatabaseQuestion"), //$NON-NLS-1$
+								Strings.getString("SettingsFrame.ResetDatabaseQuestionHeader"), //$NON-NLS-1$
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+						if (result == JOptionPane.YES_OPTION)
+							if (Protocol.getCurrentUser().getID() == 0)
+								if (Protocol.destroyDatabase()) {
+									JOptionPane.showMessageDialog(null,
+											Strings.getString("SettingsFrame.DatabaseSuccessfulDelete"), //$NON-NLS-1$
+											Strings.getString("SettingsFrame.DatabaseSuccessfulDeleteHeader"), //$NON-NLS-1$
+											JOptionPane.INFORMATION_MESSAGE);
+									Protocol.disconnect();
+									JayCorp.exit(0, true);
+								} else
+									JOptionPane.showMessageDialog(null,
+											Strings.getString("SettingsFrame.DatabaseResetFail"), //$NON-NLS-1$
+											Strings.getString("SettingsFrame.DatabaseResetFailHeader"), //$NON-NLS-1$
+											JOptionPane.ERROR_MESSAGE);
+							else
 								JOptionPane.showMessageDialog(null,
-										Strings.getString("SettingsFrame.DatabaseSuccessfulDelete"), //$NON-NLS-1$
-										Strings.getString("SettingsFrame.DatabaseSuccessfulDeleteHeader"), //$NON-NLS-1$
-										JOptionPane.INFORMATION_MESSAGE);
-								Protocol.disconnect();
-								JayCorp.exit(0, true);
-							} else
-								JOptionPane.showMessageDialog(null,
-										Strings.getString("SettingsFrame.DatabaseResetFail"), //$NON-NLS-1$
-										Strings.getString("SettingsFrame.DatabaseResetFailHeader"), //$NON-NLS-1$
+										Strings.getString("SettingsFrame.DatabaseResetPermissionDenined"), //$NON-NLS-1$
+										Strings.getString("SettingsFrame.DatabaseResetPermissionDeninedHeader"), //$NON-NLS-1$
 										JOptionPane.ERROR_MESSAGE);
-						else
-							JOptionPane.showMessageDialog(null,
-									Strings.getString("SettingsFrame.DatabaseResetPermissionDenined"), //$NON-NLS-1$
-									Strings.getString("SettingsFrame.DatabaseResetPermissionDeninedHeader"), //$NON-NLS-1$
-									JOptionPane.ERROR_MESSAGE);
+					} catch (HeadlessException e1) {
+						e1.printStackTrace();
+						Application.crash(e1);
+					}
 
 				}
 			});
@@ -308,23 +315,28 @@ public class SettingsFrame extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Thread t = new Thread(new Runnable() {
+				try {
+					Thread t = new Thread(new Runnable() {
 
-					@Override
-					public void run() {
-						new CSVImporter(pages[1]).upload();
-					}
-				});
-				t.setName("UploadWaiterThread"); //$NON-NLS-1$
-				t.start();
-				mustSave = true;
-				Thread tm = new Thread(new Runnable(){
+						@Override
+						public void run() {
+							new CSVImporter(pages[1]).upload();
+						}
+					});
+					t.setName("UploadWaiterThread"); //$NON-NLS-1$
+					t.start();
+					mustSave = true;
+					Thread tm = new Thread(new Runnable(){
 
-					@Override
-					public void run() {
-						updateUserTable();
-					}});
-				tm.start();
+						@Override
+						public void run() {
+							updateUserTable();
+						}});
+					tm.start();
+				} catch (Exception e1) {
+					Application.crash(e1);
+					e1.printStackTrace();
+				}
 			}
 
 			
@@ -344,8 +356,12 @@ public class SettingsFrame extends JDialog {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						dl.show();
-
+						try {
+							dl.show();
+						} catch (Exception e1) {
+							Application.crash(e1);
+							e1.printStackTrace();
+						}
 					}
 				});
 				cp.add(openUserFrameButton, BorderLayout.CENTER);
@@ -356,23 +372,28 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// ownHandle.setVisible(false);
 					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e1) {
-						Console.log(LogType.Error, ownHandle, "Waiting for UI sync interrupted:"); //$NON-NLS-1$
+						// ownHandle.setVisible(false);
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e1) {
+							Console.log(LogType.Error, ownHandle, "Waiting for UI sync interrupted:"); //$NON-NLS-1$
+							e1.printStackTrace();
+						}
+						AddUserDialog a = new AddUserDialog(ownHandle);
+						a.setVisible(true);
+						mustSave = true;
+						Thread t = new Thread(new Runnable(){
+
+							@Override
+							public void run() {
+								updateUserTable();
+							}});
+						t.start();
+					} catch (Exception e1) {
+						Application.crash(e1);
 						e1.printStackTrace();
 					}
-					AddUserDialog a = new AddUserDialog(ownHandle);
-					a.setVisible(true);
-					mustSave = true;
-					Thread t = new Thread(new Runnable(){
-
-						@Override
-						public void run() {
-							updateUserTable();
-						}});
-					t.start();
 				}
 			});
 			// bp.add(Box.createRigidArea(new Dimension(15,15)));
@@ -421,9 +442,14 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					pushSettings();
-					ownHandle.setVisible(false);
-					ownHandle.dispose();
+					try {
+						pushSettings();
+						ownHandle.setVisible(false);
+						ownHandle.dispose();
+					} catch (Exception e1) {
+						Application.crash(e1);
+						e1.printStackTrace();
+					}
 				}
 			});
 			cancleButton.addActionListener(new ActionListener() {

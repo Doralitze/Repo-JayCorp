@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package org.technikradio.jay_corp.ui;
 
 import java.awt.Color;
+import java.awt.HeadlessException;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.technikradio.jay_corp.Application;
 import org.technikradio.jay_corp.MessageStreamHandler;
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
@@ -79,7 +81,7 @@ public class LoginPanel extends JPanel {
 			public void run() {
 				String old = copyrightLabel.getText();
 				while (!Protocol.isConnectionAviable()) {
-					copyrightLabel.setText("Es ist keine Verbindung zum\nServer möglich.");
+					copyrightLabel.setText("Es ist keine Verbindung zum \nServer möglich.");
 					submitButton.setEnabled(false);
 					try {
 						Thread.sleep(500);
@@ -133,44 +135,49 @@ public class LoginPanel extends JPanel {
 		this.submitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				disableInputs();
-				if (username.getText() != "" //$NON-NLS-1$
-						&& new String(password.getPassword()) != "") //$NON-NLS-1$
-					if (!Protocol.isMaintaining()) {
-						if (Protocol.isLoginFree(username.getText()))
-							if (Protocol.login(username.getText(), new String(password.getPassword())))
-								loadWorkspace();
+				try {
+					disableInputs();
+					if (username.getText() != "" //$NON-NLS-1$
+							&& new String(password.getPassword()) != "") //$NON-NLS-1$
+						if (!Protocol.isMaintaining()) {
+							if (Protocol.isLoginFree(username.getText()))
+								if (Protocol.login(username.getText(), new String(password.getPassword())))
+									loadWorkspace();
+								else {
+									JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
+									Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
+											"Entered wrong info: User: " //$NON-NLS-1$
+													+ username.getText() + " Password: " //$NON-NLS-1$
+													+ new String(password.getPassword()));
+									didEntered = false;
+									reenable();
+									return;
+								}
 							else {
-								JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
-								Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
-										"Entered wrong info: User: " //$NON-NLS-1$
-												+ username.getText() + " Password: " //$NON-NLS-1$
-												+ new String(password.getPassword()));
 								didEntered = false;
 								reenable();
+								JOptionPane.showMessageDialog(parent,
+										"Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
 								return;
 							}
-						else {
+						} else {
 							didEntered = false;
 							reenable();
 							JOptionPane.showMessageDialog(parent,
-									"Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
+									"Der Server ist zur Zeit ausgelastet.\nBitte versuchen Sie es später erneut."); //$NON-NLS-1$
 							return;
 						}
-					} else {
+					else {
 						didEntered = false;
 						reenable();
-						JOptionPane.showMessageDialog(parent,
-								"Der Server ist zur Zeit ausgelastet.\nBitte versuchen Sie es später erneut."); //$NON-NLS-1$
+						JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
 						return;
 					}
-				else {
-					didEntered = false;
-					reenable();
-					JOptionPane.showMessageDialog(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
-					return;
+					didEntered = true;
+				} catch (HeadlessException e1) {
+					e1.printStackTrace();
+					Application.crash(e1);
 				}
-				didEntered = true;
 			}
 		});
 		this.add(submitButton);

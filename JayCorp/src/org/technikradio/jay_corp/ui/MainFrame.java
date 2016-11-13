@@ -115,7 +115,7 @@ public class MainFrame extends JFrame {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								c.setInfoMessage(Strings.getString("MainFrame.LoadBckupMessage")); //$NON-NLS-1$
+								c.setInfoMessage(Strings.getString("MainFrame.LoadBackupMessage")); //$NON-NLS-1$
 								Protocol.transmitTable(Protocol.getProgress(Protocol.getCurrentUser().getID()), null,
 										Protocol.getCurrentUser().getID(), new ProgressChangedNotifier() {
 
@@ -367,6 +367,8 @@ public class MainFrame extends JFrame {
 	}
 
 	public void updateState(boolean savereq) {
+		boolean enabled = this.isEnabled();
+		this.setEnabled(false);
 		Protocol.collectInformation();
 		c.setMaxNumDay(getScale(Protocol.getCurrentUser().getWorkAge()) + Protocol.getCurrentUser().getExtraDays());
 		c.setEditEnabled(Protocol.isEditEnabled());
@@ -375,6 +377,7 @@ public class MainFrame extends JFrame {
 		doPostChecks();
 		if (savereq)
 			save();
+		this.setEnabled(enabled);
 	}
 
 	/**

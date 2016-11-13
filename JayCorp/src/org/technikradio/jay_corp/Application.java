@@ -78,6 +78,8 @@ public class Application {
 					e.getLocalizedMessage() + "\n\n" + getStrackString(e), JOptionPane.ERROR_MESSAGE);
 		} catch(Exception e1) {
 			
+		} finally {
+			System.exit(1);
 		}
 	}
 

@@ -49,7 +49,7 @@ public class ClientConnector extends Thread {
 	private boolean needtoFixDB = false;
 
 	private Socket client;
-	private Thread kickThread;
+	private Thread kickThread, mspostThread;
 	private MessageStream messageStream;
 	private BufferedReader in;
 	private PrintStream out;
@@ -454,8 +454,6 @@ public class ClientConnector extends Thread {
 				u.setPassword(Base64Coding.decode(request[2]));
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
-				if (reqID == user.getID() && Data.getEntry(user, MetaReg.SHOULD_CHANGE_PASSWORD).equals("true"))
-					Data.setEntry(user, MetaReg.SHOULD_CHANGE_PASSWORD, "false");
 				break;
 			case "changeDays":
 				reqID = Integer.parseInt(request[1]);
@@ -467,10 +465,8 @@ public class ClientConnector extends Thread {
 					out.flush();
 					break;
 				} else if (reqID == user.getID()) {
-					if (Data.getEntry(user, MetaReg.MUST_SET_EXTRA_DAYS).equals("true")
-							|| Boolean.parseBoolean(Settings.getString("Settings.MultiEDSetAllowed"))) {
+					{
 						user.setExtraDays(days);
-						Data.setEntry(user, MetaReg.MUST_SET_EXTRA_DAYS, "false");
 						out.println("true"); //$NON-NLS-1$
 						out.flush();
 						break;
@@ -658,21 +654,40 @@ public class ClientConnector extends Thread {
 		loggedInUsers.remove(user);
 		this.interrupt();
 		kickThread.interrupt();
+		if(mspostThread != null){
+			mspostThread.interrupt();
+		}
 	}
 
 	public String getRemoteAdress() {
 		return client.getInetAddress() + ":" + client.getPort();
 	}
 
-	public void setMessageStream(MessageStream messageStream) {
+	public void setMessageStream(final MessageStream messageStream) {
 		this.messageStream = messageStream;
 		// Do post-init stuff
-		if (Data.getEntry(user, MetaReg.MUST_SET_EXTRA_DAYS).equals("true")) {
-			messageStream.throwMessage("setDays");
-		}
-		if (Data.getEntry(user, MetaReg.SHOULD_CHANGE_PASSWORD).equals("true")) {
-			messageStream.throwMessage("changePassword");
-		}
+		Runnable r = new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					while(user == null){
+						Thread.sleep(10);
+					}
+					if (user.getExtraDays() < 2) {
+						messageStream.throwMessage("setDays");
+					}
+					if (user.getPassword().equals(Initiator.DEFAULT_PASSWORD)) {
+						messageStream.throwMessage("changePassword");
+					}
+				} catch (InterruptedException e) {
+					
+				} catch(Exception e) {
+					Console.log(LogType.Warning, "MessageStreamPoster", "The message stream poster crashed.");
+				}
+			}};
+		mspostThread = new Thread(r);
+		mspostThread.start();
 	}
 
 	public boolean postMessage(String message) {
@@ -680,32 +695,6 @@ public class ClientConnector extends Thread {
 			return false;
 		messageStream.throwMessage(message);
 		return true;
-	}
-
-	@SuppressWarnings("unused")
-	private Status[][] listToSortedArray(DayTable t) {
-		Status[][] sar = new Status[13][32];
-		for (ParaDate p : t.getDays().keySet()) {
-			Status s = t.getDays().get(p);
-			sar[p.getMonth()][p.getDay()] = s;
-		}
-		return sar;
-	}
-
-	@SuppressWarnings("unused")
-	private DayTable sortedArrayToList(Status[][] sar, int year) {
-		DayTable dt = new DayTable();
-		for (short m = 1; m <= 12; m++)
-			for (short t = 1; t <= 31; t++) {
-				if (sar[m][t] != null) {
-					ParaDate pd = new ParaDate();
-					pd.setDay(t);
-					pd.setMonth(m);
-					pd.setYear(year);
-					dt.getDays().put(pd, sar[m][t]);
-				}
-			}
-		return dt;
 	}
 
 	private ParaDate find(ParaDate corresponding, DayTable field) {

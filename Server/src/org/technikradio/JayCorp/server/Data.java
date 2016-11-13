@@ -20,6 +20,8 @@ package org.technikradio.JayCorp.server;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,13 +32,13 @@ import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 import org.technikradio.universal_tools.ParaDate;
+import org.technikradio.universal_tools.Time;
 
 public class Data {
 
 	private static final boolean crt = Boolean.parseBoolean(Settings.getString("Settings.amdCrt"));
 
 	private static ArrayList<User> users;
-	private static ArrayList<MetaSheet> meta;
 	private static DayTable defaultConfiguration;
 	private static boolean editEnabled;
 	private static File file;
@@ -126,7 +128,7 @@ public class Data {
 		public DayTable getDefaultConfiguration() {
 			return dc;
 		}
-		
+
 		public boolean isEditEnabled() {
 			return editEnabled;
 		}
@@ -148,17 +150,17 @@ public class Data {
 		Data.editEnabled = editEnabled;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static boolean save() {
 		if (isCurrentlySaving)
 			return true;
 		try {
 			isCurrentlySaving = true;
 			Loader pl = new Loader();
-			pl.setUsers(users);
+			pl.setUsers((ArrayList<User>) users.clone());
 			pl.setEditEnabled(editEnabled);
-			pl.setDefaultConfiguration(defaultConfiguration);
+			pl.setDefaultConfiguration(defaultConfiguration.clone());
 			pl.setLastVersion(Server.VERSION);
-			pl.setMeta(meta);
 			JAXB.marshal(pl, file);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -176,7 +178,6 @@ public class Data {
 			pl.setEditEnabled(editEnabled);
 			pl.setDefaultConfiguration(defaultConfiguration);
 			pl.setLastVersion(Server.VERSION);
-			pl.setMeta(meta);
 			JAXB.marshal(pl, file);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -211,9 +212,6 @@ public class Data {
 		try {
 			if (u.getID() == 0)
 				u.setID(getLatestID() + 1);
-			MetaSheet ms = new MetaSheet();
-			ms.setAssoziatedUser(u.getID());
-			meta.add(ms);
 			return users.add(u);
 		} catch (Exception e) {
 			Console.log(LogType.Error, "Database", "An unexpected error occured:");
@@ -273,7 +271,6 @@ public class Data {
 				users = pl.getUsers();
 				editEnabled = pl.isEditEnabled();
 				defaultConfiguration = pl.getDefaultConfiguration();
-				meta = pl.getMeta();
 			} else {
 				Console.log(LogType.StdOut, "Database", "Importing depreached database");
 				loadOldDataFile();
@@ -290,7 +287,6 @@ public class Data {
 			users = pl.getUsers();
 			editEnabled = pl.isEditEnabled();
 			defaultConfiguration = pl.getDefaultConfiguration();
-			meta = new ArrayList<MetaSheet>();
 		}
 		checkDatabase();
 	}
@@ -299,7 +295,6 @@ public class Data {
 		save(file.getAbsolutePath() + Long.toString(System.currentTimeMillis() / 1000) + ".backup");
 		users = new ArrayList<User>();
 		defaultConfiguration = new DayTable();
-		meta = null;
 		editEnabled = false;
 		Console.log(LogType.Warning, "Database", "Destroying database on request of root. Creating new one.");
 		defaultConfiguration = Initiator.getDefaultDayTable();
@@ -323,91 +318,108 @@ public class Data {
 	}
 
 	public static void checkDatabase() {
-		Console.log(LogType.Warning, "Database", "Checking database.");
-		if (meta == null) {
-			meta = new ArrayList<MetaSheet>();
+		Console.log(LogType.Information, "Database", "Checking database.");
+		if (users == null) {
+			if (crt)
+				Console.log(LogType.Warning, "Database", "Creating new user table.");
+			users = new ArrayList<User>();
 		}
-		boolean ok = true;
-		for (User u : users) {
-			try {
-				if (meta.get(u.getID()) == null)
-					ok = false;
-				else {
-					MetaSheet s = meta.get(u.getID());
-					if (s.getAssoziatedUser() != u.getID())
-						ok = false;
-				}
-			} catch (Exception e) {
-				ok = false;
-			}
-		}
-		postInit();
-		if (!ok)
-			repairDatabase();
-	}
-
-	private static void repairDatabase() {
-		if (crt)
-			Console.log(LogType.Warning, "Database",
-					"Some corrupted data was found. The system now trys to correct it.");
-		for (User u : users) {
-			try {
-				MetaSheet ms = meta.get(u.getID());
-				if (ms == null) {
-					if (crt)
-						Console.log(LogType.Information, "Database",
-								"Adding missing meta data for user " + u.getName());
-					MetaSheet s = new MetaSheet(u.getID());
-					MetaReg.setDefaultMetaData(s);
-					meta.add(u.getID(), s);
-				} else {
-					if (crt)
-						Console.log(LogType.Information, "Database",
-								"Rerouting incorrect placed data of " + u.getName());
-					if (u.getID() != ms.getAssoziatedUser()) {
-						meta.remove(ms);
-						meta.add(getUser(ms.getAssoziatedUser()).getID(), ms);
+		// perform user double dates checking using multithreading
+		final int oldprio = Thread.currentThread().getPriority();
+		try {
+			final Iterator<User> users;
+			{
+				ArrayList<User> list = new ArrayList<User>();
+				for (int id = 1; id <= Data.getLatestID(); id++) {
+					User _user = Data.getUser(id);
+					if (_user != null) {
+						list.add(_user);
 					}
 				}
-			} catch (IndexOutOfBoundsException e) {
-				if (crt)
-					Console.log(LogType.Information, "Database", "Adding missing meta data for user " + u.getName());
-				MetaSheet s = new MetaSheet(u.getID());
-				MetaReg.setDefaultMetaData(s);
-				meta.add(u.getID(), s);
+				users = list.iterator();
 			}
+			Runnable r = new Runnable() {
+
+				@Override
+				public void run() {
+					while(users.hasNext()){
+						User u = users.next();
+						if(u == null)
+							break;
+						DayTable dt = u.getSelectedDays();
+						if(dt.getDays().size() > 365){
+							u.setSelectedDays(sortedArrayToList(listToSortedArray(dt), dt.getYear()));
+						} else {
+							if(crt)
+								Console.log(LogType.Information, "Database", "Skipping user " + u.getUsername() + " [" + u.getID() + "] because he seams to have legid data.");
+						}
+					}
+				}
+			};
+
+			final int cores = Runtime.getRuntime().availableProcessors();
+			
+			Thread[] threads = new Thread[cores];
+			for (int i = 0; i < cores; i++) {
+				threads[i] = new Thread(r);
+				threads[i].setName("DBUPDATE_THREAD[" + Integer.toHexString(i) + "]");
+				threads[i].setPriority(Thread.MAX_PRIORITY);
+			}
+			Console.log(LogType.StdOut, "Database", "Spawning " + cores + " threads for computing.");
+			for (int i = 0; i < cores; i++) {
+				threads[i].start();
+			}
+			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+
+			boolean done = false;
+			while (!done) {
+				Thread.sleep(5);
+				done = true;
+				for (int i = 0; i < cores; i++) {
+					if (threads[i].isAlive())
+						done = false;
+				}
+			}
+		} catch (Exception e){
+			Console.log(LogType.Error, "Database", "An exception occured inside the db checker thread:");
+			e.printStackTrace();
+		} finally {
+			Thread.currentThread().setPriority(oldprio);
 		}
+
 	}
 
-	public static int setEntry(User target, String key, String value) {
-		int success = 0;
-		MetaSheet s = null;
-		try {
-			s = meta.get(target.getID());
-		} catch (IndexOutOfBoundsException e) {
+	private static Status[][] listToSortedArray(DayTable t) {
+		Status[][] sar = new Status[13][32];
+		Set<ParaDate> set = t.getDays().keySet();
+		for (ParaDate p : set) {
+			Status s = t.getDays().get(p);
+			sar[p.getMonth()][p.getDay()] = s;
 		}
-		if (s != null) {
-			success++;
-			if (s.setValue(key, value))
-				success++;
-		} else {
-			checkDatabase();
-		}
-		return success;
+		return sar;
 	}
 
-	public static String getEntry(User target, String key) {
-		MetaSheet s = null;
-		try {
-			s = meta.get(target.getID());
-		} catch (IndexOutOfBoundsException e) {}
-		if (s == null)
-			return "";
-		return s.getValue(key);
-	}
-
-	private static void postInit() {
-		if (users == null)
-			users = new ArrayList<User>();
+	private static DayTable sortedArrayToList(Status[][] sar, int year) {
+		DayTable dt = new DayTable();
+		for (short m = 1; m <= 12; m++)
+			for (short t = 1; t <= 31; t++) {
+				if (sar[m][t] != null) {
+					ParaDate pd = new ParaDate();
+					pd.setDay(t);
+					pd.setMonth(m);
+					pd.setYear(year);
+					Time tm = new Time();
+					tm.setHours((short) 0);
+					tm.setMillis(0);
+					tm.setMinutes((short) 0);
+					tm.setNanos(0);
+					tm.setSeconds((short) 0);
+					tm.setInitedFlag();
+					pd.setTime(tm);
+					dt.getDays().put(pd, sar[m][t]);
+				}
+			}
+		
+		return dt;
 	}
 }

@@ -370,10 +370,10 @@ public class Protocol {
 	}
 
 	public static void disconnect() {
-		Console.log(LogType.StdOut, "Protocol", "Disconnecting from server");
-		block();
-		c.transmit("disconnect"); //$NON-NLS-1$
 		try {
+			Console.log(LogType.StdOut, "Protocol", "Disconnecting from server");
+			block();
+			c.transmit("disconnect"); //$NON-NLS-1$
 			c.stop();
 		} catch (IOException e) {
 			e.printStackTrace();
