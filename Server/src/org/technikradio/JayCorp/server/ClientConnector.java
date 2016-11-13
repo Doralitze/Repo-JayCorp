@@ -848,6 +848,7 @@ public class ClientConnector extends Thread {
 					}
 					Console.log(LogType.Information, this,
 							"Removed " + c.changed + " selected entries and " + c.total + " total checks");
+					Data.checkDatabase();
 					Data.save();
 				} catch (Exception e) {
 					Console.log(LogType.Error, this, "Something went wrong doing the database update.");
