@@ -24,7 +24,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -656,7 +655,6 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 		int height = this.getHeight();
 		int x = e.getX();
 		int y = e.getY();
-		Console.log(LogType.StdOut, this, "Click: " + x + ":" + y);
 		if (y <= 25) {
 			if (x >= width - 50 && x <= width - 35) {
 				if (y >= 5 && y <= 20) {
@@ -693,7 +691,6 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 					ComplexRectangleFloat pos = getRenderingPosition(width, height, month, i);
 					if((pos.x <= x) && (pos.x + pos.width) >= x){
 						if(pos.y <= y && (pos.y + pos.height) >= y){
-							System.out.println("hit");
 							
 							//Found the clicked position
 							if (isAdvancedOutputFlag())

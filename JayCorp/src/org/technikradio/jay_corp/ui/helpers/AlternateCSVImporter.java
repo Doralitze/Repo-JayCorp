@@ -40,6 +40,11 @@ import org.technikradio.jay_corp.user.User;
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
+/**
+ * This CSV importer is used to import these files displaying a right edit frame.
+ * @author leondietrich
+ *
+ */
 public class AlternateCSVImporter {
 
 	private ProgressIndicator progressIndicator;
@@ -126,9 +131,11 @@ public class AlternateCSVImporter {
 					u.setWorkAge(1);
 					u.setID(Protocol.getIDCount() + 1);
 					u.setRights(defaultRT);
+					users.add(u);
 				}
 				i++;
 			}
+			Console.log(LogType.StdOut, this, "Adding " + users.size() + " new users");
 			for(int ij = 0; ij < users.size(); ij++){
 				User u = users.get(ij);
 				Protocol.addUser(u);
