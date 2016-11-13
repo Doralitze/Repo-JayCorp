@@ -71,6 +71,7 @@ public class CSVImporter {
 		progressIndicator.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		progressIndicator.setValv(0, 100, 1);
 		progressIndicator.setInfoLabelText(Strings.getString("CSVImporter.UploadHint")); //$NON-NLS-1$
+		progressIndicator.center(1);
 		progressIndicator.setVisible(true);
 		BufferedReader br = null;
 		DataInputStream in = null;

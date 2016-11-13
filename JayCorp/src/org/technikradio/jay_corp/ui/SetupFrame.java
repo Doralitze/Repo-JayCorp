@@ -97,6 +97,7 @@ public class SetupFrame extends JDialog {
 							i.setValv(0, totalWork, 0);
 							i.setInfoLabelText("Ihre Änderungen werden angewendet...");
 							i.setTitle("Bitte haben Sie einen Moment Geduld.");
+							i.center(0);
 							i.setVisible(true);
 							Console.log(LogType.Information, this,
 									"Setup contained " + smc.getCardSize() + " elements and was @" + smc.getIndex());

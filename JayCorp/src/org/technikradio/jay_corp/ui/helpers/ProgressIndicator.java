@@ -19,13 +19,15 @@ package org.technikradio.jay_corp.ui.helpers;
 
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-import org.technikradio.jay_corp.ui.SettingsFrame;
 import org.technikradio.jay_corp.ui.Strings;
 
 public class ProgressIndicator extends JDialog {
@@ -37,16 +39,19 @@ public class ProgressIndicator extends JDialog {
 
 	/**
 	 * This initializes a new instance
+	 * 
 	 * @throws HeadlessException
 	 */
 	public ProgressIndicator() throws HeadlessException {
 		super();
 		setup();
 	}
-	
+
 	/**
 	 * This initializes a new instance
-	 * @param parent The parent of the dialog 
+	 * 
+	 * @param parent
+	 *            The parent of the dialog
 	 * @throws HeadlessException
 	 */
 	public ProgressIndicator(JDialog parent) throws HeadlessException {
@@ -56,7 +61,9 @@ public class ProgressIndicator extends JDialog {
 
 	/**
 	 * This initializes a new instance
-	 * @param parent The parent of this dialog
+	 * 
+	 * @param parent
+	 *            The parent of this dialog
 	 * @throws HeadlessException
 	 */
 	public ProgressIndicator(Frame parent) throws HeadlessException {
@@ -86,7 +93,9 @@ public class ProgressIndicator extends JDialog {
 
 	/**
 	 * Set the progress of the dialog
-	 * @param percent the progress in percentage
+	 * 
+	 * @param percent
+	 *            the progress in percentage
 	 */
 	public void setProgress(int percent) {
 		if (percent > 100 || percent < 0)
@@ -96,9 +105,13 @@ public class ProgressIndicator extends JDialog {
 
 	/**
 	 * Set the progress of the dialog
-	 * @param min The minimum of the progress bar
-	 * @param max The maximum of the progress bar
-	 * @param prog The current value of the progressbar
+	 * 
+	 * @param min
+	 *            The minimum of the progress bar
+	 * @param max
+	 *            The maximum of the progress bar
+	 * @param prog
+	 *            The current value of the progressbar
 	 */
 	public void setValv(int min, int max, int prog) {
 		if ((prog > max) || (prog < min))
@@ -111,10 +124,28 @@ public class ProgressIndicator extends JDialog {
 
 	/**
 	 * Sets the info label
-	 * @param text The text to use
+	 * 
+	 * @param text
+	 *            The text to use
 	 */
 	public void setInfoLabelText(String text) {
 		infoLabel.setText(text);
+	}
+
+	/**
+	 * This method is used to center the dialog on the screen.
+	 * 
+	 * @param layer
+	 *            The amount of other PIs already visible.
+	 */
+	public void center(int layer) {
+		int posy, posx, width, height;
+		Insets s = Toolkit.getDefaultToolkit().getScreenInsets(getGraphicsConfiguration());
+		width = Toolkit.getDefaultToolkit().getScreenSize().width - s.right;
+		height = Toolkit.getDefaultToolkit().getScreenSize().height - s.bottom;
+		posx = 0 + s.left + (width / 2) - this.getWidth();
+		posy = 0 + s.top + (height / 2) + (this.getHeight() * (layer - 1));
+		super.setBounds(new Rectangle(posx, posy, this.getWidth(), this.getHeight()));
 	}
 
 }

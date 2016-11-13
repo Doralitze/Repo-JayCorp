@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -90,6 +91,7 @@ public class AlternateCSVImporter {
 		progressIndicator.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		progressIndicator.setValv(0, 100, 1);
 		progressIndicator.setInfoLabelText(Strings.getString("CSVImporter.UploadHint")); //$NON-NLS-1$
+		progressIndicator.center(1);
 		progressIndicator.setVisible(true);
 		BufferedReader br = null;
 		DataInputStream in = null;
@@ -111,6 +113,7 @@ public class AlternateCSVImporter {
 				}
 			else
 				defaultRT = new Righttable();
+			ArrayList<User> users = new ArrayList<User>();
 			while ((currentLine = br.readLine()) != null) {
 				if (i != 0) {
 					String[] s = currentLine.split(";"); //$NON-NLS-1$
@@ -123,10 +126,14 @@ public class AlternateCSVImporter {
 					u.setWorkAge(1);
 					u.setID(Protocol.getIDCount() + 1);
 					u.setRights(defaultRT);
-					Protocol.addUser(u);
-					Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
 				}
 				i++;
+			}
+			for(int ij = 0; ij < users.size(); ij++){
+				User u = users.get(ij);
+				Protocol.addUser(u);
+				Console.log(LogType.StdOut, this, "Adding user: " + u.getName()); //$NON-NLS-1$
+				progressIndicator.setValv(0, users.size() - 1, ij);
 			}
 			if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
 				Protocol.save();
