@@ -383,6 +383,8 @@ public class Protocol {
 			c.stop();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch(NullPointerException e) {
+			Console.log(LogType.Information, "Protocol", "Already disconnected the client.");
 		} finally {
 			release();
 			c = null;

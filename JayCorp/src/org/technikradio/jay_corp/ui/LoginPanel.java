@@ -206,10 +206,12 @@ public class LoginPanel extends JPanel {
 					userLabel.setVisible(u);
 					passLabel.setVisible(u);
 					copyrightLabel.setVisible(u);
+					ownHandle.repaint();
 				}
 				
 			});
 			mp.setBackground(this.getBackground());
+			mp.setTextColor(Color.WHITE);
 			this.add(mp);
 		}
 		this.addKeyListener(kl);
@@ -290,52 +292,66 @@ public class LoginPanel extends JPanel {
 	}
 
 	private void submit() {
-		try {
-			disableInputs();
-			if (username.getText() != "" //$NON-NLS-1$
-					&& new String(password.getPassword()) != "") //$NON-NLS-1$
-				if (!Protocol.isMaintaining()) {
-					if (Protocol.isLoginFree(username.getText()))
-						if (Protocol.login(username.getText(), new String(password.getPassword())))
-							loadWorkspace();
-						else {
-							showMessage(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
-							Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
-									"Entered wrong info: User: " //$NON-NLS-1$
-											+ username.getText() + " Password: " //$NON-NLS-1$
-											+ new String(password.getPassword()));
+		Thread t = new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					disableInputs();
+					if (!username.getText().replace(" ", "").equals("") //$NON-NLS-1$
+							&& !(new String(password.getPassword()).replace(" ", "").equals(""))) //$NON-NLS-1$
+						if (!Protocol.isMaintaining()) {
+							if (Protocol.isLoginFree(username.getText()))
+								if (Protocol.login(username.getText(), new String(password.getPassword())))
+									loadWorkspace();
+								else {
+									showMessage(parent, Strings.getString("LoginPanel.IncorrectLogin")); //$NON-NLS-1$
+									Console.log(LogType.Information, "LoginPanel", //$NON-NLS-1$
+											"Entered wrong info: User: " //$NON-NLS-1$
+													+ username.getText() + " Password: " //$NON-NLS-1$
+													+ new String(password.getPassword()));
+									didEntered = false;
+									reenable();
+									return;
+								}
+							else {
+								didEntered = false;
+								reenable();
+								showMessage(parent,
+										"Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
+								return;
+							}
+						} else {
 							didEntered = false;
 							reenable();
+							showMessage(parent,
+									"Der Server ist zur Zeit ausgelastet.\nBitte versuchen Sie es später erneut."); //$NON-NLS-1$
 							return;
 						}
 					else {
 						didEntered = false;
 						reenable();
-						showMessage(parent,
-								"Dieser Benutzer ist bereits angemeldet.\n\nSollten Sie nicht angemeldet sein, warten Sie\nbitte in etwa 5 Minuten und versuchen Sie\nes dann erneut."); //$NON-NLS-1$
+						showMessage(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
 						return;
 					}
-				} else {
-					didEntered = false;
-					reenable();
-					showMessage(parent,
-							"Der Server ist zur Zeit ausgelastet.\nBitte versuchen Sie es später erneut."); //$NON-NLS-1$
-					return;
+					didEntered = true;
+				} catch (HeadlessException e1) {
+					e1.printStackTrace();
+					Application.crash(e1);
 				}
-			else {
-				didEntered = false;
-				reenable();
-				showMessage(parent, Strings.getString("LoginPanel.PleaseEnterLogin")); //$NON-NLS-1$
-				return;
-			}
-			didEntered = true;
-		} catch (HeadlessException e1) {
-			e1.printStackTrace();
-			Application.crash(e1);
-		}
+			}});
+		t.setName("LOGIN-VALIDATOR-THREAD");
+		t.start();
 	}
 
 	public void setParent(JFrame p) {
 		this.parent = p;
+	}
+	
+	@Override
+	public void setBackground(Color cr){
+		super.setBackground(cr);
+		if(mp != null)
+			mp.setBackground(cr);
 	}
 }

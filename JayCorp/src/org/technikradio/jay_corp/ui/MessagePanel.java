@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.technikradio.jay_corp.ui;
 
+import java.awt.Color;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,26 +46,25 @@ import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
 
 /**
- * @author leondietrich
- * This class is designed to show message panels.
+ * @author leondietrich This class is designed to show message panels.
  */
 public class MessagePanel extends JPanel {
-	
+
 	private MessageManager mm;
 	private JLabel messageLabel;
 	private JButton okButton;
 	private boolean pressed = false;
-	
+
 	private static final long serialVersionUID = -9213215249506895496L;
 
-		public MessagePanel() {
+	public MessagePanel() {
 		super();
 		setup();
 	}
 
 	public MessagePanel(LayoutManager layout) {
 		super(layout);
-setup();
+		setup();
 	}
 
 	public MessagePanel(boolean isDoubleBuffered) {
@@ -76,25 +76,26 @@ setup();
 		super(layout, isDoubleBuffered);
 		setup();
 	}
-	
-	private void setup(){
+
+	private void setup() {
 		this.setVisible(false);
 		this.setLayout(null);
 		messageLabel = new JLabel();
 		okButton = new JButton();
-		okButton.addActionListener(new ActionListener(){
+		okButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pressed = true;
-			}});
+			}
+		});
 		okButton.setText("OK");
 		this.add(messageLabel);
 		this.add(okButton);
 	}
-	
-	private String getEscapedString(String msg){
-		if(!msg.contains("\n"))
+
+	private String getEscapedString(String msg) {
+		if (!msg.contains("\n"))
 			return msg;
 		return "<html>" + msg.replace("\n", "<br/>") + "</html>";
 	}
@@ -107,22 +108,23 @@ setup();
 	}
 
 	/**
-	 * @param messageManager the messageManager to set
+	 * @param messageManager
+	 *            the messageManager to set
 	 */
 	public void setMessageManager(MessageManager messageManager) {
 		this.mm = messageManager;
 	}
-	
-	public void message(String message){
+
+	public void message(String message) {
 		messageLabel.setText(getEscapedString(message));
 		pressed = false;
-		if(mm != null){
+		if (mm != null) {
 			mm.wrap();
 		}
 		this.setVisible(true);
 		int oldPrio = Thread.currentThread().getPriority();
 		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-		while(!pressed){
+		while (!pressed) {
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
@@ -132,9 +134,13 @@ setup();
 		}
 		Thread.currentThread().setPriority(oldPrio);
 		this.setVisible(false);
-		if(mm != null){
+		if (mm != null) {
 			mm.unwrap();
 		}
+	}
+	
+	public void setTextColor(Color cr){
+		messageLabel.setForeground(cr);
 	}
 
 	@Override
@@ -143,9 +149,9 @@ setup();
 		messageLabel.setBounds(5, 5, width - 10, height - 45);
 		okButton.setBounds(width - 55, height - 35, 50, 30);
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return "MessagePanel";
 	}
 
