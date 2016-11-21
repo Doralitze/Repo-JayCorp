@@ -85,6 +85,7 @@ public class Server {
 								System.out.println("stop		shut the sever down");
 								System.out.println("list		displays the current number of logged in useres");
 								System.out.println("save		manually save the database");
+								System.out.println("free    get the amount of aviable memory.");
 								System.out.println("addUser		this will open a dialoug to add a user");
 								System.out
 										.println("listUsers		this will list the registered users and their selections");

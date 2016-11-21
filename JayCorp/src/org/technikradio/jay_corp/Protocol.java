@@ -125,6 +125,7 @@ public class Protocol {
 		if (result[0].equals("false")) { //$NON-NLS-1$
 			throw new PermissionDeninedException();
 		} else {
+			try {
 			u.setName(result[1]);
 			u.setPassword(Base64Coding.decode(result[2]));
 			u.setWorkAge(Integer.parseInt(result[3]));
@@ -136,7 +137,15 @@ public class Protocol {
 						"The server uses an outdated protocol and didn´t transferred the username..."); //$NON-NLS-1$
 				u.setUsername("Username not given by server"); //$NON-NLS-1$
 			}
-		}
+		} catch (Exception e2) {
+			Console.log(LogType.Error, "ProtocolHandler", "An exception occured inside the user fetching:");
+			e2.getMessage();
+			e2.printStackTrace();
+			System.out.println("Results:");
+			for(int i = 0; i < result.length; i++){
+				System.out.println("[" + Integer.toString(i) + "] " + result[i]);
+			}
+		}}
 		return u;
 	}
 
