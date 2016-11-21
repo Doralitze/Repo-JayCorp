@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 /**
- * 
+ *
  */
 package org.technikradio.jay_corp.ui;
 
@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.technikradio.universal_tools.Console;
 import org.technikradio.universal_tools.Console.LogType;
@@ -80,7 +81,7 @@ public class MessagePanel extends JPanel {
 	private void setup() {
 		this.setVisible(false);
 		this.setLayout(null);
-		messageLabel = new JLabel();
+		messageLabel = new JLabel("", SwingConstants.CENTER);
 		okButton = new JButton();
 		okButton.addActionListener(new ActionListener() {
 
@@ -138,7 +139,7 @@ public class MessagePanel extends JPanel {
 			mm.unwrap();
 		}
 	}
-	
+
 	public void setTextColor(Color cr){
 		messageLabel.setForeground(cr);
 	}
@@ -146,8 +147,8 @@ public class MessagePanel extends JPanel {
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
-		messageLabel.setBounds(5, 5, width - 10, height - 45);
-		okButton.setBounds(width - 55, height - 35, 50, 30);
+		messageLabel.setBounds(5, 5, width - 10, height - 60);
+		okButton.setBounds(width - 155, height - 50, 150, 30);
 	}
 
 	@Override

@@ -173,6 +173,16 @@ public class Server {
 							case "getID":
 								System.out.println(Data.getUser(line.split(" ")[1]).getID());
 								break;
+							case "free":
+								int mb = 1024 * 1024;
+								Runtime instance = Runtime.getRuntime();
+								System.out.println("***** Heap utilization statistics [MB] *****\n");
+								System.out.println("Total Memory: " + instance.totalMemory() / mb);
+								System.out.println("Free Memory : " + instance.freeMemory() / mb);
+								System.out.println("Used Memory : "
+											+ (instance.totalMemory() - instance.freeMemory()) / mb);
+								System.out.println("Max Memory  : " + instance.maxMemory() / mb);
+								break;
 							case "getDBDump":
 								try {
 									DayTable dt = Data.getUser(Integer.parseInt(line.split(" ")[1])).getSelectedDays();
@@ -227,7 +237,7 @@ case "isDBUpdateRunning":
 							default:
 								Console.log(LogType.Error, this, "Unknown command: " + command);
 							}
-							
+
 						} catch (Exception e) {
 							Console.log(LogType.Warning, this, "An error occured inside the command:");
 							e.printStackTrace();
@@ -303,7 +313,7 @@ case "isDBUpdateRunning":
 				}
 		}
 	}
-	
+
 	public static boolean usersConnected(){
 		if(clients.size() == 0)
 			return false;

@@ -85,6 +85,8 @@
             </manifest>
             <fileset dir="${dir.binjc}"/>
         </jar>
+        <copy file="${dir.buildfile}/README.md" todir="${dir.jcjarfile}" />
+        <copy file="${dir.buildfile}/LICENSE.md" todir="${dir.jcjarfile}" />
         <copy file="${dir.buildfile}/JayCorp/lib/Utils.jar" todir="${dir.jcjarfile}/JayCorp_lib"/>
         <copy file="${dir.buildfile}/JayCorp/lib/User.jar" todir="${dir.jcjarfile}/JayCorp_lib"/>
         <copy file="${dir.buildfile}/buildtools/JayCorp.exe" todir="${dir.jcjarfile}"/>
@@ -115,10 +117,12 @@
         </jar>
         <!-- <delete dir="${dir.sejarfile}/Server_lib"/> -->
         <mkdir dir="${dir.sejarfile}/Server_lib"/>
-	<copy file="${dir.buildfile}/buildtools/start-server.bash" todir="${dir.sejarfile}" />
-	<copy file="${dir.buildfile}/buildtools/setup-server.sh" todir="${dir.sejarfile}" />
-	<chmod file="${dir.sejarfile}/start-server.bash" perm="ugo+rx" />
-	<chmod file="${dir.sejarfile}/setup-server.sh" perm="ugo+rx" />
+        <copy file="${dir.buildfile}/README.md" todir="${dir.sejarfile}" />
+        <copy file="${dir.buildfile}/LICENSE.md" todir="${dir.sejarfile}" />
+        <copy file="${dir.buildfile}/buildtools/start-server.bash" todir="${dir.sejarfile}" />
+        <copy file="${dir.buildfile}/buildtools/setup-server.sh" todir="${dir.sejarfile}" />
+        <chmod file="${dir.sejarfile}/start-server.bash" perm="ugo+rx" />
+        <chmod file="${dir.sejarfile}/setup-server.sh" perm="ugo+rx" />
         <copy file="${dir.buildfile}/Server/lib/Utils.jar" todir="${dir.sejarfile}/Server_lib"/>
         <copy file="${dir.buildfile}/Server/src/org/technikradio/JayCorp/server/settings.properties" todir="${dir.sejarfile}"/>
     </target>

@@ -104,7 +104,7 @@ public class AlternateCSVImporter {
 		try {
 			fis = new FileInputStream(workFile);
 			in = new DataInputStream(fis);
-			br = new BufferedReader(new InputStreamReader(in));
+			br = new BufferedReader(new InputStreamReader(in, Settings.getString("Importing.FileEncoding")));
 			String currentLine = br.readLine();
 			int i = 0;
 			if (Boolean.parseBoolean(Settings.getString("forceSpecificRT"))) //$NON-NLS-1$

@@ -79,7 +79,7 @@ public class LoginPanel extends JPanel {
 	}
 
 	private void setup() {
-		
+
 		KeyListener kl = new KeyListener(){
 
 			@Override
@@ -94,7 +94,7 @@ public class LoginPanel extends JPanel {
 
 			@Override
 			public void keyReleased(KeyEvent e) {}};
-		
+
 		lookyLookyThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -152,7 +152,7 @@ public class LoginPanel extends JPanel {
 		this.passLabel.setForeground(Color.WHITE);
 		this.add(passLabel);
 		this.submitButton = new JButton(Strings.getString("LoginPanel.Submit")); //$NON-NLS-1$
-		this.submitButton.setBounds(390, 150, 100, 30);
+		this.submitButton.setBounds(340, 145, 150, 30);
 		this.submitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -161,7 +161,7 @@ public class LoginPanel extends JPanel {
 		});
 		this.add(submitButton);
 		this.abortButton = new JButton(Strings.getString("LoginPanel.Abort")); //$NON-NLS-1$
-		this.abortButton.setBounds(280, 150, 100, 30);
+		this.abortButton.setBounds(180, 145, 150, 30);
 		this.abortButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -182,7 +182,7 @@ public class LoginPanel extends JPanel {
 			}
 		});
 		this.add(abortButton);
-		
+
 		{
 			mp = new MessagePanel();
 			mp.setBounds(0, 0, this.getWidth(), this.getHeight());
@@ -197,7 +197,7 @@ public class LoginPanel extends JPanel {
 				public void unwrap() {
 					doit(true);
 				}
-				
+
 				private void doit(boolean u){
 					username.setVisible(u);
 					password.setVisible(u);
@@ -208,14 +208,14 @@ public class LoginPanel extends JPanel {
 					copyrightLabel.setVisible(u);
 					ownHandle.repaint();
 				}
-				
+
 			});
 			mp.setBackground(this.getBackground());
 			mp.setTextColor(Color.WHITE);
 			this.add(mp);
 		}
 		this.addKeyListener(kl);
-		
+
 		lookyLookyThread.start();
 		redrawThread.start();
 		this.repaint();
@@ -283,11 +283,11 @@ public class LoginPanel extends JPanel {
 		mst.setName("CageThread: MessageStreamHandler"); //$NON-NLS-1$
 		mst.start();
 	}
-	
+
 	private void showMessage(JFrame potentialParent, String message){
 		if(Boolean.parseBoolean(Settings.getString("ShowExternalWarnings")))
 			JOptionPane.showMessageDialog(potentialParent, message);
-		else 
+		else
 			mp.message(message);
 	}
 
@@ -347,7 +347,7 @@ public class LoginPanel extends JPanel {
 	public void setParent(JFrame p) {
 		this.parent = p;
 	}
-	
+
 	@Override
 	public void setBackground(Color cr){
 		super.setBackground(cr);
