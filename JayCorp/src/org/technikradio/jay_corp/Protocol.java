@@ -47,9 +47,7 @@ public class Protocol {
 			@Override
 			public void run() {
 				while (!keepAliveThread.isInterrupted() && c != null) {
-					block(true);
-					c.transmit("keepAlive");
-					release();
+					tick();
 					try {
 						Thread.sleep(30000);
 					} catch (InterruptedException e) {
@@ -62,6 +60,19 @@ public class Protocol {
 		keepAliveThread.setName("KeepAliveThread");
 		keepAliveThread.setPriority(2);
 		keepAliveThread.start();
+	}
+	
+	private static void tick(){
+		try {
+			block(true);
+			c.transmit("keepAlive");
+		} catch (Exception e) {
+			Console.log(LogType.Error, "ProtocolHandler", "Something went wrong doing ticking: " + e.getLocalizedMessage());
+			e.printStackTrace();
+		} finally {
+			release();
+		}
+		
 	}
 
 	private static String[] decodeAnswer(String answer) {
@@ -311,6 +322,7 @@ public class Protocol {
 				return false;
 		} catch (IOException e) {
 			release();
+			tick();
 			e.printStackTrace();
 			return false;
 		}
