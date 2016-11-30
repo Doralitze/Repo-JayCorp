@@ -132,7 +132,7 @@
 
     <!-- All targets related to installers, packages, tests and checksums -->
     <target name="installers" depends="all">
-      <zip destfile="${dir.installers}/JayCorp.zip" basedir="${dir.buildfile}/JayCorp"/>
-      <zip destfile="${dir.installers}/Server.zip" basedir="${dir.buildfile}/Server"/>
+      <zip destfile="${dir.installers}/JayCorp.zip" basedir="${dir.jcjarfile}"/>
+      <zip destfile="${dir.installers}/Server.zip" basedir="${dir.sejarfile}"/>
     </target>
 </project>
