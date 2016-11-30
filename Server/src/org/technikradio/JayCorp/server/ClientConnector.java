@@ -631,7 +631,7 @@ public class ClientConnector extends Thread {
 		try {
 			Console.log(LogType.StdOut, this, "Client incomming"); //$NON-NLS-1$
 			in = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
-			out = new PrintStream(client.getOutputStream(), "UTF-8");
+			out = new PrintStream(client.getOutputStream(), true, "UTF-8");
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
 					try {
