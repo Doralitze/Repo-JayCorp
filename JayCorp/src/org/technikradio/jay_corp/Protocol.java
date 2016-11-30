@@ -61,7 +61,7 @@ public class Protocol {
 		keepAliveThread.setPriority(2);
 		keepAliveThread.start();
 	}
-	
+
 	private static void tick(){
 		try {
 			block(true);
@@ -72,7 +72,7 @@ public class Protocol {
 		} finally {
 			release();
 		}
-		
+
 	}
 
 	private static String[] decodeAnswer(String answer) {
@@ -87,7 +87,7 @@ public class Protocol {
 		int wait = 0;
 		while (busy) {
 			wait++;
-			if (wait == 5000)
+			if (wait == 15000)
 				throw new RuntimeException("Waiting too long. Assuming network crash");
 			try {
 				Thread.sleep(1);
@@ -131,7 +131,8 @@ public class Protocol {
 		c.transmit("getUser ".concat(Integer.toString(ID))); //$NON-NLS-1$
 		String[] result = decodeAnswer(c.receive());
 		release();
-		if (result[0].equals("$NOUSER§")) //$NON-NLS-1$
+		//if (result[0].equals("$NOUSER§")) //$NON-NLS-1$
+		if (result[0].startsWith("$NOUSER")) //$NON-NLS-1$
 			return null;
 		if (result[0].equals("false")) { //$NON-NLS-1$
 			throw new PermissionDeninedException();
@@ -157,6 +158,7 @@ public class Protocol {
 				System.out.println("[" + Integer.toString(i) + "] " + result[i]);
 			}
 		}}
+
 		return u;
 	}
 

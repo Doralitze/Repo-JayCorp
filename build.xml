@@ -55,6 +55,7 @@
         optimize="on"
         fork="yes"
         includeAntRuntime="no"
+        encoding="UTF-8"
         includeJavaRuntime="yes" />
       <jar destfile="${dir.jcjarfile}/JayCorp_lib/libjdp.jar">
         <fileset dir="${dir.binjdp}"/>
@@ -70,6 +71,7 @@
         optimize="on"
         fork="yes"
         includeAntRuntime="no"
+        encoding="UTF-8"
         includeJavaRuntime="yes" />
       <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/settings.properties"
         todir="${dir.binjc}/org/technikradio/jay_corp/ui"/>
@@ -102,6 +104,7 @@
         optimize="on"
         fork="yes"
         includeAntRuntime="no"
+        encoding="UTF-8"
         includeJavaRuntime="yes" />
       <copy file="${dir.buildfile}/Server/src/org/technikradio/JayCorp/server/settings.properties"
         todir="${dir.binse}/org/technikradio/JayCorp/server" />

@@ -43,8 +43,8 @@ public class Connection {
 									+ SERVER_ADDRESS + ":" + SERVER_PORT);
 			socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
 			br = new BufferedReader(new InputStreamReader(
-					socket.getInputStream()));
-			ps = new PrintStream(socket.getOutputStream());
+					socket.getInputStream(), "UTF-8"));
+			ps = new PrintStream(socket.getOutputStream(), "UTF-8");
 			connectionEstablished = true;
 		} catch (IOException e) {
 			Console.log(LogType.Error, this, e.toString());

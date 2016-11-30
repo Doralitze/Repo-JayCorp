@@ -122,7 +122,10 @@ public class DataDownloadProcessor {
 			progressIndicator.setVisible(true);
 			int maxUsers = Protocol.getIDCount();
 			f.append(Strings.getString("DataDownloadProcessor.FileInitial") + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			for (int i = 1; i < maxUsers + 1; i++) {
+			int ids[] = Protocol.getUsers();
+			for(int j = 0; j < ids.length; j++) {
+				int i = ids[j];
+			//for (int i = 1; i < maxUsers + 1; i++) {
 				progressIndicator.setValv(0, maxUsers * 3, i * 3);
 				User selected = Protocol.getUser(i);
 				if (selected != null) {

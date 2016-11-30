@@ -274,7 +274,7 @@ public class ClientConnector extends Thread {
 				 * "Root has normal state @setDay::updateDC"); needtoFixDB =
 				 * true; case allowed: ss = Status.normal; break; case selected:
 				 * ss = Status.allowed; break; }
-				 * 
+				 *
 				 * Data.getDefaultConfiguration().getDays().remove(getCompared(
 				 * pd)); Data.getDefaultConfiguration().getDays().put(pd, ss); }
 				 */
@@ -542,7 +542,7 @@ public class ClientConnector extends Thread {
 					 * "Root has normal state @setRange::updateDC"); needtoFixDB
 					 * = true; case allowed: ss = Status.normal; break; case
 					 * selected: ss = Status.allowed; break; }
-					 * 
+					 *
 					 * Data.getDefaultConfiguration().getDays().remove(
 					 * getCompared(pd));
 					 * Data.getDefaultConfiguration().getDays().put(pd, ss); }
@@ -630,8 +630,8 @@ public class ClientConnector extends Thread {
 	public void run() {
 		try {
 			Console.log(LogType.StdOut, this, "Client incomming"); //$NON-NLS-1$
-			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			out = new PrintStream(client.getOutputStream());
+			in = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
+			out = new PrintStream(client.getOutputStream(), "UTF-8");
 			while (!this.isInterrupted()) {
 				if (!processRequest(in.readLine())) {
 					try {
@@ -689,7 +689,7 @@ public class ClientConnector extends Thread {
 						messageStream.throwMessage("changePassword");
 					}
 				} catch (InterruptedException e) {
-					
+
 				} catch(Exception e) {
 					Console.log(LogType.Warning, "MessageStreamPoster", "The message stream poster crashed.");
 				}
@@ -724,7 +724,7 @@ public class ClientConnector extends Thread {
 
 	/**
 	 * This medthod updates all dates from non root users
-	 * 
+	 *
 	 * @param root
 	 *            The root user
 	 */

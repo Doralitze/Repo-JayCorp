@@ -224,7 +224,7 @@ public class LoginPanel extends JPanel {
 	private void disableInputs() {
 		this.username.setEnabled(false);
 		this.password.setEnabled(false);
-		this.abortButton.setEnabled(false);
+		//this.abortButton.setEnabled(false);
 		this.submitButton.setEnabled(false);
 		this.copyrightLabel.setText(Strings.getString("LoginPanel.LoadDataInfo")); //$NON-NLS-1$
 	}
