@@ -641,8 +641,20 @@ public class SettingsFrame extends JDialog {
 						}
 					}
 					e.setVisible(false);
+					e.dispose();
 					e = null;
 					frame = new UserWatchFrame(tableNames, data, ownHandle);
+					frame.addDataChangedNotifier(new DataChangedNotifier(){
+
+						@Override
+						public void correctData(ArrayList<String[]> data) {
+							for(String[] row : data){
+								System.out.print("Changed:");
+								for(String s : row){
+									System.out.print(" " + s);
+								} System.out.println();
+							}
+						}});
 					frame.setVisible(true);
 				}
 			});
