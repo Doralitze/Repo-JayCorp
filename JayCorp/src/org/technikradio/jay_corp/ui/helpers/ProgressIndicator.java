@@ -147,5 +147,12 @@ public class ProgressIndicator extends JDialog {
 		posy = 0 + s.top + (height / 2) + (this.getHeight() * (layer - 1));
 		super.setBounds(new Rectangle(posx, posy, this.getWidth(), this.getHeight()));
 	}
+	
+	/**
+	 * Use this method to make the progress bar an indeterminate one.
+	 */
+	public void enterIndeterminateMode(){
+		pb.setIndeterminate(true);
+	}
 
 }
