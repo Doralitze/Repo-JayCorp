@@ -266,36 +266,7 @@ public class SettingsFrame extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					try {
-						// delete database...
-						int result = JOptionPane.showConfirmDialog(null,
-								Strings.getString("SettingsFrame.ResetDatabaseQuestion"), //$NON-NLS-1$
-								Strings.getString("SettingsFrame.ResetDatabaseQuestionHeader"), //$NON-NLS-1$
-								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-						if (result == JOptionPane.YES_OPTION)
-							if (Protocol.getCurrentUser().getID() == 0)
-								if (Protocol.destroyDatabase()) {
-									JOptionPane.showMessageDialog(null,
-											Strings.getString("SettingsFrame.DatabaseSuccessfulDelete"), //$NON-NLS-1$
-											Strings.getString("SettingsFrame.DatabaseSuccessfulDeleteHeader"), //$NON-NLS-1$
-											JOptionPane.INFORMATION_MESSAGE);
-									Protocol.disconnect();
-									JayCorp.exit(0, true);
-								} else
-									JOptionPane.showMessageDialog(null,
-											Strings.getString("SettingsFrame.DatabaseResetFail"), //$NON-NLS-1$
-											Strings.getString("SettingsFrame.DatabaseResetFailHeader"), //$NON-NLS-1$
-											JOptionPane.ERROR_MESSAGE);
-							else
-								JOptionPane.showMessageDialog(null,
-										Strings.getString("SettingsFrame.DatabaseResetPermissionDenined"), //$NON-NLS-1$
-										Strings.getString("SettingsFrame.DatabaseResetPermissionDeninedHeader"), //$NON-NLS-1$
-										JOptionPane.ERROR_MESSAGE);
-					} catch (HeadlessException e1) {
-						e1.printStackTrace();
-						Application.crash(e1);
-					}
-
+					destroyDB();
 				}
 			});
 			pages[0].add(Box.createRigidArea(new Dimension(15, 15)));
@@ -641,8 +612,20 @@ public class SettingsFrame extends JDialog {
 						}
 					}
 					e.setVisible(false);
+					e.dispose();
 					e = null;
 					frame = new UserWatchFrame(tableNames, data, ownHandle);
+					frame.addDataChangedNotifier(new DataChangedNotifier(){
+
+						@Override
+						public void correctData(ArrayList<String[]> data) {
+							for(String[] row : data){
+								System.out.print("Changed:");
+								for(String s : row){
+									System.out.print(" " + s);
+								} System.out.println();
+							}
+						}});
 					frame.setVisible(true);
 				}
 			});
@@ -693,5 +676,55 @@ public class SettingsFrame extends JDialog {
 			Console.log(LogType.Error, this, "An unknown exception occured while loading the data: "); //$NON-NLS-1$
 			e.printStackTrace();
 		}
+	}
+	
+	private void destroyDB(){
+		Thread t = new Thread(new Runnable(){
+			
+			@Override
+			public void run() {
+				ownHandle.setEnabled(false);
+				ProgressIndicator p = null;
+				
+				try {
+					// Show working hint
+					p = new ProgressIndicator(ownHandle);
+					p.setInfoLabelText("Lösche Datenbak. Bitte Warten.");
+					p.enterIndeterminateMode();
+					// delete database...
+					int result = JOptionPane.showConfirmDialog(null,
+							Strings.getString("SettingsFrame.ResetDatabaseQuestion"), //$NON-NLS-1$
+							Strings.getString("SettingsFrame.ResetDatabaseQuestionHeader"), //$NON-NLS-1$
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if (result == JOptionPane.YES_OPTION)
+						if (Protocol.getCurrentUser().getID() == 0)
+							if (Protocol.destroyDatabase()) {
+								JOptionPane.showMessageDialog(null,
+										Strings.getString("SettingsFrame.DatabaseSuccessfulDelete"), //$NON-NLS-1$
+										Strings.getString("SettingsFrame.DatabaseSuccessfulDeleteHeader"), //$NON-NLS-1$
+										JOptionPane.INFORMATION_MESSAGE);
+								Protocol.disconnect();
+								JayCorp.exit(0, true);
+							} else
+								JOptionPane.showMessageDialog(null,
+										Strings.getString("SettingsFrame.DatabaseResetFail"), //$NON-NLS-1$
+										Strings.getString("SettingsFrame.DatabaseResetFailHeader"), //$NON-NLS-1$
+										JOptionPane.ERROR_MESSAGE);
+						else
+							JOptionPane.showMessageDialog(null,
+									Strings.getString("SettingsFrame.DatabaseResetPermissionDenined"), //$NON-NLS-1$
+									Strings.getString("SettingsFrame.DatabaseResetPermissionDeninedHeader"), //$NON-NLS-1$
+									JOptionPane.ERROR_MESSAGE);
+				} catch (HeadlessException e1) {
+					e1.printStackTrace();
+					Application.crash(e1);
+				} finally {
+					ownHandle.setEnabled(true);
+					if(p != null)
+						p.dispose();
+				}
+			}});
+		t.setName("DB_DESTROY_THREAD");
+		t.start();
 	}
 }
