@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package org.technikradio.jay_corp.user;
 
 public class User {
+	private boolean passwordHashed;
 	private int ID;
 	private int workAge;
 	private int extraDays;
@@ -103,5 +104,13 @@ public class User {
 
 	public void setBackup(DayTable backup) {
 		this.backup = backup;
+	}
+
+	public boolean isPasswordHashed() {
+		return this.passwordHashed;
+	}
+
+	public void setPasswordHashed(boolean flag) {
+		this.passwordHashed = flag;
 	}
 }

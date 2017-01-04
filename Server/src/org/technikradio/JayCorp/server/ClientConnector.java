@@ -298,7 +298,8 @@ public class ClientConnector extends Thread {
 					} else
 						newUser.setID(ID);
 					newUser.setName(name);
-					newUser.setPassword(password);
+					//newUser.setPassword(password);
+					Data.setPasswordOfUser(newUser, password);
 					newUser.setWorkAge(workAge);
 					newUser.setUsername(request[5]);
 					newUser.setSelectedDays(Data.getDefaultConfiguration().clone());
@@ -459,7 +460,8 @@ public class ClientConnector extends Thread {
 					break;
 				}
 				u = Data.getUser(reqID);
-				u.setPassword(Base64Coding.decode(request[2]));
+				//u.setPassword(Base64Coding.decode(request[2]));
+				Data.setPasswordOfUser(u, Base64Coding.decode(request[2]));
 				out.println("true"); //$NON-NLS-1$
 				out.flush();
 				break;

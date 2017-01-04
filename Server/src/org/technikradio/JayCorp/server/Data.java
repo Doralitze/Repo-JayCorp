@@ -382,6 +382,12 @@ public class Data {
 						User u = users.next();
 						if(u == null)
 							break;
+						if(!u.isPasswordHashed() && !u.getPassword().equals("password")) { //TODO change to dynamic initial password
+							u.setPasswordHashed(true);
+							u.setPassword(encrypt(u.getPassword()));
+							if(crt)
+								Console.log(LogType.Information, "Database", "Hashing password of user " + u.getID());
+						}
 						DayTable dt = u.getSelectedDays();
 						if(dt.getDays().size() > 365){
 							u.setSelectedDays(sortedArrayToList(listToSortedArray(dt), dt.getYear()));
@@ -456,7 +462,37 @@ public class Data {
 					dt.getDays().put(pd, sar[m][t]);
 				}
 			}
-		
 		return dt;
+	}
+
+	public static boolean doesPasswordMatch(int ID, String password) {
+		try {
+			User um = getUser(ID);
+			if(!um.isPasswordHashed()){
+				if(um.getPassword().equals(password))
+					return true;
+			} else {
+				if(um.getPassword().equals(encrypt(password)))
+					return true;
+				}
+		} catch (NullPointerException e) {
+			return false;
+		}
+		return false;
+	}
+
+	public static void setPasswordOfUser(User u, String newPassword) {
+		if(!newPassword.equals("password")) { //TODO read real initial password
+			u.setPasswordHashed(false);
+			u.setPassword(encrypt(newPassword));
+			u.setPasswordHashed(true);
+		} else {
+			u.setPassword(newPassword);
+			u.setPasswordHashed(false);
+		}
+	}
+
+	private static String encrypt(String password) {
+		return password; //TODO change
 	}
 }
