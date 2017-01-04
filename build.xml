@@ -94,6 +94,7 @@
         <copy file="${dir.buildfile}/buildtools/JayCorp.exe" todir="${dir.jcjarfile}"/>
         <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/settings.properties" todir="${dir.jcjarfile}"/>
         <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang"/>
+	<copy file="${dir.buildfile}/JayCorp/extra/LANG/en_US.lang" todir="${dir.jcjarfile}/Lang" />
     </target>
 
     <!-- All targets for the server side -->
