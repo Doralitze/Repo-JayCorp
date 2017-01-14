@@ -57,7 +57,12 @@ Like the name says this target is desired to install the server application to
 your machine. Note that running this target requires root privileges (That means
 admin rights if you're going to do this on MSWindows). By default this target
 will install the client to /usr/bin/jcserver and you have to add the executable
-inside that folder to your path in a manual manner.
+inside that folder to your path in a manual manner. Please do not use the setup-
+server script. It is crappy and will be removed in the near future. You also
+need to know that Ant can't set up a new user for you. You have to create the
+user desired to run the server software afterwards manually and add a startup
+entry to your systems auto start if desired. Note that it is generally a bad
+idea to run the server as root due to every software being exploitable.
 
 ###installers
 This target creates zipped distributions of the software. This is useful if you
@@ -67,7 +72,23 @@ Poudriere instead of this method.
 
 ###all
 This target compiles the entire software tree but does not install anything.
-This especially usefull for testing changes and development.
+This especially useful for testing changes and development.
+
+## Ant properties
+Ant properties can be over written by passing a following argument to Ant before
+the desired target: -D<property>=<value>
+The following options may be relevant to you:
+ * installprefix
+   The directory prefix to install the binaries in. This property defaults to
+   /usr/bin. If you're using MS Windows you should over write this to
+   C://Program Files/ ore something similar.
+ * logdirprefix
+   The directory prefix where the log files should go. This value defaults to
+   /var/log but may be changed to fit your needs. Keep in mind that you need to
+   change the server startup script as well if you're going to change this.
+ * dbdirprefix
+   This property defines where the server's database and their backups should
+   be stored and defaults to /var/jc
 
 ## Documentation
 

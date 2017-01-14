@@ -7,4 +7,4 @@ mv -f $DB_FOLDER"database_backup2.xml" $DB_FOLDER"database_backup3.xml"
 mv -f $DB_FOLDER"database_backup1.xml" $DB_FOLDER"database_backup2.xml"
 mv -f $DB_FOLDER"database_backup.xml" $DB_FOLDER"database_backup1.xml"
 cp $DB_LOCATION $DB_FOLDER"database_backup.xml"
-java -jar Server.jar $DB_LOCATION"database.xml" > /var/log/jc/latest.log
+java -jar Server.jar $DB_LOCATION"database.xml" > /var/log/jcserver/latest.log
