@@ -147,7 +147,7 @@
       </copy>
     </target>
 
-    <target name="install_client" depends="create_se_jar">
+    <target name="install_server" depends="create_se_jar">
       <copy todir="${installprefix}/jcserver">
         <fileset dir="${dir.sejarfile}" includes="**"/>
       </copy>
