@@ -3,6 +3,10 @@
 <project default="all" name="Create Runnable Jar for Project JayCorp with libraries in sub-folder">
     <property name="dir.workspace" value="."/>
     <property name="rsc.javac" value="/usr/bin/ecj" />
+    <!-- The following property defines where to install the software -->
+    <property name="installprefix" value="/usr/bin" />
+    <property name="logdirprefix" value="/var/log" />
+    <property name="dbdirprefix" value="/var/jc" />
 
     <property name="dir.buildfile" value="."/>
     <property name="dir.export" value="${dir.workspace}/exports"/>
@@ -94,7 +98,7 @@
         <copy file="${dir.buildfile}/buildtools/JayCorp.exe" todir="${dir.jcjarfile}"/>
         <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/settings.properties" todir="${dir.jcjarfile}"/>
         <copy file="${dir.buildfile}/JayCorp/src/org/technikradio/jay_corp/ui/strings.properties" tofile="${dir.jcjarfile}/Lang/de_DE.lang"/>
-	<copy file="${dir.buildfile}/JayCorp/extra/LANG/en_US.lang" todir="${dir.jcjarfile}/Lang" />
+        <copy file="${dir.buildfile}/JayCorp/extra/LANG/en_US.lang" todir="${dir.jcjarfile}/Lang" />
     </target>
 
     <!-- All targets for the server side -->
@@ -135,5 +139,21 @@
     <target name="installers" depends="all">
       <zip destfile="${dir.installers}/JayCorp.zip" basedir="${dir.jcjarfile}"/>
       <zip destfile="${dir.installers}/Server.zip" basedir="${dir.sejarfile}"/>
+    </target>
+
+    <target name="install_all" depends="install_client,install_server"/>
+
+    <target name="install_client" depends="create_jc_jar">
+      <copy todir="${installprefix}/jclient">
+        <fileset dir="${dir.jcjarfile}" includes="**"/>
+      </copy>
+    </target>
+
+    <target name="install_server" depends="create_se_jar">
+      <copy todir="${installprefix}/jcserver">
+        <fileset dir="${dir.sejarfile}" includes="**"/>
+      </copy>
+      <mkdir dir="${logdirprefix}/jcserver" />
+      <mkdir dir="${dbdirprefix}" />
     </target>
 </project>
