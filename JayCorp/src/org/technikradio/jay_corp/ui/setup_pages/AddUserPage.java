@@ -22,6 +22,8 @@ import java.awt.LayoutManager;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.JOptionPane;
+import javax.swing.JCheckBox;
 
 import org.technikradio.jay_corp.Protocol;
 import org.technikradio.jay_corp.Settings;
@@ -41,6 +43,7 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 	private final AddUserPage ownHandle = this;
 
 	private JTextArea f;
+	private JCheckBox b;
 	private boolean done;
 
 	public AddUserPage() {
@@ -49,6 +52,9 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 	}
 
 	private void setup() {
+		FlowLayout layout = new FlowLayout();
+		layout.setAlignment(FlowLayout.RIGHT);
+		this.setLayout(layout);
 		f = new JTextArea(26, 40);
 		f.setEditable(false);
 		f.setCursor(null);
@@ -64,6 +70,11 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 				+ Strings.getString("AddUserPage.LabelPart3") //$NON-NLS-1$
 				+ Strings.getString("AddUserPage.LabelPart4")); //$NON-NLS-1$
 		this.add(f);
+		this.b = new JCheckBox("Bereits jetzt Benutzer hinzufügen");
+		this.b.setSelected(true);
+		JPanel p = new JPanel();
+		p.add(b);
+		this.add(p);
 	}
 
 	public AddUserPage(LayoutManager layout) {
@@ -103,7 +114,8 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 
 	@Override
 	public void startTransmission() {
-		new AlternateCSVImporter(ownHandle).upload();
+		if(this.b.isSelected()) try{
+			new AlternateCSVImporter(ownHandle).upload();
 		/*
 		 * Thread t = new Thread(new Runnable() {
 		 * 
@@ -112,11 +124,16 @@ public class AddUserPage extends JPanel implements SetupNotifier, ProcessStartNo
 		 * try { Thread.sleep(50); } catch (InterruptedException e) {
 		 * e.printStackTrace(); Thread.currentThread().interrupt(); } }
 		 */
-		Console.log(LogType.StdOut, this, "resuming process of transmitting data"); //$NON-NLS-1$
-		Protocol.setEditEnableOnServer(false);
-		Protocol.setEditEnabled(false);
-		if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
-			Protocol.save();
+			Console.log(LogType.StdOut, this, "resuming process of transmitting data"); //$NON-NLS-1$
+			Protocol.setEditEnableOnServer(false);
+			Protocol.setEditEnabled(false);
+			if(Boolean.parseBoolean(Settings.getString("PerformDBUpdateAfterUserAdd")))
+				Protocol.save();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Die gewünschten Benutzer konnten nicht hinzugefügt werden:\n" + 
+							e.getLocalizedMessage() + "\n\nBitte fügen Sie diese später über die Einstellungen hinzu.");
+			e.printStackTrace();
+		}
 	}
 
 	@Override

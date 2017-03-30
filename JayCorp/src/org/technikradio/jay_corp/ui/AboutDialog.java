@@ -36,7 +36,7 @@ public class AboutDialog extends JDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1606884573973143322L;
-	private static final String COPYRIGHT_TEXT = "© 2014 - 2015 Leon Christopher Dietrich\n\n"
+	private static final String COPYRIGHT_TEXT = "© 2014 - 2017 Leon Christopher Dietrich\n\n"
 			+ "Entwicklung:  Leon Christopher Dietrich\n" + "Betatester:   Alwin Löffler\n\n"
 			+ "Diese Software wird Ihnen unter den Bedingungen der GPLv3 zur \nVerfügung gestellt.";
 	private final AboutDialog ownHandle = this;

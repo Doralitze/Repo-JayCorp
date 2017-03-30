@@ -551,10 +551,11 @@ public class Calendar extends JComponent implements MouseListener, KeyListener {
 						g.setColor(Color.BLACK);
 						g.drawRoundRect(x, height - 20, 15, 15, 3, 3);
 						x += 18;
-						if (Protocol.getCurrentUser().getID() != 0) {
+						if (Protocol.getCurrentUser().getID() != 0) {/*
 							g.drawString(Strings.getString("Calendar.Messages.InfoAllowed"), x, height - 7);//$NON-NLS-1$
 							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoAllowed")) //$NON-NLS-1$
-									+ 10;
+									+ 10;*/
+							//TODO make it fancy (Settings)
 						} else {
 							g.drawString(Strings.getString("Calendar.Messages.InfoAllowedRoot"), x, height - 7);//$NON-NLS-1$
 							x += g.getFontMetrics().stringWidth(Strings.getString("Calendar.Messages.InfoAllowedRoot")) //$NON-NLS-1$
