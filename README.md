@@ -35,7 +35,7 @@ The following Ant targets may be important to you:
  * installers
  * all
 
-###install_all
+### install_all
 This target will install both the server and the client software to your local
 machine. This is recommended if you're planning to use that machine both for
 hosting the server and administrating it. Note that running this target requires
@@ -44,7 +44,7 @@ You should also be aware of the fact that every install target doesn't create
 symlinks to your path or alters your path variable in any way. That means that
 you have to do that on your own.
 
-###install_client
+### install_client
 This target will only install the client software to your local computer.
 Doing so is recommended if you have a server running somewhere else. Note that
 running this target requires root privileges (That means admin rights if you're
@@ -52,7 +52,7 @@ going to do this on MSWindows). By default this target will install the client
 to /usr/bin/jcclient and you have to add the executable inside that folder to
 your path in a manual manner.
 
-###install_server
+### install_server
 Like the name says this target is desired to install the server application to
 your machine. Note that running this target requires root privileges (That means
 admin rights if you're going to do this on MSWindows). By default this target
@@ -64,13 +64,13 @@ user desired to run the server software afterwards manually and add a startup
 entry to your systems auto start if desired. Note that it is generally a bad
 idea to run the server as root due to every software being exploitable.
 
-###installers
+### installers
 This target creates zipped distributions of the software. This is useful if you
 don't want to install a complete compile environment on every machine you're
 going to install the software on. On FreeBSD it is highly recommended to use
 Poudriere instead of this method.
 
-###all
+### all
 This target compiles the entire software tree but does not install anything.
 This especially useful for testing changes and development.
 
